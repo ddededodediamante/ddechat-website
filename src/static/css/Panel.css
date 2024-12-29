@@ -1,0 +1,103 @@
+.panel-content {
+  padding: 10px;
+  width: 100%;
+  display: flex;
+  gap: 10px;
+  font-size: 20px;
+  flex-direction: column;
+  align-items: start;
+  align-content: start;
+  overflow: auto;
+}
+
+.panel-content p {
+  padding: 0;
+  margin: 0;
+}
+
+.panel-content p.title {
+  display: flex;
+  font-size: 40px;
+  font-weight: 700;
+  align-content: center;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+  gap: 10px;
+}
+
+.panel-content p.title.small {
+  font-size: 30px;
+  gap: 8px;
+}
+
+.panel-content p.title.smaller {
+  font-size: 20px;
+  gap: 6px;
+}
+
+.panel-content p.title img {
+  width: 60px;
+  height: 60px;
+  border-radius: 25%;
+}
+
+.panel-content .alerts-notification {
+  background-color: #333;
+  border-radius: 10px;
+  padding: 10px;
+}
+
+.panel-content .posts-post {
+  background-color: #333;
+  border-radius: 10px;
+  padding: 10px;
+  display: flex;
+  flex-direction: row;
+  align-items: start;
+  gap: 10px;
+  width: 100%;
+}
+
+.panel-content .posts-post.unread {
+  background-color: #444;
+}
+
+.panel-content .posts-post img {
+  align-self: flex-start;
+  border-radius: 25%;
+  width: 50px;
+  height: 50px;
+}
+
+.panel-content .posts-post div {
+  justify-content: left;
+  align-items: start;
+}
+
+.panel-content .posts-post div p {
+  overflow: hidden;
+  word-break: break-all;
+  text-align: left;
+}
+
+.panel-content .posts-post div p.grey {
+  overflow: hidden;
+  word-break: break-all;
+  text-align: left;
+  color: #777;
+  font-size: 15px;
+}
+
+.panel-content .posts-post div div.buttons {
+  margin-top: 5px;
+}
+
+.panel-content .post-page-buttons button {
+  display: flex;
+  flex-direction: row;
+  gap: 10px;
+  justify-content: center;
+  align-items: center;
+  font-weight: 500;
+}

@@ -1,0 +1,101 @@
+.toolbar {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  background-color: #444;
+  padding: 5px;
+  border-radius: 10px;
+  box-sizing: border-box;
+  justify-content: space-between;
+}
+
+.toolbar div.LocalUserTag {
+  display: flex;
+  align-content: center;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+  gap: 5px;
+  padding: 4px;
+  margin: 0;
+  border-radius: 10px;
+  width: 160px;
+}
+
+.toolbar div.LocalUserTag p {
+  width: 100%;
+  text-overflow: ellipsis;
+  overflow: hidden;
+  margin: 0;
+  padding: 0;
+}
+
+.toolbar div.LocalUserTag img {
+  height: 30px;
+  width: 30px;
+  border-radius: 25%;
+  margin: 0;
+  padding: 0;
+}
+
+.toolbar-container {
+  padding: 5px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  gap: 15px;
+}
+
+.toolbar-logo {
+  color: white;
+  text-decoration: none;
+  font-size: 0;
+  height: 60px;
+  width: 60px;
+  margin: 0;
+  padding: 0;
+  margin-bottom: -5px;
+}
+
+.toolbar-logo img {
+  width: 100%;
+  height: 100%;
+}
+
+.toolbar-links {
+  list-style: none;
+  display: flex;
+  flex-direction: inherit;
+  gap: 15px;
+  padding: 0;
+}
+
+.toolbar-links a {
+  position: relative;
+  color: white;
+  text-decoration: none;
+  font-size: 22px;
+  font-weight: 600;
+}
+
+.toolbar-links a::before {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 0;
+  height: 2px;
+  background-color: currentColor;
+  transition: width 0.2s ease, box-shadow 0.2s ease;
+  box-shadow: none;
+}
+
+.toolbar-links a:hover::before {
+  width: 100%;
+  box-shadow: 0px 0px 2px white;
+}
+
+.toolbar-links a i {
+  margin-right: 8px;
+}

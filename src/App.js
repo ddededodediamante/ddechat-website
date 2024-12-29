@@ -1,25 +1,33 @@
-import logo from './logo.svg';
-import './App.css';
+import { Navigate, Route, Routes } from "react-router-dom";
+import Login from "./pages/login";
+import Sign from "./pages/sign";
+import Friends from "./pages/friends.js";
+import Alerts from "./pages/alerts.js";
+import Userpage from "./pages/userpage.js";
+import Settings from "./pages/settings.js";
+import Posts from "./pages/posts.js";
+import Postpage from "./pages/postpage.js";
 
-function App() {
+import './static/css/Panel.css';
+import './static/css/Index.css';
+import './static/css/Login.css';
+import './static/css/Toolbar.css';
+import './static/css/Swal2.css';
+
+export default function App() {
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
+    <>
+      <Routes>
+        <Route path="/" element={<Navigate to='/friends' />} />
+        <Route path="/login" element={<Login />} />
+        <Route path="/sign" element={<Sign />} />
+        <Route path="/friends" element={<Friends />} />
+        <Route path="/alerts" element={<Alerts />} />
+        <Route path="/user" element={<Userpage />} />
+        <Route path="/settings" element={<Settings />} />
+        <Route path="/posts" element={<Posts />} />
+        <Route path="/post" element={<Postpage />} />
+      </Routes>
+    </>
   );
 }
-
-export default App;
