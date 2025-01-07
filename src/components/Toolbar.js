@@ -4,7 +4,7 @@ import config from "../config.json";
 import axios from "axios";
 
 export default function Toolbar() {
-    const [user, setUser] = useState({});
+    const [user, setUser] = useState(null);
 
     useEffect(() => {
         const token = localStorage.getItem('accountToken') ?? '';
@@ -23,6 +23,7 @@ export default function Toolbar() {
                 console.error(error);
             });
     }, []);
+
     return (
         <nav className="toolbar">
             <div className="toolbar-container">
@@ -54,11 +55,13 @@ export default function Toolbar() {
             </div>
 
             <div className="LocalUserTag">
-                {user.avatar && <img
-                    alt=""
-                    src={`${config.apiUrl}/users/user/${user.username}/avatar`}
-                />}
-                <p>{user.username ?? <a href="/login">Login to ddeChat</a>}</p>
+                {user && <>
+                    <img
+                        alt=""
+                        src={`${config.apiUrl}/users/user/${user.username}/avatar`}
+                    />
+                    <p>{user.username ?? <a href="/login">Login to ddeChat</a>}</p>
+                </>}
             </div>
         </nav>
     );

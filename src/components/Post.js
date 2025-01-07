@@ -17,6 +17,7 @@ export default function Post({ data }) {
             }
             <Link to={'/post?id=' + data.id}>
                 <div className="vertical">
+                    {data?.author?.id && <p className="grey">@{data.author.username}</p>}
                     <p style={{ color: "#fff" }}>{data.content ?? 'Missing content'}</p>
                     <div className="horizontal" style={{ gap: '5px' }}>
                         <p className="grey">{data?.likes?.length ?? 0} likes</p>
