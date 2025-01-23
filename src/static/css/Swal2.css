@@ -6,7 +6,7 @@
   font-family: var(--fonts);
   box-sizing: border-box;
   color: white;
-  background-color: #333;
+  background-color: #444;
   border-radius: 10px;
 }
 
@@ -23,8 +23,4 @@
 
 .swal2-confirm {
   background-color: #3366ff;
-}
-
-.swal2-icon-content {
-  font-family: monospace, Arial, Helvetica, sans-serif;
 }

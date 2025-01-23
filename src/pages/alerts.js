@@ -1,17 +1,16 @@
-import axios from 'axios';
-import Toolbar from '../components/Toolbar';
-import Alert from '../components/Alert';
-import { useEffect, useState } from 'react';
-import config from '../config.json';
-import { useNavigate } from 'react-router-dom';
-import Loading from '../components/Loading';
+import axios from "axios";
+import Alert from "../components/Alert";
+import { useEffect, useState } from "react";
+import config from "../config.json";
+import { useNavigate } from "react-router-dom";
+import Loading from "../components/Loading";
 
 export default function Alerts() {
   const navigate = useNavigate();
   const [user, setUser] = useState(null);
 
   useEffect(() => {
-    const token = localStorage.getItem('accountToken');
+    const token = localStorage.getItem("accountToken");
     if (token) {
       axios
         .get(`${config.apiUrl}/users/me`, {
@@ -23,7 +22,7 @@ export default function Alerts() {
           setUser(data.data);
 
           setTimeout(() => {
-            const token = localStorage.getItem('accountToken');
+            const token = localStorage.getItem("accountToken");
             if (token) {
               axios
                 .patch(
@@ -42,35 +41,32 @@ export default function Alerts() {
           }, 1000);
         })
         .catch((error) => {
-          console.error('Error fetching user data:', error);
-          navigate('/login');
+          console.error("Error fetching user data:", error);
+          navigate("/login");
         });
     } else {
-      navigate('/login');
+      navigate("/login");
     }
   }, [navigate]);
 
   return (
-    <div className="horizontal">
-      <Toolbar />
-      <div className="panel-content">
-        <p className="title">
-          <i className="fa-solid fa-bell" />
-          Alerts
-        </p>
-        <div className="line" />
-        {user ? (
-          user.alerts && user.alerts.length > 0 ? (
-            user.alerts
-              .sort((a, b) => new Date(b.receivedOn) - new Date(a.receivedOn))
-              .map((i) => <Alert data={i} />)
-          ) : (
-            'You have no notifications.'
-          )
+    <div className="panel-content">
+      <p className="title">
+        <i className="fa-solid fa-bell" />
+        Alerts
+      </p>
+      <div className="line" />
+      {user ? (
+        user.alerts && user.alerts.length > 0 ? (
+          user.alerts
+            .sort((a, b) => new Date(b.receivedOn) - new Date(a.receivedOn))
+            .map((i) => <Alert data={i} />)
         ) : (
-          <Loading />
-        )}
-      </div>
+          "You have no notifications."
+        )
+      ) : (
+        <Loading />
+      )}
     </div>
   );
 }

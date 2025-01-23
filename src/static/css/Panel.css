@@ -2,6 +2,7 @@
   padding: 10px;
   width: 100%;
   display: flex;
+  flex: 1;
   gap: 10px;
   font-size: 20px;
   flex-direction: column;
@@ -73,12 +74,14 @@
 .panel-content .posts-post div {
   justify-content: left;
   align-items: start;
+  height: fit-content;
 }
 
 .panel-content .posts-post div p {
   overflow: hidden;
   word-break: break-all;
   text-align: left;
+  height: fit-content;
 }
 
 .panel-content .posts-post div p.grey {
@@ -89,8 +92,16 @@
   font-size: 15px;
 }
 
-.panel-content .posts-post div div.buttons {
-  margin-top: 5px;
+.panel-content .posts-post div.buttons {
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  align-items: center;
+  height: 100%;
+}
+
+.panel-content .posts-post div.buttons button {
+  border: 2px solid #444;
 }
 
 .panel-content .post-page-buttons button {
@@ -100,4 +111,30 @@
   justify-content: center;
   align-items: center;
   font-weight: 500;
+}
+
+.panel-content .collapse {
+  background-color: #444;
+  padding: 10px;
+  border-radius: 10px;
+  display: flex;
+  gap: 10px;
+  font-size: 20px;
+  flex-direction: column;
+  flex-wrap: wrap;
+  align-items: start;
+  align-content: start;
+}
+
+div#YFPCP {
+  align-items: start;
+  align-content: start;
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+div#YFPCP .posts-post {
+  width: fit-content;
 }
