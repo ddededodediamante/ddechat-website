@@ -56,7 +56,7 @@ export default function Posts() {
           },
         }
       )
-      .then((data) => setPosts([data.data, ...posts.latest]));
+      .then((data) => setPosts(i => [data.data, ...i]));
   }
 
   function toggleShowFriends() {
