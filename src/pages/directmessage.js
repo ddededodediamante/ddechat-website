@@ -1,23 +1,26 @@
 import axios from "axios";
-import Post from "../components/Post";
 import { useEffect, useState } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import config from "../config.json";
 import Loading from "../components/Loading";
-import { io } from "socket.io-client";
+import Message from "../components/Message";
 
 export default function Directmessage() {
   const navigate = useNavigate();
   const [user, setUser] = useState(null);
-  const [messages, setMessages] = useState(null);
+  const [messages, setMessages] = useState([]);
   const [localUser, setLocalUser] = useState(null);
   const [socket, setSocket] = useState(null);
+
   const [messageContent, setMessageContent] = useState("");
+  const [zoomIn, setZoomIn] = useState(false);
 
   const [searchParams] = useSearchParams();
   const username = searchParams.get("username")?.trim();
 
   useEffect(() => {
+    if (user !== null || localUser !== null) return;
+
     if (username && username !== "") {
       axios
         .get(`${config.apiUrl}/users/user/${username}`)
@@ -35,7 +38,7 @@ export default function Directmessage() {
               .then((data) => {
                 setLocalUser(data.data);
                 setMessages(
-                  localUser?.messages?.find((i) => i?.author?.username === username)
+                  data.data?.messages?.find((i) => i?.author?.username === username)
                     ?.contents ?? []
                 );
               })
@@ -50,60 +53,71 @@ export default function Directmessage() {
           navigate("/");
         });
     }
-  }, [username, user?.id, localUser?.messages, navigate]);
+  }, [username, navigate]);
 
   useEffect(() => {
-    const newSocket = io("http://localhost:3000");
+    if (socket !== null) return;
+
+    const newSocket = new WebSocket(config.apiUrl.replace(/^http/, 'ws'));
     setSocket(newSocket);
 
-    return () => newSocket.disconnect();
-  }, []);
+    newSocket.onopen = () => {
+      console.log("Connected to server");
 
-  useEffect(() => {
-    if (!socket) return;
+      newSocket.send(JSON.stringify({
+        type: "dm:join",
+        token: localStorage.getItem("accountToken"),
+        recipient: username,
+      }));
+    };
 
-    socket.on("dm:receive", ({ content, username }) => {
-      setMessages((prev) => [...prev, { content, username, created: Date.now() }]);
-    });
+    newSocket.onmessage = (event) => {
+      const { type, message } = JSON.parse(event.data);
 
-    socket.on("disconnect", () => {
+      if (type === "dm:receive") {
+        setMessages(m => [...m, message]);
+
+        setTimeout(() => {
+          let panel = document.querySelector('.panel-content')
+          panel.scrollTo({
+            top: panel.scrollHeight,
+            behavior: "smooth",
+          });
+        }, 50);
+      }
+    };
+
+    newSocket.onclose = () => {
       console.log("Disconnected from server");
-    });
-  }, [socket]);
+    };
+  }, [socket, username, localUser]);
 
   function sendMessage() {
     document.querySelector("div.horizontal textarea#postText").value = "";
 
-    socket.emit("dm:message", {
-      username: localUser.username,
+    socket.send(JSON.stringify({
+      type: "dm:message",
+      recipient: username,
       content: messageContent,
-      created: Date.now(),
-    });
+      zoomIn: zoomIn,
+    }));
 
-    setMessages((prev) => [
-      ...prev,
-      {
-        username: localUser.username,
-        content: messageContent,
-        created: Date.now(),
-      },
-    ]);
-
+    setZoomIn(false);
     setMessageContent("");
-
-    window.scrollTo({
-      top: document.body.scrollHeight,
-      behavior: "instant",
-    });
   }
+
+  window.addEventListener("beforeunload", () => {
+    if (socket !== null) {
+      socket.close();
+    }
+  });
 
   return (
     <div className="panel-content">
       {messages ? (
         <>
-          {messages.map((p) => (
-            <Post data={p} noSocial={true} />
-          ))}
+          {messages.map((p) => (<Message data={p} />))}
+
           <div
             className="horizontal reply-section"
             style={{
@@ -121,6 +135,13 @@ export default function Directmessage() {
               id="postText"
             />
             <button onClick={sendMessage}>Send</button>
+            <button
+              style={{ ...(zoomIn ? { backgroundColor: "#444444" } : {}) }}
+              onClick={() => setZoomIn(!zoomIn)}
+            >
+              <img src="/files/megaphone.png" height={"30px"} />
+            </button>
+
           </div>
         </>
       ) : (

@@ -1,4 +1,6 @@
 import { Navigate, Route, Routes } from 'react-router-dom';
+import { HelmetProvider } from "react-helmet-async";
+
 import Toolbar from './components/Toolbar';
 
 import Login from './pages/login';
@@ -19,7 +21,7 @@ import './static/css/Swal2.css';
 
 export default function App() {
   return (
-    <>
+    <HelmetProvider>
       <Toolbar />
       <Routes>
         <Route path="/" element={<Navigate to="/friends" />} />
@@ -33,6 +35,6 @@ export default function App() {
         <Route path="/post" element={<Postpage />} />
         <Route path="/directmessage" element={<Directmessage />} />
       </Routes>
-    </>
+    </HelmetProvider>
   );
 }

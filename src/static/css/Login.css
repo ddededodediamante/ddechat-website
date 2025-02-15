@@ -36,16 +36,3 @@
   padding: 7px;
   color: white;
 }
-
-.loginButton {
-  transition: background-color 0.2s ease, scale 0.2s ease;
-  cursor: pointer;
-}
-
-.loginButton:hover {
-  background-color: #1b1b1b;
-}
-
-.loginButton:active {
-  scale: 0.97;
-}

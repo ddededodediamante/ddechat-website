@@ -5,7 +5,7 @@ import { Link } from 'react-router-dom';
 export default function Post({ data, noSocial = false }) {
   let hasReplies = data?.replies !== null && data?.replies?.length !== null;
 
-  if ((!data.author || !data.author.username) && data.username !== null) {
+  if ((!data.author || !data.author.username) && typeof data.username === 'string') {
     data.author = {
       username: data.username,
     };

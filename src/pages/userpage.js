@@ -4,6 +4,7 @@ import config from "../config.json";
 import { useSearchParams } from "react-router-dom";
 import moment from "moment";
 import Loading from "../components/Loading";
+import { Helmet } from "react-helmet-async";
 
 export default function Userpage() {
   const [user, setUser] = useState(null);
@@ -13,6 +14,8 @@ export default function Userpage() {
   const [pendingFR, setPendingFR] = useState(false);
   const [incomingFR, setIncomingFR] = useState(false);
   const [isFriend, setIsFriend] = useState(false);
+
+  const [loading, setLoading] = useState(true);
 
   const username = searchParams.get("username")?.trim();
 
@@ -38,6 +41,8 @@ export default function Userpage() {
                   (data.data?.incomingFR ?? []).some((v) => v.id === user.id)
                 );
                 setIsFriend((data.data?.friends ?? []).some((v) => v.id === user.id));
+
+                setLoading(false);
               })
               .catch((error) => {
                 console.error("Error fetching user data:", error);
@@ -133,8 +138,15 @@ export default function Userpage() {
   }
 
   return (
-    <div className="panel-content">
-      {user && localUser ? (
+    <>
+      <Helmet>
+        <title>{username} on ddeChat</title>
+        <meta name="description" content={"Check out " + username + "'s profile on ddeChat"} />
+        <meta property="og:image" content={config.apiUrl + "/users/user/" + username + "/avatar"} />
+      </Helmet>
+
+      <div className="panel-content">
+      {loading === false ? (
         <>
           <p className="title">
             {user.username ? (
@@ -179,5 +191,6 @@ export default function Userpage() {
         <Loading />
       )}
     </div>
+    </>
   );
 }
