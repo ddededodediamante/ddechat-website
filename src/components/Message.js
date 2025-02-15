@@ -13,7 +13,7 @@ export default function Message({ data }) {
       {data?.author?.username && (
         <p className="grey">@{data.author.username}</p>
       )}
-      <p style={{ color: '#fff' }}>{data.content ?? 'Missing content'}</p>
+      <p className={data.spoiler === true ? 'spoiler' : ''}>{data.content ?? 'Missing content'}</p>
       <div className="horizontal" style={{ gap: '5px' }}>
         <p className="grey">{moment(data.created).fromNow()}</p>
       </div>
@@ -21,7 +21,7 @@ export default function Message({ data }) {
   );
 
   return (
-    <div className={`posts-post ${data.zoomIn === true ? 'zoom-in' : ''}`.trim()}>
+    <div className={`posts-post ${data?.effect}`.trim()}>
       {data?.author?.username && (
         <img
           alt=""

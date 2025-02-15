@@ -13,7 +13,8 @@ export default function Directmessage() {
   const [socket, setSocket] = useState(null);
 
   const [messageContent, setMessageContent] = useState("");
-  const [zoomIn, setZoomIn] = useState(false);
+  const [effect, setEffect] = useState("");
+  const [spoiler, setSpoiler] = useState(false);
 
   const [searchParams] = useSearchParams();
   const username = searchParams.get("username")?.trim();
@@ -76,14 +77,13 @@ export default function Directmessage() {
 
       if (type === "dm:receive") {
         setMessages(m => [...m, message]);
-
         setTimeout(() => {
           let panel = document.querySelector('.panel-content')
           panel.scrollTo({
             top: panel.scrollHeight,
             behavior: "smooth",
           });
-        }, 50);
+        }, 60);
       }
     };
 
@@ -99,11 +99,13 @@ export default function Directmessage() {
       type: "dm:message",
       recipient: username,
       content: messageContent,
-      zoomIn: zoomIn,
+      effect,
+      spoiler
     }));
 
-    setZoomIn(false);
     setMessageContent("");
+    setEffect("");
+    setSpoiler(false);
   }
 
   window.addEventListener("beforeunload", () => {
@@ -113,8 +115,8 @@ export default function Directmessage() {
   });
 
   return (
-    <div className="panel-content">
-      {messages ? (
+    <div className="panel-content" style={{ overflowX: "hidden" }}>
+      {(user && localUser) ? (
         <>
           {messages.map((p) => (<Message data={p} />))}
 
@@ -136,12 +138,23 @@ export default function Directmessage() {
             />
             <button onClick={sendMessage}>Send</button>
             <button
-              style={{ ...(zoomIn ? { backgroundColor: "#444444" } : {}) }}
-              onClick={() => setZoomIn(!zoomIn)}
+              style={{ ...(effect === 'zoomIn' ? { backgroundColor: "#444" } : {}) }}
+              onClick={() => effect === 'zoomIn' ? setEffect('') : setEffect('zoomIn')}
             >
-              <img src="/files/megaphone.png" height={"30px"} />
+              <img src="/files/megaphone.png" height={"28px"} alt="zoomIn" />
             </button>
-
+            <button
+              style={{ ...(effect === 'glow' ? { backgroundColor: "#444" } : {}) }}
+              onClick={() => effect === 'glow' ? setEffect('') : setEffect('glow')}
+            >
+              <img src="/files/star.png" height={"28px"} alt="glow" />
+            </button>
+            <button
+              style={{ ...(spoiler ? { backgroundColor: "#444" } : {}) }}
+              onClick={() => setSpoiler(!spoiler)}
+            >
+              <img src="/files/eyes.png" height={"28px"} alt="spoiler" />
+            </button>
           </div>
         </>
       ) : (
