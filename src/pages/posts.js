@@ -6,7 +6,7 @@ import Loading from "../components/Loading";
 
 export default function Posts() {
   const [user, setUser] = useState(null);
-  const [posts, setPosts] = useState(null);
+  const [posts, setPosts] = useState({});
   const [postContent, setPostContent] = useState();
   const [showFriends, setShowFriends] = useState(true);
 
@@ -56,7 +56,9 @@ export default function Posts() {
           },
         }
       )
-      .then((data) => setPosts(i => [data.data, ...i]));
+      .then((data) => {
+        posts.latest.unshift(data.data);
+      });
   }
 
   function toggleShowFriends() {
@@ -65,7 +67,7 @@ export default function Posts() {
 
   return (
     <div className="panel-content">
-      {user && (
+      {user && (<>
         <div
           className="horizontal"
           style={{
@@ -93,8 +95,10 @@ export default function Posts() {
           />
           <button onClick={sendPost}>Post</button>
         </div>
-      )}
-      <div className="line" />
+
+        <div className="line" />
+      </>)}
+
       {posts && posts?.latest ? (
         posts?.latest?.length > 0 ? (
           <>
