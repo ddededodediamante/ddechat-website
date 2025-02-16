@@ -126,6 +126,11 @@ div.horizontal {
   text-align: center;
 }
 
+div.horizontal.fit-all,
+div.horizontal.fit-all * {
+  height: fit-content;
+}
+
 ::-webkit-scrollbar {
   width: 10px;
   height: 10px;

@@ -4,6 +4,7 @@ import config from "../config.json";
 import { Link, useSearchParams } from "react-router-dom";
 import Post from "../components/Post";
 import Loading from "../components/Loading";
+import Swal from "sweetalert2";
 
 export default function Postpage() {
   const [post, setPost] = useState(null);
@@ -59,6 +60,34 @@ export default function Postpage() {
     }
   }
 
+  function deletePost() {
+    if (!user) return;
+
+    Swal
+      .fire({
+        title: "Are you sure?",
+        text: "You won't be able to revert this!",
+        icon: "warning",
+        showCancelButton: true,
+        confirmButtonText: "Confirm",
+      })
+      .then((result) => {
+        if (result.isConfirmed) {
+          axios
+            .delete(`${config.apiUrl}/posts/post/${id}`, {
+              headers: { Authorization: localStorage.getItem("accountToken") },
+            })
+            .then(() => {
+              sessionStorage.removeItem("latestPosts");
+              window.location.href = "/posts";
+            })
+            .catch((error) => {
+              console.error("Error deleting post:", error);
+            });
+        }
+      });
+  }
+
   function sendReply() {
     if (!replyContent.trim()) return;
     axios
@@ -97,8 +126,20 @@ export default function Postpage() {
                 />
                 {post?.likes?.length ?? 0}
               </button>
+
+              {(user && post && (user?.isModerator || user?.id === post?.author?.id)) &&
+                <button onClick={deletePost} disabled={!user}>
+                  <i
+                    style={{ color: "#ff4545" }}
+                    className="fa-solid fa-trash"
+                  />
+                  Delete
+                </button>
+              }
             </div>
+
             <div className="line" />
+
             <p className="small title">Replies</p>
 
             {user && (
@@ -129,7 +170,7 @@ export default function Postpage() {
               </div>
             )}
 
-            {post.replies && post.replies.length > 0 ? (
+            {post?.replies && post?.replies?.length > 0 ? (
               post.replies.map((reply) => <Post key={reply.id} data={reply} />)
             ) : (
               <p>Nobody has replied yet.</p>

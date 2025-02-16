@@ -8,6 +8,7 @@ import Loading from "../components/Loading";
 export default function Settings() {
   const navigate = useNavigate();
   const [avatarFile, setAvatarFile] = useState(null);
+  const [avatarFileURI, setAvatarFileURI] = useState('');
   const [user, setUser] = useState(null);
 
   useEffect(() => {
@@ -32,7 +33,18 @@ export default function Settings() {
   }, [navigate]);
 
   function handleAvatarChange(event) {
-    setAvatarFile(event.target.files[0]);
+    let file = event.target.files[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onload = function (e) {
+        setAvatarFileURI(e.target.result);
+      };
+      reader.readAsDataURL(file);
+    } else {
+      setAvatarFileURI('');
+    }
+
+    setAvatarFile(file);
   }
 
   async function handleAvatarSubmit() {
@@ -85,19 +97,28 @@ export default function Settings() {
           <i className="fa-solid fa-cog" />
           Settings
         </p>
-
-        <div className="line" />
         {user ? (
           <>
-            <label htmlFor="avatarUpload">Upload Avatar:</label>
-            <input
-              type="file"
-              id="avatarUpload"
-              accept="image/png, image/jpeg"
-              onChange={handleAvatarChange}
-            />
-            <button onClick={handleAvatarSubmit}>Submit Avatar</button>
+            <div className="line" />
+            <div className="horizontal fit-all" style={{ gap: "10px", justifyContent: "center", alignItems: "center" }}>
+              <img
+                alt=""
+                src={avatarFileURI !== '' ? avatarFileURI : `${config.apiUrl}/users/user/${user.id}/avatar`}
+                width={70}
+                height={70}
+                style={{ borderRadius: "25%", backgroundColor: "#333", padding: "8px" }}
+              />
+              <input
+                type="file"
+                id="avatarUpload"
+                accept="image/png, image/jpeg, image/webp"
+                onChange={handleAvatarChange}
+              />
+              <button onClick={handleAvatarSubmit}>Submit Avatar</button>
+            </div>
+
             <br />
+
             <button onClick={logout}>Log out</button>
           </>
         ) : (

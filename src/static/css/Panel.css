@@ -112,6 +112,13 @@
   border: 2px solid #444;
 }
 
+.panel-content .post-page-buttons {
+  display: flex;
+  flex-direction: row;
+  gap: 10px;
+  justify-content: center;
+}
+
 .panel-content .post-page-buttons button {
   display: flex;
   flex-direction: row;

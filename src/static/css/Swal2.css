@@ -1,8 +1,11 @@
-.swal2-popup,
-.swal2-toast {
+html {
   --fonts: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
     'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
     sans-serif;
+}
+
+.swal2-popup,
+.swal2-toast {
   font-family: var(--fonts);
   box-sizing: border-box;
   color: white;
@@ -19,6 +22,7 @@
   font-family: var(--fonts);
   font-weight: 400;
   font-size: 20px;
+  transition: background-color 0.2s ease;
 }
 
 .swal2-confirm {
