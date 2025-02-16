@@ -4,6 +4,7 @@ import config from "../config.json";
 import { Link, useNavigate } from "react-router-dom";
 import moment from "moment";
 import Loading from "../components/Loading";
+import { Helmet } from "react-helmet-async";
 
 export default function Friends() {
   const navigate = useNavigate();
@@ -31,42 +32,50 @@ export default function Friends() {
   }, [navigate]);
 
   return (
-    <div className="panel-content">
-      <p className="title">
-        <i className="fa-solid fa-users" />
-        Friends
-      </p>
-      <div className="line" />
-      {user ? (
-        user.friends && user.friends.length > 0 ? (
-          user.friends.map((f) => (
-            <div className="posts-post">
-              {f.id && (
-                <Link to={`/user?username=${f.username}`}>
-                  <img alt="" src={`${config.apiUrl}/users/user/${f.username}/avatar`} />
-                </Link>
-              )}
-              <div className="vertical">
-                <p>{f.username}</p>
-                <p className="grey">Friends since {moment(f.addedOn).fromNow()}</p>
+    <>
+      <Helmet>
+        <title>ddeChat - Friends</title>
+        <meta name="description" content="A list of the friend you have added, including chats." />
+        <meta property="og:image" content="%PUBLIC_URL%/files/logo.png" />
+      </Helmet>
+
+      <div className="panel-content">
+        <p className="title">
+          <i className="fa-solid fa-users" />
+          Friends
+        </p>
+        <div className="line" />
+        {user ? (
+          user.friends && user.friends.length > 0 ? (
+            user.friends.map((f) => (
+              <div className="posts-post">
+                {f.id && (
+                  <Link to={`/user?id=${f.id}`}>
+                    <img alt="" src={`${config.apiUrl}/users/user/${f.id}/avatar`} />
+                  </Link>
+                )}
+                <div className="vertical">
+                  <p>{f.username}</p>
+                  <p className="grey">Friends since {moment(f.addedOn).fromNow()}</p>
+                </div>
+                <div className="buttons">
+                  <button
+                    onClick={() => {
+                      navigate(`/directmessage?id=${f.id}`);
+                    }}
+                  >
+                    Message
+                  </button>
+                </div>
               </div>
-              <div className="buttons">
-                <button
-                  onClick={() => {
-                    navigate(`/directmessage?username=${f.username}`);
-                  }}
-                >
-                  Message
-                </button>
-              </div>
-            </div>
-          ))
+            ))
+          ) : (
+            "You have no friends yet, try adding some!"
+          )
         ) : (
-          "You have no friends yet, try adding some!"
-        )
-      ) : (
-        <Loading />
-      )}
-    </div>
+          <Loading />
+        )}
+      </div>
+    </>
   );
 }

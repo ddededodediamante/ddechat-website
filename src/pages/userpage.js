@@ -17,12 +17,12 @@ export default function Userpage() {
 
   const [loading, setLoading] = useState(true);
 
-  const username = searchParams.get("username")?.trim();
+  const userId = searchParams.get("id")?.trim();
 
   useEffect(() => {
-    if (username && username !== "") {
+    if (userId && userId !== "") {
       axios
-        .get(`${config.apiUrl}/users/user/${username}`)
+        .get(`${config.apiUrl}/users/user/${userId}`)
         .then((data) => {
           setUser(data.data);
 
@@ -41,26 +41,27 @@ export default function Userpage() {
                   (data.data?.incomingFR ?? []).some((v) => v.id === user.id)
                 );
                 setIsFriend((data.data?.friends ?? []).some((v) => v.id === user.id));
-
-                setLoading(false);
+                setTimeout(() => { setLoading(false) }, 200);
               })
               .catch((error) => {
                 console.error("Error fetching user data:", error);
+                setLoading(false);
               });
           }
         })
         .catch((error) => {
           console.error("Error fetching user data:", error);
+          setLoading(false);
         });
     }
-  }, [username, user?.id]);
+  }, [userId, user?.id]);
 
   function sendFriendRequest() {
-    if (!username || !user || !localUser.id || user.id === localUser.id) return;
+    if (!userId || !user || !localUser.id || user.id === localUser.id) return;
 
     axios
       .post(
-        `${config.apiUrl}/users/user/${username}/friendRequest`,
+        `${config.apiUrl}/users/user/${userId}/friendRequest`,
         {},
         {
           headers: {
@@ -78,10 +79,10 @@ export default function Userpage() {
   }
 
   function cancelFriendRequest() {
-    if (!username || !user || !localUser.id || user.id === localUser.id) return;
+    if (!userId || !user || !localUser.id || user.id === localUser.id) return;
 
     axios
-      .delete(`${config.apiUrl}/users/user/${username}/friendRequest`, {
+      .delete(`${config.apiUrl}/users/user/${userId}/friendRequest`, {
         headers: {
           Authorization: localStorage.getItem("accountToken"),
         },
@@ -96,11 +97,11 @@ export default function Userpage() {
   }
 
   function addFriend() {
-    if (!username || !user || !localUser.id || user.id === localUser.id) return;
+    if (!userId || !user || !localUser.id || user.id === localUser.id) return;
 
     axios
       .post(
-        `${config.apiUrl}/users/user/${username}/friendRequestAction`,
+        `${config.apiUrl}/users/user/${userId}/friendRequestAction`,
         {},
         {
           headers: {
@@ -119,10 +120,10 @@ export default function Userpage() {
   }
 
   function declineFriend() {
-    if (!username || !user || !localUser.id || user.id === localUser.id) return;
+    if (!userId || !user || !localUser.id || user.id === localUser.id) return;
 
     axios
-      .delete(`${config.apiUrl}/users/user/${username}/friendRequestAction`, {
+      .delete(`${config.apiUrl}/users/user/${userId}/friendRequestAction`, {
         headers: {
           Authorization: localStorage.getItem("accountToken"),
         },
@@ -137,60 +138,78 @@ export default function Userpage() {
       });
   }
 
+  const renderFriendButtons = () => {
+    if (!localUser.id || !user.id || isFriend) return null;
+
+
+    if (incomingFR) {
+      return (
+        <>
+          <button onClick={addFriend}>
+            <i className="fa-solid fa-user-plus" />
+            Accept Friend Request
+          </button>
+          <button onClick={declineFriend}>
+            <i className="fa-solid fa-user-minus" />
+            Decline Friend Request
+          </button>
+        </>
+      );
+    }
+
+    if (!pendingFR) {
+      return (
+        <button onClick={sendFriendRequest}>
+          <i className="fa-solid fa-user-plus" />
+          Send Friend Request
+        </button>
+      );
+    }
+
+    return (
+      <button onClick={cancelFriendRequest}>
+        <i className="fa-solid fa-user-slash" />
+        Cancel Friend Request
+      </button>
+    );
+  };
+
   return (
     <>
       <Helmet>
-        <title>{username} on ddeChat</title>
-        <meta name="description" content={"Check out " + username + "'s profile on ddeChat"} />
-        <meta property="og:image" content={config.apiUrl + "/users/user/" + username + "/avatar"} />
+        <title>{"ddeChat - " + (user?.username ?? 'User Page')}</title>
+        <meta name="description" content={"Check out " + (user?.username ?? 'someone') + "'s profile on ddeChat."} />
+        <meta property="og:image" content={userId ? config.apiUrl + "/users/user/" + userId + "/avatar" : "%PUBLIC_URL%/files/logo.png"} />
       </Helmet>
 
       <div className="panel-content">
-      {loading === false ? (
-        <>
-          <p className="title">
-            {user.username ? (
-              <img alt="" src={`${config.apiUrl}/users/user/${user.username}/avatar`} />
-            ) : (
-              <i className="fa-solid fa-user" />
-            )}
-            {user.username ?? "Unknown user"}
-          </p>
-          {user.created && <p>{"Created: " + moment(user.created).fromNow()}</p>}
-          {isFriend && <p>Friends</p>}
+        {loading === false ? (
+          <>
+            <p className="title">
+              {user.id ? (
+                <img alt="" src={`${config.apiUrl}/users/user/${user.id}/avatar`} />
+              ) : (
+                <i className="fa-solid fa-user" />
+              )}
+              {user.username ?? "Unknown user"}
+              {user.id && <p style={{ color: "#444444", fontSize: "18px" }}>{user.id}</p>}
+            </p>
 
-          <div className="line" />
+            {user.created && <p>{"Joined " + moment(user.created).fromNow()}</p>}
 
-          {user?.id !== localUser?.id &&
-            (isFriend ? (
-              <></>
-            ) : incomingFR ? (
-              <>
-                <button onClick={addFriend} disabled={!localUser.id}>
-                  <i className="fa-solid fa-user-plus" />
-                  Accept Friend Request
-                </button>
-                <button onClick={declineFriend} disabled={!localUser.id}>
-                  <i className="fa-solid fa-user-minus" />
-                  Decline Friend Request
-                </button>
-              </>
-            ) : !pendingFR ? (
-              <button onClick={sendFriendRequest} disabled={!localUser.id}>
-                <i className="fa-solid fa-user-plus" />
-                Send Friend Request
-              </button>
-            ) : (
-              <button onClick={cancelFriendRequest} disabled={!localUser.id}>
-                <i className="fa-solid fa-user-slash" />
-                Cancel Friend Request
-              </button>
-            ))}
-        </>
-      ) : (
-        <Loading />
-      )}
-    </div>
+            {isFriend && <p style={{ color: "#999999", fontSize: "17px", display: 'flex', gap: '5px' }}>
+              <i className="fa-solid fa-users" />
+              Friends with this user
+            </p>}
+
+            {!isFriend && <div className="line" />}
+
+            {renderFriendButtons()}
+          </>
+        ) : (
+          <Loading />
+        )}
+      </div>
     </>
   );
 }

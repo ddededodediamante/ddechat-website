@@ -32,10 +32,10 @@ export default function Alert({ data }) {
     return (
         <div className={data.read === false ? "unread posts-post" : "posts-post"}>
             {data.author.id &&
-                <Link to={`/user?username=${data.author.username}`}>
+                <Link to={`/user?id=${data.author.id}`}>
                     <img
                         alt=""
-                        src={`${config.apiUrl}/users/user/${data.author.username}/avatar`}
+                        src={`${config.apiUrl}/users/user/${data.author.id}/avatar`}
                     />
                 </Link>
             }

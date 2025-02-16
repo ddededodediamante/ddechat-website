@@ -50,8 +50,8 @@ export default function Login() {
   return (
     <>
       <Helmet>
-        <title>Login to ddeChat</title>
-        <meta name="description" content="Login to an account in ddeChat" />
+        <title>ddeChat - Login</title>
+        <meta name="description" content="Login to an account in ddeChat." />
         <meta property="og:image" content="%PUBLIC_URL%/files/logo.png" />
       </Helmet>
 

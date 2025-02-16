@@ -63,10 +63,9 @@ export default function Toolbar() {
             <>
               <img
                 alt=""
-                src={`${config.apiUrl}/users/user/${user.username}/avatar`}
-                cache="true"
+                src={`${config.apiUrl}/users/user/${user.id}/avatar`}
               />
-              <p>{user.username ?? <a href="/login">Login to ddeChat</a>}</p>
+              <p>{user?.username ?? <a href="/login">Login to ddeChat</a>}</p>
             </>
           ) : (
             <a href="/login">Login to ddeChat</a>

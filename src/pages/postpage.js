@@ -4,6 +4,7 @@ import config from "../config.json";
 import { Link, useSearchParams } from "react-router-dom";
 import Post from "../components/Post";
 import Loading from "../components/Loading";
+import { Helmet } from "react-helmet-async";
 
 export default function Postpage() {
   const [post, setPost] = useState(null);
@@ -75,67 +76,76 @@ export default function Postpage() {
   }
 
   return (
-    <div className="panel-content">
-      {post && post.replyingToId && (
-        <Link to={`/post?id=${post.replyingToId}`}>
-          <p className="smaller title">
-            <i className="fa-solid fa-rotate-left" /> Go to original post
-          </p>
-        </Link>
-      )}
+    <>
+      <Helmet>
+        <title>{"ddeChat - " + (post?.author?.username ?? 'Someone') + "'s post"}</title>
+        <meta name="description" content="Check this post, reply to it or give it a like in ddeChat." />
+        <meta property="og:image" content={post?.author?.id ? `${config.apiUrl}/users/user/${post.author.id}/avatar` : "%PUBLIC_URL%/files/logo.png"} />
+      </Helmet>
 
-      {post ? (
-        <>
-          <Post data={post} />
-          <div className="post-page-buttons">
-            <button onClick={toggleLike} disabled={!user}>
-              <i
-                style={{ color: liked ? "#ff4545" : "#fff" }}
-                className="fa-solid fa-heart"
-              />
-              {post?.likes?.length ?? 0}
-            </button>
-          </div>
-          <div className="line" />
-          <p className="small title">Replies</p>
+      <div className="panel-content">
+        {post && post.replyingToId && (
+          <Link to={`/post?id=${post.replyingToId}`}>
+            <p className="smaller title">
+              <i className="fa-solid fa-rotate-left" /> Go to original post
+            </p>
+          </Link>
+        )}
 
-          {user && (
-            <div
-              className="horizontal reply-section"
-              style={{
-                width: "100%",
-                gap: "10px",
-                height: "fit-content",
-                alignItems: "center",
-              }}
-            >
-              <img
-                alt="User Avatar"
-                src={`${config.apiUrl}/users/user/${user.username}/avatar`}
-                width={60}
-                height={60}
-                style={{ borderRadius: "25%" }}
-              />
-              <textarea
-                placeholder="Make a reply"
-                maxLength={2000}
-                value={replyContent}
-                onChange={(e) => setReplyContent(e.target.value)}
-                id="postText"
-              />
-              <button onClick={sendReply}>Reply</button>
+        {post ? (
+          <>
+            <Post data={post} />
+
+            <div className="post-page-buttons">
+              <button onClick={toggleLike} disabled={!user}>
+                <i
+                  style={{ color: liked ? "#ff4545" : "#fff" }}
+                  className="fa-solid fa-heart"
+                />
+                {post?.likes?.length ?? 0}
+              </button>
             </div>
-          )}
+            <div className="line" />
+            <p className="small title">Replies</p>
 
-          {post.replies && post.replies.length > 0 ? (
-            post.replies.map((reply) => <Post key={reply.id} data={reply} />)
-          ) : (
-            <p>Nobody has replied yet.</p>
-          )}
-        </>
-      ) : (
-        <Loading />
-      )}
-    </div>
+            {user && (
+              <div
+                className="horizontal reply-section"
+                style={{
+                  width: "100%",
+                  gap: "10px",
+                  height: "fit-content",
+                  alignItems: "center",
+                }}
+              >
+                <img
+                  alt="User Avatar"
+                  src={`${config.apiUrl}/users/user/${user.id}/avatar`}
+                  width={60}
+                  height={60}
+                  style={{ borderRadius: "25%" }}
+                />
+                <textarea
+                  placeholder="Make a reply"
+                  maxLength={2000}
+                  value={replyContent}
+                  onChange={(e) => setReplyContent(e.target.value)}
+                  id="postText"
+                />
+                <button onClick={sendReply}>Reply</button>
+              </div>
+            )}
+
+            {post.replies && post.replies.length > 0 ? (
+              post.replies.map((reply) => <Post key={reply.id} data={reply} />)
+            ) : (
+              <p>Nobody has replied yet.</p>
+            )}
+          </>
+        ) : (
+          <Loading />
+        )}
+      </div>
+    </>
   );
 }

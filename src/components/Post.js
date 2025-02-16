@@ -31,11 +31,11 @@ export default function Post({ data, noSocial = false }) {
 
   return (
     <div className="posts-post">
-      {data?.author?.username && (
-        <Link to={`/user?username=${data.author.username}`}>
+      {data?.author?.id && (
+        <Link to={`/user?id=${data.author.id}`}>
           <img
             alt=""
-            src={`${config.apiUrl}/users/user/${data.author.username}/avatar`}
+            src={`${config.apiUrl}/users/user/${data.author.id}/avatar`}
           />
         </Link>
       )}

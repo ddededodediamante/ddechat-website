@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import config from "../config.json";
 import { useNavigate } from "react-router-dom";
 import Loading from "../components/Loading";
+import { Helmet } from "react-helmet-async";
 
 export default function Alerts() {
   const navigate = useNavigate();
@@ -50,23 +51,31 @@ export default function Alerts() {
   }, [navigate]);
 
   return (
-    <div className="panel-content">
-      <p className="title">
-        <i className="fa-solid fa-bell" />
-        Alerts
-      </p>
-      <div className="line" />
-      {user ? (
-        user.alerts && user.alerts.length > 0 ? (
-          user.alerts
-            .sort((a, b) => new Date(b.receivedOn) - new Date(a.receivedOn))
-            .map((i) => <Alert data={i} />)
+    <>
+      <Helmet>
+        <title>ddeChat - Alerts</title>
+        <meta name="description" content="Be notified when someone interacts with you or your posts." />
+        <meta property="og:image" content="%PUBLIC_URL%/files/logo.png" />
+      </Helmet>
+
+      <div className="panel-content">
+        <p className="title">
+          <i className="fa-solid fa-bell" />
+          Alerts
+        </p>
+        <div className="line" />
+        {user ? (
+          user.alerts && user.alerts.length > 0 ? (
+            user.alerts
+              .sort((a, b) => new Date(b.receivedOn) - new Date(a.receivedOn))
+              .map((i) => <Alert data={i} />)
+          ) : (
+            "You have no notifications."
+          )
         ) : (
-          "You have no notifications."
-        )
-      ) : (
-        <Loading />
-      )}
-    </div>
+          <Loading />
+        )}
+      </div>
+    </>
   );
 }

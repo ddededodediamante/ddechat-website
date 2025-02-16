@@ -2,11 +2,9 @@ import moment from 'moment';
 import config from '../config.json';
 
 export default function Message({ data }) {
-  if ((!data.author || !data.author.username) && typeof data.username === 'string') {
-    data.author = {
-      username: data.username,
-    };
-  }
+  if (!data?.author) data.author = {};
+  if (!data?.author?.username && typeof data?.username === 'string') data.author['username'] = data.username;
+  if (!data?.author?.userId && typeof data?.userId === 'string') data.author['userId'] = data.userId;
 
   let postContent = (
     <div className="vertical">
@@ -22,10 +20,10 @@ export default function Message({ data }) {
 
   return (
     <div className={`posts-post ${data?.effect}`.trim()}>
-      {data?.author?.username && (
+      {(data?.author?.userId !== null) && (
         <img
           alt=""
-          src={`${config.apiUrl}/users/user/${data.author.username}/avatar`}
+          src={`${config.apiUrl}/users/user/${data.author.userId}/avatar`}
         />
       )}
 

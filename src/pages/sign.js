@@ -51,7 +51,7 @@ export default function Login() {
   return (
     <>
       <Helmet>
-        <title>Sign up to ddeChat</title>
+        <title>ddeChat - Sign Up</title>
         <meta name="description" content="Create an account in ddeChat" />
         <meta property="og:image" content="%PUBLIC_URL%/files/logo.png" />
       </Helmet>
