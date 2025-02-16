@@ -67,10 +67,6 @@ textarea:hover:not(:disabled) {
   background-color: #2d2d2d;
 }
 
-button:active:not(:disabled) {
-  scale: 0.96;
-}
-
 textarea {
   width: 40%;
   height: fit-content;
@@ -84,6 +80,14 @@ button {
 button:disabled {
   color: rgb(207, 207, 207);
   background-color: #2b2b2b;
+}
+
+button:active:not(:disabled) {
+  scale: 0.96;
+}
+
+button:hover:not(:disabled) {
+  cursor: pointer;
 }
 
 button i {
@@ -221,12 +225,35 @@ h2 {
   }
 }
 
+@keyframes loud {
+  0% {
+    font-size: unset;
+    font-weight: unset;
+  }
+
+  25% {
+    font-size: 35px;
+  }
+
+  50% {
+    font-size: 35px;
+  }
+
+  100% {
+    font-size: unset;
+  }
+}
+
 .zoomIn {
   animation: zoomIn 0.5s cubic-bezier(0.8, 0.7, 0.4, 0.2);
 }
 
 .glow {
-  animation: glow 3s ease;
+  animation: glow 3s ease-in-out;
+}
+
+.loud div.vertical p:not(.grey) {
+  animation: loud 4s ease 0.5s;
 }
 
 .spoiler {

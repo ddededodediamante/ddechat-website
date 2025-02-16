@@ -2,7 +2,6 @@ import axios from "axios";
 import config from "../config.json";
 import { Link } from "react-router-dom";
 import Swal from "sweetalert2";
-import { Helmet } from "react-helmet-async";
 import { useEffect, useState } from "react";
 
 export default function Login() {
@@ -49,12 +48,6 @@ export default function Login() {
 
   return (
     <>
-      <Helmet>
-        <title>ddeChat - Login</title>
-        <meta name="description" content="Login to an account in ddeChat." />
-        <meta property="og:image" content="%PUBLIC_URL%/files/logo.png" />
-      </Helmet>
-
       <div className="login-container">
         <h1>
           Login to <strong>ddeChat</strong>

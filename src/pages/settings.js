@@ -4,7 +4,6 @@ import config from "../config.json";
 import Swal from "sweetalert2";
 import { useNavigate } from "react-router-dom";
 import Loading from "../components/Loading";
-import { Helmet } from "react-helmet-async";
 
 export default function Settings() {
   const navigate = useNavigate();
@@ -81,12 +80,6 @@ export default function Settings() {
 
   return (
     <>
-      <Helmet>
-        <title>ddeChat - Settings</title>
-        <meta name="description" content="Configure or manage your account." />
-        <meta property="og:image" content="%PUBLIC_URL%/files/logo.png" />
-      </Helmet>
-
       <div className="panel-content">
         <p className="title">
           <i className="fa-solid fa-cog" />

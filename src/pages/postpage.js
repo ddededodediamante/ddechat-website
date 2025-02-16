@@ -4,7 +4,6 @@ import config from "../config.json";
 import { Link, useSearchParams } from "react-router-dom";
 import Post from "../components/Post";
 import Loading from "../components/Loading";
-import { Helmet } from "react-helmet-async";
 
 export default function Postpage() {
   const [post, setPost] = useState(null);
@@ -77,12 +76,6 @@ export default function Postpage() {
 
   return (
     <>
-      <Helmet>
-        <title>{"ddeChat - " + (post?.author?.username ?? 'Someone') + "'s post"}</title>
-        <meta name="description" content="Check this post, reply to it or give it a like in ddeChat." />
-        <meta property="og:image" content={post?.author?.id ? `${config.apiUrl}/users/user/${post.author.id}/avatar` : "%PUBLIC_URL%/files/logo.png"} />
-      </Helmet>
-
       <div className="panel-content">
         {post && post.replyingToId && (
           <Link to={`/post?id=${post.replyingToId}`}>

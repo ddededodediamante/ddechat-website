@@ -4,7 +4,6 @@ import { useEffect, useState } from "react";
 import config from "../config.json";
 import { useNavigate } from "react-router-dom";
 import Loading from "../components/Loading";
-import { Helmet } from "react-helmet-async";
 
 export default function Alerts() {
   const navigate = useNavigate();
@@ -52,12 +51,6 @@ export default function Alerts() {
 
   return (
     <>
-      <Helmet>
-        <title>ddeChat - Alerts</title>
-        <meta name="description" content="Be notified when someone interacts with you or your posts." />
-        <meta property="og:image" content="%PUBLIC_URL%/files/logo.png" />
-      </Helmet>
-
       <div className="panel-content">
         <p className="title">
           <i className="fa-solid fa-bell" />

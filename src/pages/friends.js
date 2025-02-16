@@ -4,7 +4,6 @@ import config from "../config.json";
 import { Link, useNavigate } from "react-router-dom";
 import moment from "moment";
 import Loading from "../components/Loading";
-import { Helmet } from "react-helmet-async";
 
 export default function Friends() {
   const navigate = useNavigate();
@@ -33,12 +32,6 @@ export default function Friends() {
 
   return (
     <>
-      <Helmet>
-        <title>ddeChat - Friends</title>
-        <meta name="description" content="A list of the friend you have added, including chats." />
-        <meta property="og:image" content="%PUBLIC_URL%/files/logo.png" />
-      </Helmet>
-
       <div className="panel-content">
         <p className="title">
           <i className="fa-solid fa-users" />

@@ -3,7 +3,6 @@ import Post from "../components/Post";
 import { useEffect, useState } from "react";
 import config from "../config.json";
 import Loading from "../components/Loading";
-import { Helmet } from "react-helmet-async";
 
 export default function Posts() {
   const [user, setUser] = useState(null);
@@ -69,11 +68,6 @@ export default function Posts() {
 
   return (
     <>
-      <Helmet>
-        <title>ddeChat - Posts</title>
-        <meta name="description" content="Check the latest posts by other users on ddeChat." />
-        <meta property="og:image" content="%PUBLIC_URL%/files/logo.png" />
-      </Helmet>
       <div className="panel-content">
         {user && (<>
           <div
@@ -120,14 +114,14 @@ export default function Posts() {
                   By your friends
                 </p>
 
-                <div id="YFPCP">
-                  {showFriends &&
-                    (posts?.personalized?.length > 0 ? (
-                      posts.personalized.map((p) => <Post data={p} />)
-                    ) : (
-                      <p>Recent posts made by your friends will appear here.</p>
-                    ))}
-                </div>
+                {showFriends &&
+                  <div id="YFPCP">
+                    {posts?.personalized?.length > 0
+                      ? (posts.personalized.map((p) => <Post data={p} />))
+                      : (<p>Recent posts made by your friends will appear here.</p>)
+                    }
+                  </div>
+                }
               </div>
               {posts.latest.map((p) => (
                 <Post data={p} />

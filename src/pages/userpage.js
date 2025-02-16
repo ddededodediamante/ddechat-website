@@ -4,7 +4,6 @@ import config from "../config.json";
 import { useSearchParams } from "react-router-dom";
 import moment from "moment";
 import Loading from "../components/Loading";
-import { Helmet } from "react-helmet-async";
 
 export default function Userpage() {
   const [user, setUser] = useState(null);
@@ -139,8 +138,7 @@ export default function Userpage() {
   }
 
   const renderFriendButtons = () => {
-    if (!localUser.id || !user.id || isFriend) return null;
-
+    if (!localUser?.id || !user?.id || isFriend) return;
 
     if (incomingFR) {
       return (
@@ -176,12 +174,6 @@ export default function Userpage() {
 
   return (
     <>
-      <Helmet>
-        <title>{"ddeChat - " + (user?.username ?? 'User Page')}</title>
-        <meta name="description" content={"Check out " + (user?.username ?? 'someone') + "'s profile on ddeChat."} />
-        <meta property="og:image" content={userId ? config.apiUrl + "/users/user/" + userId + "/avatar" : "%PUBLIC_URL%/files/logo.png"} />
-      </Helmet>
-
       <div className="panel-content">
         {loading === false ? (
           <>
@@ -202,7 +194,7 @@ export default function Userpage() {
               Friends with this user
             </p>}
 
-            {!isFriend && <div className="line" />}
+            {(!isFriend && localUser?.id) && <div className="line" />}
 
             {renderFriendButtons()}
           </>

@@ -66,9 +66,17 @@
 
 .panel-content .posts-post img {
   align-self: flex-start;
+  justify-self: center;
   border-radius: 25%;
-  width: 50px;
-  height: 50px;
+  width: 53px;
+  height: 53px;
+}
+
+.panel-content .posts-post a:has(img) {
+  margin: 0;
+  padding: 0;
+  text-decoration: none;
+  height: 53px;
 }
 
 .panel-content .posts-post div {

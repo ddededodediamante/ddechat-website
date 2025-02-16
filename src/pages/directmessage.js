@@ -4,7 +4,6 @@ import { useNavigate, useSearchParams } from "react-router-dom";
 import config from "../config.json";
 import Loading from "../components/Loading";
 import Message from "../components/Message";
-import { Helmet } from "react-helmet-async";
 
 export default function Directmessage() {
   const navigate = useNavigate();
@@ -125,12 +124,6 @@ export default function Directmessage() {
 
   return (
     <>
-      <Helmet>
-        <title>ddeChat - Direct Messages</title>
-        <meta name="description" content="Chat and send fun effects in real time with other people." />
-        <meta property="og:image" content="%PUBLIC_URL%/files/logo.png" />
-      </Helmet>
-
       <div className="panel-content" style={{ overflowX: "hidden" }}>
         {(user?.id && localUser?.id) ? (
           <>
@@ -154,19 +147,25 @@ export default function Directmessage() {
               />
               <button onClick={sendMessage}>Send</button>
               <button
-                style={{ ...(effect === 'zoomIn' ? { backgroundColor: "#444" } : {}) }}
+                style={{ ...(effect === 'zoomIn' ? { backgroundColor: "#555" } : {}) }}
                 onClick={() => effect === 'zoomIn' ? setEffect('') : setEffect('zoomIn')}
               >
                 <img src="/files/megaphone.png" height={"28px"} alt="zoomIn" />
               </button>
               <button
-                style={{ ...(effect === 'glow' ? { backgroundColor: "#444" } : {}) }}
+                style={{ ...(effect === 'glow' ? { backgroundColor: "#555" } : {}) }}
                 onClick={() => effect === 'glow' ? setEffect('') : setEffect('glow')}
               >
                 <img src="/files/star.png" height={"28px"} alt="glow" />
               </button>
               <button
-                style={{ ...(spoiler ? { backgroundColor: "#444" } : {}) }}
+                style={{ ...(effect === 'loud' ? { backgroundColor: "#555" } : {}) }}
+                onClick={() => effect === 'loud' ? setEffect('') : setEffect('loud')}
+              >
+                <img src="/files/angerbubble.png" height={"28px"} alt="loud" />
+              </button>
+              <button
+                style={{ ...(spoiler ? { backgroundColor: "#555" } : {}) }}
                 onClick={() => setSpoiler(!spoiler)}
               >
                 <img src="/files/eyes.png" height={"28px"} alt="spoiler" />
