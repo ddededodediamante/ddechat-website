@@ -3,12 +3,13 @@ import Post from "../components/Post";
 import { useEffect, useState } from "react";
 import config from "../config.json";
 import Loading from "../components/Loading";
+import { useNavigate } from "react-router-dom";
 
 export default function Posts() {
   const [user, setUser] = useState(null);
   const [posts, setPosts] = useState({});
   const [postContent, setPostContent] = useState();
-  const [showFriends, setShowFriends] = useState(true);
+  const navigate = useNavigate();
 
   useEffect(() => {
     const token = localStorage.getItem("accountToken");
@@ -47,7 +48,13 @@ export default function Posts() {
   }, []);
 
   function sendPost() {
-    document.querySelector("div.horizontal textarea#postText").value = "";
+    let textarea = document.getElementById("postText");
+    textarea.disabled = true;
+    textarea.ariaDisabled = true;
+
+    let postbutton = document.getElementById('postButton');
+    postbutton.disabled = true;
+    postbutton.ariaDisabled = true;
 
     axios
       .post(
@@ -62,14 +69,14 @@ export default function Posts() {
         }
       )
       .then((data) => {
-        posts.latest.unshift(data.data);
+        navigate(`/post?id=${data.data.id}`, { replace: true });
       });
   }
 
   return (
     <>
       <div className="panel-content">
-        {user && (<>
+        {user?.id && (<>
           <div
             className="horizontal"
             style={{
@@ -91,45 +98,20 @@ export default function Posts() {
                 user.username ? "What's new, " + user.username + "?" : "What's new?"
               }
               maxLength={2000}
-              disabled={user.id === null}
-              onInput={(e) => setPostContent(e.target.value)}
+              disabled={user?.id === null}
+              onInput={(e) => setPostContent(e.target.value.trim())}
               id="postText"
             />
-            <button onClick={sendPost}>Post</button>
+            <button id="postButton" onClick={sendPost}>Post</button>
           </div>
 
           <div className="line" />
         </>)}
 
-        {posts && posts?.latest ? (
-          posts?.latest?.length > 0 ? (
-            <>
-              <div className="collapse">
-                <p className="title smaller">
-                  {showFriends ? (
-                    <i className="fa-solid fa-expand" onClick={() => setShowFriends(!showFriends)} />
-                  ) : (
-                    <i className="fa-solid fa-compress" onClick={() => setShowFriends(!showFriends)} />
-                  )}
-                  By your friends
-                </p>
-
-                {showFriends &&
-                  <div id="YFPCP">
-                    {posts?.personalized?.length > 0
-                      ? (posts.personalized.map((p) => <Post data={p} />))
-                      : (<p>Recent posts made by your friends will appear here.</p>)
-                    }
-                  </div>
-                }
-              </div>
-              {posts.latest.map((p) => (
-                <Post data={p} />
-              ))}
-            </>
-          ) : (
-            <p>Nobody's said a word yet. Quiet bunch.</p>
-          )
+        {(posts) ? (
+          posts?.length > 0
+            ? posts.map(p => <Post data={p} />)
+            : <p>Nobody's said a word yet. Quiet bunch.</p>
         ) : (
           <Loading />
         )}
