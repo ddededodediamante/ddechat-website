@@ -233,7 +233,6 @@ h2 {
 @keyframes loud {
   0% {
     font-size: unset;
-    font-weight: unset;
   }
 
   25% {

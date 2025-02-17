@@ -42,6 +42,14 @@ export default function Directmessage() {
                   data.data?.messages?.find((i) => i?.author?.id === userId)
                     ?.contents ?? []
                 );
+
+                setTimeout(() => {
+                  let panel = document.querySelector('.panel-content')
+                  panel.scrollTo({
+                    top: panel.scrollHeight,
+                    behavior: "instant",
+                  });
+                }, 50);
               })
               .catch((error) => {
                 console.error("Error fetching local user data:", error);
@@ -61,6 +69,9 @@ export default function Directmessage() {
 
     const newSocket = new WebSocket(config.apiUrl.replace(/^http/, 'ws'));
     setSocket(newSocket);
+
+    const notificationSound = new Audio("/files/notification.wav");
+    notificationSound.volume = 0.5;
 
     newSocket.onopen = () => {
       console.log("Connected to server");
@@ -82,14 +93,20 @@ export default function Directmessage() {
           else return;
         }
 
+        let panel = document.querySelector('.panel-content');
+        let atBottomScroll = panel.scrollHeight - panel.scrollTop - panel.clientHeight <= 7
+
+        if (!document.hasFocus()) notificationSound.play();
+
         setMessages(m => [...m, message]);
 
         setTimeout(() => {
-          let panel = document.querySelector('.panel-content')
-          panel.scrollTo({
-            top: panel.scrollHeight,
-            behavior: "smooth",
-          });
+          if (atBottomScroll) {
+            panel.scrollTo({
+              top: panel.scrollHeight,
+              behavior: "instant",
+            });
+          }
         }, 50);
       }
     };
@@ -143,9 +160,14 @@ export default function Directmessage() {
                 maxLength={1000}
                 value={messageContent}
                 onChange={(e) => setMessageContent(e.target.value)}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter" && !e.shiftKey) {
+                    e.preventDefault();
+                    sendMessage();
+                  }
+                }}
                 id="postText"
               />
-              <button onClick={sendMessage}>Send</button>
               <button
                 style={{ ...(effect === 'zoomIn' ? { backgroundColor: "#555" } : {}) }}
                 onClick={() => effect === 'zoomIn' ? setEffect('') : setEffect('zoomIn')}
@@ -170,6 +192,7 @@ export default function Directmessage() {
               >
                 <img src="/files/eyes.png" height={"28px"} alt="spoiler" />
               </button>
+              <button onClick={sendMessage}>Send</button>
             </div>
           </>
         ) : (
