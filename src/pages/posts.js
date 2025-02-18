@@ -9,6 +9,7 @@ export default function Posts() {
   const [user, setUser] = useState(null);
   const [posts, setPosts] = useState({});
   const [postContent, setPostContent] = useState();
+  const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -36,6 +37,7 @@ export default function Posts() {
           },
         })
         .then((data) => {
+          setLoading(false);
           setPosts(data.data);
           sessionStorage.setItem("latestPosts", JSON.stringify(data.data));
         })
@@ -43,6 +45,7 @@ export default function Posts() {
           console.error("Error fetching user data:", error);
         });
     } else {
+      setLoading(false);
       setPosts(JSON.parse(sessionStorage.getItem("latestPosts")));
     }
   }, []);
@@ -76,45 +79,45 @@ export default function Posts() {
   return (
     <>
       <div className="panel-content">
-        {user?.id && (<>
-          <div
-            className="horizontal"
-            style={{
-              width: "100%",
-              gap: "10px",
-              height: "fit-content",
-              alignItems: "center",
-            }}
-          >
-            <img
-              alt=""
-              src={`${config.apiUrl}/users/user/${user.id}/avatar`}
-              width={60}
-              height={60}
-              style={{ borderRadius: "25%" }}
-            />
-            <textarea
-              placeholder={
-                user.username ? "What's new, " + user.username + "?" : "What's new?"
-              }
-              maxLength={2000}
-              disabled={user?.id === null}
-              onInput={(e) => setPostContent(e.target.value.trim())}
-              id="postText"
-            />
-            <button id="postButton" onClick={sendPost}>Post</button>
-          </div>
+        {loading
+          ? <Loading />
+          : <>
+            {user?.id
+              ? <div
+                className="horizontal"
+                style={{
+                  width: "100%",
+                  gap: "10px",
+                  height: "fit-content",
+                  alignItems: "center",
+                }}
+              >
+                <img
+                  alt=""
+                  src={`${config.apiUrl}/users/user/${user.id}/avatar`}
+                  width={60}
+                  height={60}
+                  style={{ borderRadius: "25%" }}
+                />
+                <textarea
+                  placeholder={
+                    user.username ? "What's new, " + user.username + "?" : "What's new?"
+                  }
+                  maxLength={2000}
+                  disabled={user?.id === null}
+                  onInput={(e) => setPostContent(e.target.value.trim())}
+                  id="postText"
+                />
+                <button id="postButton" onClick={sendPost}>Post</button>
+              </div>
+              : <p>Login to send posts!</p>
+            }
 
-          <div className="line" />
-        </>)}
+            <div className="line" />
 
-        {(posts) ? (
-          posts?.length > 0
-            ? posts.map(p => <Post data={p} />)
-            : <p>Nobody's said a word yet. Quiet bunch.</p>
-        ) : (
-          <Loading />
-        )}
+            {posts?.length > 0 ? posts.map(p => <Post data={p} />) : <p>Nobody's said a word yet. Quiet bunch.</p>}
+          </>
+        }
       </div>
     </>);
 }
