@@ -1,4 +1,5 @@
 import { Navigate, Route, Routes } from 'react-router-dom';
+import { useEffect } from 'react';
 
 import Toolbar from './components/Toolbar';
 
@@ -12,13 +13,57 @@ import Posts from './pages/posts.js';
 import Postpage from './pages/postpage.js';
 import Directmessage from './pages/directmessage.js';
 
+import './static/css/Styles.css';
+/*import './static/css/Index.css';
 import './static/css/Panel.css';
-import './static/css/Index.css';
 import './static/css/Login.css';
 import './static/css/Toolbar.css';
-import './static/css/Swal2.css';
+import './static/css/Swal2.css';*/
 
 export default function App() {
+  useEffect(() => {
+    const setStyle = (property, value) => document.documentElement.style.setProperty(property, value);
+
+    let styleSettings = {
+      background: '#111',
+      midground: '#333',
+      foreground: '#555',
+      light: '#777',
+      font: '#fff'
+    };
+
+    let layoutSettings = {
+      showUserTag: true,
+      showToolbarLogo: true,
+    };
+
+    try {
+      styleSettings = localStorage.getItem('themeSettings');
+      layoutSettings = localStorage.getItem("layoutSettings");
+
+      if (localStorage.getItem('themeSettings') === null) {
+        localStorage.setItem('themeSettings', JSON.stringify(styleSettings));
+      } else {
+        styleSettings = JSON.parse(styleSettings);
+      }
+
+      if (localStorage.getItem("layoutSettings") === null) {
+        localStorage.setItem("layoutSettings", JSON.stringify(layoutSettings));
+      } else {
+        layoutSettings = JSON.parse(layoutSettings);
+      }
+    } catch (_) { }
+
+    setStyle('--background', styleSettings.background ?? '#111');
+    setStyle('--midground', styleSettings.midground ?? '#333');
+    setStyle('--foreground', styleSettings.foreground ?? '#555');
+    setStyle('--light', styleSettings.light ?? '#777');
+    setStyle('--font', styleSettings.font ?? '#fff');
+
+    window.theme = styleSettings;
+    window.layout = layoutSettings;
+  }, []);
+
   return (
     <>
       <Toolbar />

@@ -53,7 +53,7 @@ export default function Userpage() {
           setLoading(false);
         });
     }
-  }, [userId, user?.id]);
+  }, [userId]);
 
   function sendFriendRequest() {
     if (!userId || !user || !localUser.id || user.id === localUser.id) return;
@@ -138,7 +138,7 @@ export default function Userpage() {
   }
 
   const renderFriendButtons = () => {
-    if (!localUser?.id || !user?.id || isFriend) return;
+    if (!localUser?.id || !user?.id || isFriend || user.id === localUser.id) return;
 
     if (incomingFR) {
       return (
@@ -184,17 +184,19 @@ export default function Userpage() {
                 <i className="fa-solid fa-user" />
               )}
               {user.username ?? "Unknown user"}
-              {user.id && <p style={{ color: "#444444", fontSize: "18px" }}>{user.id}</p>}
+              {user.isModerator && (<i class="fa-solid fa-hammer"></i>)}
             </p>
+
+            {user.id && <p style={{ color: "var(--light)", fontSize: "18px" }}>{user.id}</p>}
 
             {user.created && <p>{"Joined " + moment(user.created).fromNow()}</p>}
 
-            {isFriend && <p style={{ color: "#999999", fontSize: "17px", display: 'flex', gap: '5px' }}>
+            {isFriend && <p style={{ fontSize: "17px", display: 'flex', gap: '5px' }}>
               <i className="fa-solid fa-users" />
               Friends with this user
             </p>}
 
-            {(!isFriend && localUser?.id) && <div className="line" />}
+            {(isFriend && localUser?.id) && <div className="line" />}
 
             {renderFriendButtons()}
           </>

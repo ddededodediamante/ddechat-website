@@ -55,7 +55,7 @@ export default function Login() {
 
         <Link to="/sign">No account? Sign up instead!</Link>
 
-        <div className="loginForm">
+        <div className="login-form">
           <input
             type="text"
             placeholder="Username"

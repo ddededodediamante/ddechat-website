@@ -17,7 +17,7 @@ export default function Post({ data, noSocial = false }) {
       {data?.author?.username && (
         <p className="grey">@{data.author.username}</p>
       )}
-      <p style={{ color: '#fff' }} dangerouslySetInnerHTML={{ __html: markdownit().renderInline(data.content ?? 'Missing content') }} />
+      <p style={{ color: 'var(--font)' }} dangerouslySetInnerHTML={{ __html: markdownit().renderInline(data.content ?? 'Missing content') }} />
       <div className="horizontal" style={{ gap: '5px' }}>
         {noSocial === false && (
           <p className="grey">{data?.likes?.length ?? 0} likes ·</p>
