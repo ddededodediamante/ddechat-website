@@ -41,24 +41,24 @@ export default function App() {
       styleSettings = localStorage.getItem('themeSettings');
       layoutSettings = localStorage.getItem("layoutSettings");
 
-      if (localStorage.getItem('themeSettings') === null) {
+      if (styleSettings === null) {
         localStorage.setItem('themeSettings', JSON.stringify(styleSettings));
       } else {
         styleSettings = JSON.parse(styleSettings);
       }
 
-      if (localStorage.getItem("layoutSettings") === null) {
+      if (layoutSettings === null) {
         localStorage.setItem("layoutSettings", JSON.stringify(layoutSettings));
       } else {
         layoutSettings = JSON.parse(layoutSettings);
       }
     } catch (_) { }
 
-    setStyle('--background', styleSettings.background ?? '#111');
-    setStyle('--midground', styleSettings.midground ?? '#333');
-    setStyle('--foreground', styleSettings.foreground ?? '#555');
-    setStyle('--light', styleSettings.light ?? '#777');
-    setStyle('--font', styleSettings.font ?? '#fff');
+    setStyle('--background', styleSettings?.background ?? '#111');
+    setStyle('--midground', styleSettings?.midground ?? '#333');
+    setStyle('--foreground', styleSettings?.foreground ?? '#555');
+    setStyle('--light', styleSettings?.light ?? '#777');
+    setStyle('--font', styleSettings?.font ?? '#fff');
 
     window.theme = styleSettings;
     window.layout = layoutSettings;
