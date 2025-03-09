@@ -10,6 +10,7 @@ const setStyle = (property, value) =>
 
 export default function Settings() {
   const navigate = useNavigate();
+  const [tab, setTab] = useState("avatar");
   const [avatarFile, setAvatarFile] = useState(null);
   const [avatarFileURI, setAvatarFileURI] = useState("");
   const [user, setUser] = useState(null);
@@ -169,45 +170,66 @@ export default function Settings() {
         {user ? (
           <>
             <div className="line" />
-            <div id="settings">
-              <h2>Avatar</h2>
 
-              <div
-                className="horizontal"
-                style={{
-                  gap: "10px",
-                  justifyContent: "start",
-                  alignItems: "center",
-                  height: "fit-content",
-                }}
-              >
-                <img
-                  alt=""
-                  src={
-                    avatarFileURI !== ""
-                      ? avatarFileURI
-                      : `${config.apiUrl}/users/user/${user.id}/avatar`
-                  }
-                  width={70}
-                  height={70}
+            <div
+              className="horizontal"
+              style={{ marginLeft: '10px', gap: "5px", height: "fit-content" }}
+            >
+              {["avatar", "theme", "layout"].map((name) => (
+                <button
+                  key={name}
+                  onClick={() => setTab(name)}
                   style={{
-                    borderRadius: "25%",
-                    backgroundColor: "var(--midground)",
-                    padding: "8px",
+                    background:
+                      tab === name ? "var(--foreground)" : "var(--midground)",
+                      borderBottomRightRadius: 0,
+                      borderBottomLeftRadius: 0
                   }}
-                />
-                <input
-                  type="file"
-                  id="avatarUpload"
-                  accept="image/png, image/jpeg, image/webp"
-                  onChange={handleAvatarChange}
-                />
-                <button onClick={handleAvatarSubmit}>Submit Avatar</button>
+                >
+                  {name.charAt(0).toUpperCase() + name.slice(1)}
+                </button>
+              ))}
+            </div>
+
+            <div className="settings" id="top">
+              <div className={tab === "avatar" ? "settings" : "hidden"}>
+                <h2>Avatar</h2>
+
+                <div
+                  className="horizontal"
+                  style={{
+                    gap: "10px",
+                    justifyContent: "start",
+                    alignItems: "center",
+                    height: "fit-content",
+                  }}
+                >
+                  <img
+                    alt=""
+                    src={
+                      avatarFileURI !== ""
+                        ? avatarFileURI
+                        : `${config.apiUrl}/users/user/${user.id}/avatar`
+                    }
+                    width={70}
+                    height={70}
+                    style={{
+                      borderRadius: "25%",
+                      backgroundColor: "var(--midground)",
+                      padding: "8px",
+                    }}
+                  />
+                  <input
+                    type="file"
+                    id="avatarUpload"
+                    accept="image/png, image/jpeg, image/webp"
+                    onChange={handleAvatarChange}
+                  />
+                  <button onClick={handleAvatarSubmit}>Submit Avatar</button>
+                </div>
               </div>
 
-              <div className="line" />
-
-              <div id="settings">
+              <div className={tab === "theme" ? "settings" : "hidden"}>
                 <h2>Theme Settings</h2>
                 {Object.keys(theme).map((key) => (
                   <div key={key}>
@@ -237,9 +259,7 @@ export default function Settings() {
                 </div>
               </div>
 
-              <div className="line" />
-
-              <div id="settings">
+              <div className={tab === "layout" ? "settings" : "hidden"}>
                 <h2>Layout Settings</h2>
                 <p style={{ color: "var(--light)" }}>
                   Applies after page refresh
@@ -265,14 +285,14 @@ export default function Settings() {
                   Show Toolbar Logo
                 </label>
               </div>
+            </div>
 
-              <div className="line" />
+            <div className="line" />
 
               <button onClick={logout}>
                 <i class="fa-solid fa-right-from-bracket"></i>
                 Log out
               </button>
-            </div>
           </>
         ) : (
           <Loading />

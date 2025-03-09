@@ -82,7 +82,7 @@ button {
 }
 
 button:active {
-  scale: 0.96;
+  scale: 0.97;
 }
 
 button i {
@@ -449,6 +449,28 @@ div#YFPCP .posts-post {
   width: fit-content;
 }
 
+div.settings {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+div.settings#top {
+  background-color: var(--foreground);
+  border-radius: 10px;
+  margin-top: -10px;
+  padding: 10px;
+}
+
+div.settings button {
+  width: fit-content;
+  height: fit-content;
+}
+
+.hidden {
+  display: none;
+}
+
 .toolbar {
   display: flex;
   flex-direction: column;
@@ -582,15 +604,4 @@ div#YFPCP .posts-post {
 
 .swal2-confirm {
   background-color: var(--foreground);
-}
-
-div#settings {
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-  width: 100%;
-}
-
-div#settings button {
-  width: fit-content;
 }
