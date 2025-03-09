@@ -38,19 +38,19 @@ export default function App() {
     };
 
     try {
-      styleSettings = localStorage.getItem('themeSettings');
-      layoutSettings = localStorage.getItem("layoutSettings");
+      let myStyleSettings = localStorage.getItem('themeSettings');
+      let myLayoutSettings = localStorage.getItem("layoutSettings");
 
-      if (styleSettings === null) {
+      if (myStyleSettings === null || myStyleSettings === 'null') {
         localStorage.setItem('themeSettings', JSON.stringify(styleSettings));
       } else {
-        styleSettings = JSON.parse(styleSettings);
+        styleSettings = JSON.parse(myStyleSettings);
       }
 
-      if (layoutSettings === null) {
+      if (myLayoutSettings === null || myLayoutSettings === 'null') {
         localStorage.setItem("layoutSettings", JSON.stringify(layoutSettings));
       } else {
-        layoutSettings = JSON.parse(layoutSettings);
+        layoutSettings = JSON.parse(myLayoutSettings);
       }
     } catch (_) { }
 
