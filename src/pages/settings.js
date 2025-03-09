@@ -100,7 +100,7 @@ export default function Settings() {
     localStorage.setItem("themeSettings", JSON.stringify(newTheme));
   }
 
-  function handleLayoutChangeg(key, value) {
+  function handleLayoutChange(key, value) {
     const newSettings = { ...layoutSettings, [key]: value };
     setLayoutSettings(newSettings);
     localStorage.setItem("layoutSettings", JSON.stringify(newSettings));
@@ -267,9 +267,9 @@ export default function Settings() {
                 <label>
                   <input
                     type="checkbox"
-                    checked={layoutSettings.showUserTag}
+                    checked={window?.layout?.showUserTag ?? true}
                     onChange={(e) =>
-                      handleLayoutChangeg("showUserTag", e.target.checked)
+                      handleLayoutChange("showUserTag", e.target.checked)
                     }
                   />
                   Show User Tag
@@ -277,9 +277,9 @@ export default function Settings() {
                 <label>
                   <input
                     type="checkbox"
-                    checked={layoutSettings.showToolbarLogo}
+                    checked={window?.layout?.showToolbarLogo ?? true}
                     onChange={(e) =>
-                      handleLayoutChangeg("showToolbarLogo", e.target.checked)
+                      handleLayoutChange("showToolbarLogo", e.target.checked)
                     }
                   />
                   Show Toolbar Logo
