@@ -21,7 +21,7 @@ export default function Userpage() {
   useEffect(() => {
     if (userId && userId !== "") {
       axios
-        .get(`${config.apiUrl}/users/user/${userId}`)
+        .get(`${config.apiUrl}/users/${userId}`)
         .then((data) => {
           setUser(data.data);
 
@@ -35,11 +35,15 @@ export default function Userpage() {
               })
               .then((data) => {
                 setLocalUser(data.data);
-                setPendingFR((data.data?.outgoingFR ?? []).some((v) => v.id === user.id));
-                setIncomingFR(
-                  (data.data?.incomingFR ?? []).some((v) => v.id === user.id)
+                setPendingFR(
+                  (data.data?.outgoingFR ?? []).some((v) => v.id === userId)
                 );
-                setIsFriend((data.data?.friends ?? []).some((v) => v.id === user.id));
+                setIncomingFR(
+                  (data.data?.incomingFR ?? []).some((v) => v.id === userId)
+                );
+                setIsFriend(
+                  (data.data?.friends ?? []).some((v) => v.id === userId)
+                );
                 setTimeout(() => { setLoading(false) }, 200);
               })
               .catch((error) => {
@@ -60,7 +64,7 @@ export default function Userpage() {
 
     axios
       .post(
-        `${config.apiUrl}/users/user/${userId}/friendRequest`,
+        `${config.apiUrl}/users/${userId}/friendRequest`,
         {},
         {
           headers: {
@@ -81,7 +85,7 @@ export default function Userpage() {
     if (!userId || !user || !localUser.id || user.id === localUser.id) return;
 
     axios
-      .delete(`${config.apiUrl}/users/user/${userId}/friendRequest`, {
+      .delete(`${config.apiUrl}/users/${userId}/friendRequest`, {
         headers: {
           Authorization: localStorage.getItem("accountToken"),
         },
@@ -100,7 +104,7 @@ export default function Userpage() {
 
     axios
       .post(
-        `${config.apiUrl}/users/user/${userId}/friendRequestAction`,
+        `${config.apiUrl}/users/${userId}/friendRequestAction`,
         {},
         {
           headers: {
@@ -122,7 +126,7 @@ export default function Userpage() {
     if (!userId || !user || !localUser.id || user.id === localUser.id) return;
 
     axios
-      .delete(`${config.apiUrl}/users/user/${userId}/friendRequestAction`, {
+      .delete(`${config.apiUrl}/users/${userId}/friendRequestAction`, {
         headers: {
           Authorization: localStorage.getItem("accountToken"),
         },
@@ -179,7 +183,7 @@ export default function Userpage() {
           <>
             <p className="title">
               {user.id ? (
-                <img alt="" src={`${config.apiUrl}/users/user/${user.id}/avatar`} />
+                <img alt="" src={`${config.apiUrl}/users/${user.id}/avatar`} />
               ) : (
                 <i className="fa-solid fa-user" />
               )}

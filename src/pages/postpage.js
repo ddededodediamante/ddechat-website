@@ -1,13 +1,14 @@
 import axios from "axios";
 import { useEffect, useState } from "react";
 import config from "../config.json";
-import { Link, useSearchParams } from "react-router-dom";
+import { useSearchParams } from "react-router-dom";
 import Post from "../components/Post";
 import Loading from "../components/Loading";
 import Swal from "sweetalert2";
 
 export default function Postpage() {
   const [post, setPost] = useState(null);
+  const [parentPost, setParentPost] = useState(null); 
   const [user, setUser] = useState(null);
   const [replyContent, setReplyContent] = useState("");
   const [searchParams] = useSearchParams();
@@ -26,16 +27,32 @@ export default function Postpage() {
           console.error("Error fetching user data:", error);
         });
     }
+  }, []);
 
+  useEffect(() => {
     if (id) {
       axios
-        .get(`${config.apiUrl}/posts/post/${id}`)
+        .get(`${config.apiUrl}/posts/${id}`)
         .then((res) => {
           setPost(res.data);
           setLiked(res.data.likes.includes(user?.id));
+
+          if (res.data.replyingToId) {
+            axios
+              .get(`${config.apiUrl}/posts/${res.data.replyingToId}`)
+              .then((parentRes) => setParentPost(parentRes.data))
+              .catch((error) => {
+                console.error("Error fetching parent post:", error);
+                setParentPost(null);
+              });
+          } else {
+            setParentPost(null); 
+          }
         })
         .catch((error) => {
           console.error("Error fetching post data:", error);
+          setPost(null);
+          setParentPost(null);
         });
     }
   }, [id, user?.id]);
@@ -46,7 +63,7 @@ export default function Postpage() {
     if (token) {
       axios
         .patch(
-          `${config.apiUrl}/posts/post/${id}/like`,
+          `${config.apiUrl}/posts/${id}/like`,
           {},
           { headers: { Authorization: token } }
         )
@@ -63,29 +80,27 @@ export default function Postpage() {
   function deletePost() {
     if (!user) return;
 
-    Swal
-      .fire({
-        title: "Are you sure?",
-        text: "You won't be able to revert this!",
-        icon: "warning",
-        showCancelButton: true,
-        confirmButtonText: "Confirm",
-      })
-      .then((result) => {
-        if (result.isConfirmed) {
-          axios
-            .delete(`${config.apiUrl}/posts/post/${id}`, {
-              headers: { Authorization: localStorage.getItem("accountToken") },
-            })
-            .then(() => {
-              sessionStorage.removeItem("latestPosts");
-              window.location.href = "/posts";
-            })
-            .catch((error) => {
-              console.error("Error deleting post:", error);
-            });
-        }
-      });
+    Swal.fire({
+      title: "Are you sure?",
+      text: "You won't be able to revert this!",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonText: "Confirm",
+    }).then((result) => {
+      if (result.isConfirmed) {
+        axios
+          .delete(`${config.apiUrl}/posts/${id}`, {
+            headers: { Authorization: localStorage.getItem("accountToken") },
+          })
+          .then(() => {
+            sessionStorage.removeItem("latestPosts");
+            window.location.href = "/posts";
+          })
+          .catch((error) => {
+            console.error("Error deleting post:", error);
+          });
+      }
+    });
   }
 
   function sendReply() {
@@ -106,12 +121,18 @@ export default function Postpage() {
   return (
     <>
       <div className="panel-content">
-        {post && post.replyingToId && (
-          <Link to={`/post?id=${post.replyingToId}`}>
-            <p className="smaller title">
-              <i className="fa-solid fa-rotate-left" /> Go to original post
-            </p>
-          </Link>
+        {parentPost && (
+          <div
+            style={{
+              borderLeft: "4px solid #888",
+              marginBottom: "20px",
+              paddingLeft: "10px",
+              opacity: 0.7,
+            }}
+          >
+            <p className="small title">Original post</p>
+            <Post data={parentPost} />
+          </div>
         )}
 
         {post ? (
@@ -127,15 +148,17 @@ export default function Postpage() {
                 {post?.likes?.length ?? 0}
               </button>
 
-              {(user && post && (user?.isModerator || user?.id === post?.author?.id)) &&
-                <button onClick={deletePost} disabled={!user}>
-                  <i
-                    style={{ color: "#ff4545" }}
-                    className="fa-solid fa-trash"
-                  />
-                  Delete
-                </button>
-              }
+              {user &&
+                post &&
+                (user?.isModerator || user?.id === post?.author?.id) && (
+                  <button onClick={deletePost} disabled={!user}>
+                    <i
+                      style={{ color: "#ff4545" }}
+                      className="fa-solid fa-trash"
+                    />
+                    Delete
+                  </button>
+                )}
             </div>
 
             <div className="line" />
@@ -154,7 +177,7 @@ export default function Postpage() {
               >
                 <img
                   alt="User Avatar"
-                  src={`${config.apiUrl}/users/user/${user.id}/avatar`}
+                  src={`${config.apiUrl}/users/${user.id}/avatar`}
                   width={60}
                   height={60}
                   style={{ borderRadius: "25%" }}

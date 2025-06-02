@@ -21,7 +21,7 @@ export default function Message({ data }) {
   return (
     <div className={`posts-post ${data?.effect}`.trim()}>
       {(data?.author?.userId !== null) &&
-        <img src={`${config.apiUrl}/users/user/${data.author.userId}/avatar`} alt="" />
+        <img src={`${config.apiUrl}/users/${data.author.userId}/avatar`} alt="" />
       }
 
       {postContent}

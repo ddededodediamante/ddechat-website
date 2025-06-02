@@ -24,7 +24,7 @@ export default function Directmessage() {
 
     if (userId && userId !== "") {
       axios
-        .get(`${config.apiUrl}/users/user/${userId}`)
+        .get(`${config.apiUrl}/users/${userId}`)
         .then((data) => {
           setUser(data.data);
 
@@ -94,7 +94,7 @@ export default function Directmessage() {
         }
 
         let panel = document.querySelector('.panel-content');
-        let atBottomScroll = panel.scrollHeight - panel.scrollTop - panel.clientHeight <= 7
+        let atBottomScroll = panel.scrollHeight - panel.scrollTop - panel.clientHeight <= 10
 
         if (!document.hasFocus()) notificationSound.play();
 

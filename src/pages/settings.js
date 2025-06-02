@@ -111,7 +111,7 @@ export default function Settings() {
     setTheme(preset);
     setStyle("--background", preset.background);
     setStyle("--midground", preset.midground);
-    setStyle("--foreground", preset.background);
+    setStyle("--foreground", preset.foreground);
     setStyle("--light", preset.light);
     setStyle("--font", preset.font);
 
@@ -173,7 +173,7 @@ export default function Settings() {
 
             <div
               className="horizontal"
-              style={{ marginLeft: '10px', gap: "5px", height: "fit-content" }}
+              style={{ gap: "5px", height: "fit-content" }}
             >
               {["avatar", "theme", "layout"].map((name) => (
                 <button
@@ -182,8 +182,7 @@ export default function Settings() {
                   style={{
                     background:
                       tab === name ? "var(--foreground)" : "var(--midground)",
-                      borderBottomRightRadius: 0,
-                      borderBottomLeftRadius: 0
+                    paddingBottom: '20px'
                   }}
                 >
                   {name.charAt(0).toUpperCase() + name.slice(1)}
@@ -209,7 +208,7 @@ export default function Settings() {
                     src={
                       avatarFileURI !== ""
                         ? avatarFileURI
-                        : `${config.apiUrl}/users/user/${user.id}/avatar`
+                        : `${config.apiUrl}/users/${user.id}/avatar`
                     }
                     width={70}
                     height={70}
@@ -228,7 +227,6 @@ export default function Settings() {
                   <button onClick={handleAvatarSubmit}>Submit Avatar</button>
                 </div>
               </div>
-
               <div className={tab === "theme" ? "settings" : "hidden"}>
                 <h2>Theme Settings</h2>
                 {Object.keys(theme).map((key) => (
@@ -258,10 +256,9 @@ export default function Settings() {
                   </button>
                 </div>
               </div>
-
               <div className={tab === "layout" ? "settings" : "hidden"}>
                 <h2>Layout Settings</h2>
-                <p style={{ color: "var(--light)" }}>
+                <p style={{ color: "var(--font)", opacity: 0.5 }}>
                   Applies after page refresh
                 </p>
                 <label>
@@ -288,11 +285,10 @@ export default function Settings() {
             </div>
 
             <div className="line" />
-
-              <button onClick={logout}>
-                <i class="fa-solid fa-right-from-bracket"></i>
-                Log out
-              </button>
+            <button onClick={logout}>
+              <i class="fa-solid fa-right-from-bracket"></i>
+              Log out
+            </button>
           </>
         ) : (
           <Loading />

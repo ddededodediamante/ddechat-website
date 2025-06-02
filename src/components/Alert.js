@@ -35,7 +35,7 @@ export default function Alert({ data }) {
                 <Link to={`/user?id=${data.author.id}`}>
                     <img
                         alt=""
-                        src={`${config.apiUrl}/users/user/${data.author.id}/avatar`}
+                        src={`${config.apiUrl}/users/${data.author.id}/avatar`}
                     />
                 </Link>
             }
