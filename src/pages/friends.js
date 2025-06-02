@@ -1,6 +1,6 @@
 import axios from "axios";
 import { useEffect, useState } from "react";
-import config from "../config.json";
+import config from "../config.js";
 import { Link, useNavigate } from "react-router-dom";
 import moment from "moment";
 import Loading from "../components/Loading";

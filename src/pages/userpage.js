@@ -1,6 +1,6 @@
 import axios from "axios";
 import { useEffect, useState } from "react";
-import config from "../config.json";
+import config from "../config.js";
 import { useSearchParams } from "react-router-dom";
 import moment from "moment";
 import Loading from "../components/Loading";
@@ -188,7 +188,7 @@ export default function Userpage() {
                 <i className="fa-solid fa-user" />
               )}
               {user.username ?? "Unknown user"}
-              {user.isModerator && (<i class="fa-solid fa-hammer"></i>)}
+              {user.isModerator && (<i className="fa-solid fa-hammer"></i>)}
             </p>
 
             {user.id && <p style={{ color: "var(--light)", fontSize: "18px" }}>{user.id}</p>}

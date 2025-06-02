@@ -1,5 +1,5 @@
 import moment from "moment";
-import config from "../config.json";
+import config from "../config.js";
 import { Link } from "react-router-dom";
 
 export default function Alert({ data }) {

@@ -1,4 +1,4 @@
-import config from '../config.json';
+import config from '../config.js';
 import formatTime from "../functions/time";
 
 export default function Message({ data }) {

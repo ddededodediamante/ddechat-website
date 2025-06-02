@@ -1,28 +1,32 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
-import config from "../config.json";
+import config from "../config.js";
 import axios from "axios";
+import cache from "../cache.ts";
 
 export default function Toolbar() {
   const [user, setUser] = useState(null);
 
   useEffect(() => {
     const token = localStorage.getItem("accountToken") ?? "";
-    if (token === "") return setUser("error");
+    if (!token || token === "") return;
 
-    axios
-      .get(`${config.apiUrl}/users/me`, {
-        headers: {
-          Authorization: token,
-        },
-      })
-      .then((data) => {
-        setUser(data.data);
-      })
-      .catch((error) => {
-        console.error(error);
-        setUser("error");
-      });
+    if (!cache["user"])
+      axios
+        .get(`${config.apiUrl}/users/me`, {
+          headers: {
+            Authorization: token,
+          },
+        })
+        .then((data) => {
+          cache["user"] = data.data;
+          setUser(data.data);
+        })
+        .catch((error) => {
+          console.error(error);
+          setUser("error");
+        });
+    else setUser(cache["user"]);
   }, []);
 
   return (
@@ -64,10 +68,7 @@ export default function Toolbar() {
           window?.layout?.showUserTag !== false &&
           (user !== "error" ? (
             <>
-              <img
-                alt=""
-                src={`${config.apiUrl}/users/${user.id}/avatar`}
-              />
+              <img alt="" src={`${config.apiUrl}/users/${user.id}/avatar`} />
               <p>{user?.username ?? <a href="/login">Login to ddeChat</a>}</p>
             </>
           ) : (

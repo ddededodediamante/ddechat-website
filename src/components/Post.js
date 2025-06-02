@@ -1,5 +1,5 @@
 import formatTime from "../functions/time";
-import config from '../config.json';
+import config from '../config.js';
 import { Link } from 'react-router-dom';
 import markdownit from 'markdown-it';
 

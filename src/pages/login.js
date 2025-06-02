@@ -1,12 +1,12 @@
 import axios from "axios";
-import config from "../config.json";
+import config from "../config.js";
 import { Link } from "react-router-dom";
 import Swal from "sweetalert2";
 import { useEffect, useState } from "react";
 
 export default function Login() {
-  const [usernameInput, setUsernameInput] = useState('');
-  const [passwordInput, setPasswordInput] = useState('');
+  const [usernameInput, setUsernameInput] = useState("");
+  const [passwordInput, setPasswordInput] = useState("");
   const [valid, setValid] = useState(false);
 
   useEffect(() => {
@@ -19,19 +19,25 @@ export default function Login() {
   }, [usernameInput, passwordInput]);
 
   async function loginButton() {
-    if (!valid) return Swal.fire({
-      title: "Invalid Input/s",
-      text: 'One or more inputs are invalid, please make sure they are valid first!',
-      animation: true
-    });
+    if (!valid)
+      return Swal.fire({
+        title: "Invalid Input/s",
+        text: "One or more inputs are invalid, please make sure they are valid first!",
+        animation: true,
+      });
 
-    const username = document.querySelector('.loginInput[type="text"]').value;
-    const password = document.querySelector('.loginInput[type="password"]').value;
+    const username = document.querySelector(
+      '.login-form input[type="text"]'
+    ).value;
+    const password = document.querySelector(
+      '.login-form input[type="password"]'
+    ).value;
 
     await axios
       .put(config.apiUrl + "/users/login", { username, password })
       .then((data) => {
-        document.querySelector("button.loginButton").innerText = "Logging in...";
+        document.querySelector(".login-form button").innerText =
+          "Logging in...";
         localStorage.setItem("accountToken", data.data.token);
         window.location.href = "/posts";
       })
@@ -59,7 +65,6 @@ export default function Login() {
           <input
             type="text"
             placeholder="Username"
-            className="loginInput"
             maxLength={20}
             minLength={3}
             required={true}
@@ -68,14 +73,12 @@ export default function Login() {
           <input
             type="password"
             placeholder="Password"
-            className="loginInput"
             maxLength={50}
             minLength={8}
             required={true}
             onInput={(e) => setPasswordInput(e.currentTarget.value)}
           />
           <button
-            className="loginButton"
             onClick={loginButton}
             disabled={!valid}
             aria-disabled={!valid}

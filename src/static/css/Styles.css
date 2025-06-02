@@ -459,7 +459,7 @@ div.settings#top {
   background-color: var(--foreground);
   border-radius: 10px;
   margin-top: -20px;
-  padding: 15px;
+  padding: 10px;
   z-index: 999;
 }
 

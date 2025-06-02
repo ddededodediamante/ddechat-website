@@ -1,9 +1,10 @@
 import axios from "axios";
 import Post from "../components/Post";
 import { useEffect, useState } from "react";
-import config from "../config.json";
+import config from "../config.js";
 import Loading from "../components/Loading";
 import { useNavigate } from "react-router-dom";
+import cache from "../cache.ts";
 
 export default function Posts() {
   const [user, setUser] = useState(null);
@@ -14,22 +15,27 @@ export default function Posts() {
 
   useEffect(() => {
     const token = localStorage.getItem("accountToken");
-    if (token) {
-      axios
-        .get(`${config.apiUrl}/users/me`, {
-          headers: {
-            Authorization: token,
-          },
-        })
-        .then((data) => {
-          setUser(data.data);
-        })
-        .catch((error) => {
-          console.error("Error fetching user data:", error);
-        });
+
+    if (!cache["user"]) {
+      if (token)
+        axios
+          .get(`${config.apiUrl}/users/me`, {
+            headers: {
+              Authorization: token,
+            },
+          })
+          .then((data) => {
+            cache["user"] = data.data;
+            setUser(data.data);
+          })
+          .catch((error) => {
+            console.error("Error fetching user data:", error);
+          });
+    } else {
+      setUser(cache["user"]);
     }
 
-    if (!sessionStorage.getItem("latestPosts")) {
+    if (!cache["latestPosts"]) {
       axios
         .get(`${config.apiUrl}/posts/latest`, {
           headers: {
@@ -39,14 +45,14 @@ export default function Posts() {
         .then((data) => {
           setLoading(false);
           setPosts(data.data);
-          sessionStorage.setItem("latestPosts", JSON.stringify(data.data));
+          cache["latestPosts"] = data.data;
         })
         .catch((error) => {
           console.error("Error fetching user data:", error);
         });
     } else {
       setLoading(false);
-      setPosts(JSON.parse(sessionStorage.getItem("latestPosts")));
+      setPosts(cache["latestPosts"]);
     }
   }, []);
 
@@ -55,7 +61,7 @@ export default function Posts() {
     textarea.disabled = true;
     textarea.ariaDisabled = true;
 
-    let postbutton = document.getElementById('postButton');
+    let postbutton = document.getElementById("postButton");
     postbutton.disabled = true;
     postbutton.ariaDisabled = true;
 
@@ -72,6 +78,7 @@ export default function Posts() {
         }
       )
       .then((data) => {
+        if (cache["latestPosts"]) cache["latestPosts"].push(data.data);
         navigate(`/post?id=${data.data.id}`, { replace: true });
       });
   }
@@ -79,11 +86,12 @@ export default function Posts() {
   return (
     <>
       <div className="panel-content">
-        {loading
-          ? <Loading />
-          : <>
-            {user?.id
-              ? <div
+        {loading ? (
+          <Loading />
+        ) : (
+          <>
+            {user?.id ? (
+              <div
                 className="horizontal"
                 style={{
                   width: "100%",
@@ -101,23 +109,33 @@ export default function Posts() {
                 />
                 <textarea
                   placeholder={
-                    user.username ? "What's new, " + user.username + "?" : "What's new?"
+                    user.username
+                      ? "What's new, " + user.username + "?"
+                      : "What's new?"
                   }
                   maxLength={2000}
                   disabled={user?.id === null}
                   onInput={(e) => setPostContent(e.target.value.trim())}
                   id="postText"
                 />
-                <button id="postButton" onClick={sendPost}>Post</button>
+                <button id="postButton" onClick={sendPost}>
+                  Post
+                </button>
               </div>
-              : <p>Login to send posts!</p>
-            }
+            ) : (
+              <p>Login to send posts!</p>
+            )}
 
             <div className="line" />
 
-            {posts?.length > 0 ? posts.map(p => <Post data={p} />) : <p>Nobody's said a word yet. Quiet bunch.</p>}
+            {posts?.length > 0 ? (
+              posts.map((p) => <Post data={p} />)
+            ) : (
+              <p>Nobody's said a word yet. Quiet bunch.</p>
+            )}
           </>
-        }
+        )}
       </div>
-    </>);
+    </>
+  );
 }

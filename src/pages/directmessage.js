@@ -1,7 +1,7 @@
 import axios from "axios";
 import { useEffect, useState } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
-import config from "../config.json";
+import config from "../config.js";
 import Loading from "../components/Loading";
 import Message from "../components/Message";
 

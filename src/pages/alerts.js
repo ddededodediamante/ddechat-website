@@ -1,7 +1,7 @@
 import axios from "axios";
 import Alert from "../components/Alert";
 import { useEffect, useState } from "react";
-import config from "../config.json";
+import config from "../config.js";
 import { useNavigate } from "react-router-dom";
 import Loading from "../components/Loading";
 

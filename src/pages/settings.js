@@ -1,6 +1,6 @@
 import axios from "axios";
 import { useEffect, useState } from "react";
-import config from "../config.json";
+import config from "../config.js";
 import Swal from "sweetalert2";
 import { useNavigate } from "react-router-dom";
 import Loading from "../components/Loading";
@@ -182,7 +182,7 @@ export default function Settings() {
                   style={{
                     background:
                       tab === name ? "var(--foreground)" : "var(--midground)",
-                    paddingBottom: '20px'
+                    paddingBottom: "20px",
                   }}
                 >
                   {name.charAt(0).toUpperCase() + name.slice(1)}
@@ -243,15 +243,15 @@ export default function Settings() {
                 ))}
                 <div className="horizontal" style={{ gap: "5px" }}>
                   <button onClick={() => applyPreset(darkerTheme)}>
-                    <i class="fa-solid fa-cloud-moon"></i>
+                    <i className="fa-solid fa-cloud-moon"></i>
                     Darker Theme
                   </button>
                   <button onClick={() => applyPreset(darkTheme)}>
-                    <i class="fa-solid fa-moon"></i>
+                    <i className="fa-solid fa-moon"></i>
                     Dark Theme
                   </button>
                   <button onClick={() => applyPreset(lightTheme)}>
-                    <i class="fa-solid fa-sun"></i>
+                    <i className="fa-solid fa-sun"></i>
                     Light Theme
                   </button>
                 </div>
@@ -286,7 +286,7 @@ export default function Settings() {
 
             <div className="line" />
             <button onClick={logout}>
-              <i class="fa-solid fa-right-from-bracket"></i>
+              <i className="fa-solid fa-right-from-bracket"></i>
               Log out
             </button>
           </>
