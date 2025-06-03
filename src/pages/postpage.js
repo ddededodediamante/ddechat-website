@@ -5,10 +5,12 @@ import { useSearchParams } from "react-router-dom";
 import Post from "../components/Post";
 import Loading from "../components/Loading";
 import Swal from "sweetalert2";
+import cache from "../cache.ts";
 
 export default function Postpage() {
   const [post, setPost] = useState(null);
   const [parentPost, setParentPost] = useState(null);
+  const [parentPostLoading, setParentPostLoading] = useState(false);
   const [user, setUser] = useState(null);
   const [replyContent, setReplyContent] = useState("");
   const [searchParams] = useSearchParams();
@@ -34,31 +36,64 @@ export default function Postpage() {
 
     setPost(null);
     setParentPost(null);
+    setParentPostLoading(false);
 
-    axios
-      .get(`${config.apiUrl}/posts/${id}`)
-      .then((res) => {
-        setPost(res.data);
-        setLiked(res.data.likes.includes(user.id));
+    const fetchParent = (parentId) => {
+      setParentPostLoading(true);
 
-        if (res.data.replyingToId) {
-          axios
-            .get(`${config.apiUrl}/posts/${res.data.replyingToId}`)
-            .then((parentRes) => setParentPost(parentRes.data))
-            .catch((error) => {
-              console.error("Error fetching parent post:", error);
-              setParentPost(null);
-            });
-        } else {
+      if (!cache["posts"]) cache["posts"] = {};
+      if (!cache["posts"][parentId]) {
+        axios
+          .get(`${config.apiUrl}/posts/${parentId}`)
+          .then((parentRes) => {
+            cache["posts"][parentId] = parentRes.data;
+            setParentPost(parentRes.data);
+          })
+          .catch((error) => {
+            console.error("Error fetching parent post:", error);
+            setParentPost(null);
+          })
+          .finally(() => {
+            setParentPostLoading(false);
+          });
+      } else {
+        setParentPost(cache["posts"][parentId]);
+        setParentPostLoading(false);
+      }
+    };
+
+    if (!cache["posts"]) cache["posts"] = {};
+    if (!cache["posts"][id]) {
+      axios
+        .get(`${config.apiUrl}/posts/${id}`)
+        .then((res) => {
+          cache["posts"][id] = res.data;
+          setPost(res.data);
+          setLiked(res.data.likes.includes(user.id));
+
+          if (res.data.replyingToId) {
+            fetchParent(res.data.replyingToId);
+          } else {
+            setParentPost(null);
+          }
+        })
+        .catch((error) => {
+          console.error("Error fetching post data:", error);
+          setPost(null);
           setParentPost(null);
-        }
-      })
-      .catch((error) => {
-        console.error("Error fetching post data:", error);
-        setPost(null);
+        });
+    } else {
+      const cached = cache["posts"][id];
+      setPost(cached);
+      setLiked(cached.likes.includes(user.id));
+
+      if (cached.replyingToId) {
+        fetchParent(cached.replyingToId);
+      } else {
         setParentPost(null);
-      });
-  }, [id, user]);  
+      }
+    }
+  }, [id, user]);
 
   function toggleLike(e) {
     if (e.target.disabled) return;
@@ -125,7 +160,7 @@ export default function Postpage() {
     <>
       <div className="panel-content">
         {post ? (
-          post.replyingToId && parentPost === null ? (
+          post.replyingToId && parentPost === null && parentPostLoading ? (
             <Loading />
           ) : (
             <>
@@ -196,7 +231,7 @@ export default function Postpage() {
                 </div>
               )}
 
-              {post?.replies && post?.replies?.length > 0 ? (
+              {post?.replies && post?.replies.length > 0 ? (
                 post.replies.map((reply) => (
                   <Post key={reply.id} data={reply} />
                 ))

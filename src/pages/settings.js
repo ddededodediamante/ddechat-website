@@ -171,10 +171,7 @@ export default function Settings() {
           <>
             <div className="line" />
 
-            <div
-              className="horizontal"
-              style={{ gap: "5px", height: "fit-content" }}
-            >
+            <div className="horizontal fit-all" style={{ gap: "5px" }}>
               {["avatar", "theme", "layout"].map((name) => (
                 <button
                   key={name}
@@ -182,7 +179,6 @@ export default function Settings() {
                   style={{
                     background:
                       tab === name ? "var(--foreground)" : "var(--midground)",
-                    paddingBottom: "20px",
                   }}
                 >
                   {name.charAt(0).toUpperCase() + name.slice(1)}
@@ -190,19 +186,10 @@ export default function Settings() {
               ))}
             </div>
 
-            <div className="settings" id="top">
+            <div className="settingsWrap">
               <div className={tab === "avatar" ? "settings" : "hidden"}>
-                <h2>Avatar</h2>
-
-                <div
-                  className="horizontal"
-                  style={{
-                    gap: "10px",
-                    justifyContent: "start",
-                    alignItems: "center",
-                    height: "fit-content",
-                  }}
-                >
+                <h2>Preview</h2>
+                <div className="horizontal fit-all">
                   <img
                     alt=""
                     src={
@@ -210,27 +197,33 @@ export default function Settings() {
                         ? avatarFileURI
                         : `${config.apiUrl}/users/${user.id}/avatar`
                     }
-                    width={70}
-                    height={70}
                     style={{
                       borderRadius: "25%",
-                      backgroundColor: "var(--midground)",
+                      backgroundColor: "var(--foreground)",
                       padding: "8px",
+                      width: "70px",
+                      height: "70px",
                     }}
                   />
-                  <input
-                    type="file"
-                    id="avatarUpload"
-                    accept="image/png, image/jpeg, image/webp"
-                    onChange={handleAvatarChange}
-                  />
-                  <button onClick={handleAvatarSubmit}>Submit Avatar</button>
                 </div>
+
+                <p>Change Avatar</p>
+                <input
+                  type="file"
+                  id="avatarUpload"
+                  accept="image/png, image/jpeg, image/webp"
+                  onChange={handleAvatarChange}
+                />
+                <button
+                  disabled={avatarFileURI === ""}
+                  onClick={handleAvatarSubmit}
+                >
+                  Submit Avatar
+                </button>
               </div>
               <div className={tab === "theme" ? "settings" : "hidden"}>
-                <h2>Theme Settings</h2>
                 {Object.keys(theme).map((key) => (
-                  <div key={key}>
+                  <div key={key} className="horizontal" style={{ gap: "5px" }}>
                     <label>
                       {key.charAt(0).toUpperCase() + key.slice(1)}:{" "}
                     </label>
@@ -257,7 +250,6 @@ export default function Settings() {
                 </div>
               </div>
               <div className={tab === "layout" ? "settings" : "hidden"}>
-                <h2>Layout Settings</h2>
                 <p style={{ color: "var(--font)", opacity: 0.5 }}>
                   Applies after page refresh
                 </p>

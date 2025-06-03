@@ -1,47 +1,112 @@
 import formatTime from "../functions/time";
-import config from '../config.js';
-import { Link } from 'react-router-dom';
-import markdownit from 'markdown-it';
+import config from "../config.js";
+import { Link } from "react-router-dom";
+import markdownit from "markdown-it";
+import { useEffect, useState } from "react";
+import axios from "axios";
+import Loading from "./Loading.js";
+import cache from "../cache.ts";
 
-export default function Post({ data, noSocial = false }) {
+export default function Post({
+  data,
+  noSocial = false,
+  showParentPost = false,
+}) {
+  const [parentPost, setParentPost] = useState(null);
+  const [loadingParent, setLoadingParent] = useState(false);
+
   let hasReplies = data?.replies !== null && data?.replies?.length !== null;
 
-  if ((!data.author || !data.author.username) && typeof data.username === 'string') {
+  if (
+    (!data.author || !data.author.username) &&
+    typeof data.username === "string"
+  ) {
     data.author = {
       username: data.username,
     };
   }
+
+  useEffect(() => {
+    if (showParentPost && data?.replyingToId) {
+      if (!cache["posts"]) cache["posts"] = {};
+      if (!cache["posts"][data.replyingToId]) {
+        setLoadingParent(true);
+        axios
+          .get(`${config.apiUrl}/posts/${data.replyingToId}`)
+          .then((parentData) => {
+            cache["posts"][data.replyingToId] = parentData.data;
+            setParentPost(parentData.data);
+            setLoadingParent(false);
+          })
+          .catch((_) => {
+            cache["posts"][data.replyingToId] = {};
+            setParentPost(null);
+            setLoadingParent(false);
+          });
+      } else {
+        setParentPost(cache["posts"][data.replyingToId]);
+      }
+    }
+  }, [data, showParentPost]);
 
   let content = (
     <div className="vertical">
       {data?.author?.username && (
         <p className="grey">@{data.author.username}</p>
       )}
-      <p style={{ color: 'var(--font)' }} dangerouslySetInnerHTML={{ __html: markdownit().renderInline(data.content ?? 'Missing content') }} />
-      <div className="horizontal" style={{ gap: '5px' }}>
-        {noSocial === false && (
-          <p className="grey">{data?.likes?.length ?? 0} likes ·</p>
-        )}
+      <p
+        style={{ color: "var(--font)" }}
+        dangerouslySetInnerHTML={{
+          __html: markdownit().renderInline(data.content ?? "Missing content"),
+        }}
+      />
+      <div className="horizontal" style={{ gap: "5px" }}>
         <p className="grey">{formatTime(data.created)}</p>
-        {noSocial === false && hasReplies && (
-          <p className="grey">· {data?.replies?.length ?? 0} replies</p>
+        {noSocial === false && (
+          <>
+            <p className="grey">· {data?.likes?.length ?? 0} likes</p>
+            {hasReplies && (
+              <p className="grey">· {data?.replies?.length ?? 0} replies</p>
+            )}
+          </>
         )}
       </div>
     </div>
   );
 
   return (
-    <div className="posts-post">
-      {data?.author?.id && (
-        <Link to={`/user?id=${data.author.id}`}>
-          <img
-            alt=""
-            src={`${config.apiUrl}/users/${data.author.id}/avatar`}
-          />
-        </Link>
+    <>
+      {showParentPost && (loadingParent || parentPost) && (
+        <div
+          style={{
+            borderLeft: "4px solid var(--light)",
+            paddingLeft: "10px",
+          }}
+        >
+          {loadingParent ? (
+            <Loading />
+          ) : (
+            <Post data={parentPost} noSocial showParentPost={false} />
+          )}
+        </div>
       )}
 
-      {noSocial === false ? <Link to={'/post?id=' + data.id}>{content}</Link> : content}
-    </div>
+      <div className="posts-post">
+        {data?.author?.id && (
+          <Link to={`/user?id=${data.author.id}`}>
+            <img
+              alt=""
+              src={`${config.apiUrl}/users/${data.author.id}/avatar`}
+            />
+          </Link>
+        )}
+
+        {noSocial === false && data?.id ? (
+          <Link to={"/post?id=" + data.id}>{content}</Link>
+        ) : (
+          content
+        )}
+      </div>
+    </>
   );
 }

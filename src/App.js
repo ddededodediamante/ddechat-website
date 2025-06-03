@@ -14,11 +14,6 @@ import Postpage from './pages/postpage.js';
 import Directmessage from './pages/directmessage.js';
 
 import './static/css/Styles.css';
-/*import './static/css/Index.css';
-import './static/css/Panel.css';
-import './static/css/Login.css';
-import './static/css/Toolbar.css';
-import './static/css/Swal2.css';*/
 
 export default function App() {
   useEffect(() => {

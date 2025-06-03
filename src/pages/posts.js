@@ -129,7 +129,12 @@ export default function Posts() {
             <div className="line" />
 
             {posts?.length > 0 ? (
-              posts.map((p) => <Post data={p} />)
+              posts.map((post, index) => (
+                <>
+                  <Post data={post} />
+                  {(index !== posts.length - 1) && <div className="line" />}
+                </>
+              ))
             ) : (
               <p>Nobody's said a word yet. Quiet bunch.</p>
             )}

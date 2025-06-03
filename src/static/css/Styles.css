@@ -90,7 +90,7 @@ button i {
 }
 
 input[type='file']::file-selector-button {
-  background-color: var(--foreground);
+  background-color: var(--light);
   color: var(--font);
   border-radius: 5px;
   padding: 5px;
@@ -101,9 +101,10 @@ input[type='file']::file-selector-button {
 
 div.line {
   width: 100%;
-  height: 2px;
-  opacity: 0.3;
+  height: 2px !important;
+  opacity: 0.1;
   background-color: var(--font);
+  flex-shrink: 0;
 }
 
 div.vertical {
@@ -436,36 +437,33 @@ h1, h2 {
   font-weight: 500;
 }
 
-div#YFPCP {
-  align-items: start;
-  align-content: start;
-  display: flex;
-  flex-direction: row;
-  flex-wrap: wrap;
-  gap: 10px;
-}
-
-div#YFPCP .posts-post {
-  width: fit-content;
-}
-
-div.settings {
+.settings {
   display: flex;
   flex-direction: column;
   gap: 10px;
 }
 
-div.settings#top {
-  background-color: var(--foreground);
+.settingsWrap {
+  background-color: var(--midground);
   border-radius: 10px;
-  margin-top: -20px;
   padding: 10px;
   z-index: 999;
 }
 
-div.settings button {
+.settings button, .settings input[type='file'] {
+  background-color: var(--foreground);
   width: fit-content;
   height: fit-content;
+}
+
+input[type="color"] {
+  appearance: none;
+  -webkit-appearance: none;
+  border: none;
+  padding: 0;
+  width: 32px; 
+  height: 32px;
+  cursor: pointer;
 }
 
 .hidden {
@@ -489,7 +487,7 @@ div.settings button {
   align-items: center;
 }
 
-.toolbar div.LocalUserTag {
+.toolbar .localusertag {
   display: flex;
   align-content: center;
   justify-content: center;
@@ -502,7 +500,7 @@ div.settings button {
   width: 160px;
 }
 
-.toolbar div.LocalUserTag p {
+.toolbar .localusertag p {
   width: 100%;
   text-overflow: ellipsis;
   overflow: hidden;
@@ -510,7 +508,7 @@ div.settings button {
   padding: 0;
 }
 
-.toolbar div.LocalUserTag img {
+.toolbar .localusertag img {
   height: 30px;
   width: 30px;
   border-radius: 25%;

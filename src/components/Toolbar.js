@@ -63,7 +63,7 @@ export default function Toolbar() {
         </div>
       </div>
 
-      <div className="LocalUserTag">
+      <div className="localusertag">
         {user &&
           window?.layout?.showUserTag !== false &&
           (user !== "error" ? (

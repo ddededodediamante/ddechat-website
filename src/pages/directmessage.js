@@ -1,5 +1,5 @@
 import axios from "axios";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import config from "../config.js";
 import Loading from "../components/Loading";
@@ -10,7 +10,7 @@ export default function Directmessage() {
   const [user, setUser] = useState(null);
   const [messages, setMessages] = useState([]);
   const [localUser, setLocalUser] = useState(null);
-  const [socket, setSocket] = useState(null);
+  const socket = useRef(null);
 
   const [messageContent, setMessageContent] = useState("");
   const [effect, setEffect] = useState("");
@@ -44,12 +44,12 @@ export default function Directmessage() {
                 );
 
                 setTimeout(() => {
-                  let panel = document.querySelector('.panel-content')
+                  let panel = document.querySelector(".panel-content");
                   panel.scrollTo({
                     top: panel.scrollHeight,
                     behavior: "instant",
                   });
-                }, 50);
+                }, 200);
               })
               .catch((error) => {
                 console.error("Error fetching local user data:", error);
@@ -65,22 +65,25 @@ export default function Directmessage() {
   }, [userId, localUser, user, navigate]);
 
   useEffect(() => {
-    if (socket !== null || !localUser?.id || !user?.id) return;
+    if (socket.current || !localUser?.id || !user?.id) return;
 
-    const newSocket = new WebSocket(config.apiUrl.replace(/^http/, 'ws'));
-    setSocket(newSocket);
+    const newSocket = new WebSocket(
+      config.apiUrl.replace(/^http/, "ws") + "/users/dm"
+    );
+    socket.current = newSocket;
 
     const notificationSound = new Audio("/files/notification.wav");
     notificationSound.volume = 0.5;
 
     newSocket.onopen = () => {
       console.log("Connected to server");
-
-      newSocket.send(JSON.stringify({
-        type: "dm:join",
-        token: localStorage.getItem("accountToken"),
-        recipientId: userId,
-      }));
+      newSocket.send(
+        JSON.stringify({
+          type: "dm:join",
+          token: localStorage.getItem("accountToken"),
+          recipientId: userId,
+        })
+      );
     };
 
     newSocket.onmessage = (event) => {
@@ -88,17 +91,19 @@ export default function Directmessage() {
 
       if (type === "dm:receive") {
         if (!message.username) {
-          if (message.userId === localUser.id) message.username = localUser.username;
+          if (message.userId === localUser.id)
+            message.username = localUser.username;
           else if (message.userId === user.id) message.username = user.username;
           else return;
         }
 
-        let panel = document.querySelector('.panel-content');
-        let atBottomScroll = panel.scrollHeight - panel.scrollTop - panel.clientHeight <= 10
+        let panel = document.querySelector(".panel-content");
+        let atBottomScroll =
+          panel.scrollHeight - panel.scrollTop - panel.clientHeight <= 10;
 
         if (!document.hasFocus()) notificationSound.play();
 
-        setMessages(m => [...m, message]);
+        setMessages((m) => [...m, message]);
 
         setTimeout(() => {
           if (atBottomScroll) {
@@ -114,18 +119,27 @@ export default function Directmessage() {
     newSocket.onclose = () => {
       console.log("Disconnected from server");
     };
-  }, [socket, userId, localUser, user?.id, user?.username]);
+
+    return () => {
+      if (socket.current) {
+        socket.current.close();
+        socket.current = null;
+      }
+    };
+  }, [userId, localUser, user?.id, user?.username]);  
 
   function sendMessage() {
     document.querySelector("div.horizontal textarea#postText").value = "";
 
-    socket.send(JSON.stringify({
-      type: "dm:message",
-      recipientId: userId,
-      content: messageContent,
-      effect,
-      spoiler
-    }));
+    socket.send(
+      JSON.stringify({
+        type: "dm:message",
+        recipientId: userId,
+        content: messageContent,
+        effect,
+        spoiler,
+      })
+    );
 
     setMessageContent("");
     setEffect("");
@@ -142,9 +156,11 @@ export default function Directmessage() {
   return (
     <>
       <div className="panel-content" style={{ overflowX: "hidden" }}>
-        {(user?.id && localUser?.id) ? (
+        {user?.id && localUser?.id ? (
           <>
-            {messages.map((p) => (<Message data={p} />))}
+            {messages.map((p) => (
+              <Message data={p} />
+            ))}
 
             <div
               className="horizontal reply-section"
@@ -169,20 +185,32 @@ export default function Directmessage() {
                 id="postText"
               />
               <button
-                style={{ ...(effect === 'zoomIn' ? { backgroundColor: "#555" } : {}) }}
-                onClick={() => effect === 'zoomIn' ? setEffect('') : setEffect('zoomIn')}
+                style={{
+                  ...(effect === "zoomIn" ? { backgroundColor: "#555" } : {}),
+                }}
+                onClick={() =>
+                  effect === "zoomIn" ? setEffect("") : setEffect("zoomIn")
+                }
               >
                 <img src="/files/megaphone.png" height={"28px"} alt="zoomIn" />
               </button>
               <button
-                style={{ ...(effect === 'glow' ? { backgroundColor: "#555" } : {}) }}
-                onClick={() => effect === 'glow' ? setEffect('') : setEffect('glow')}
+                style={{
+                  ...(effect === "glow" ? { backgroundColor: "#555" } : {}),
+                }}
+                onClick={() =>
+                  effect === "glow" ? setEffect("") : setEffect("glow")
+                }
               >
                 <img src="/files/star.png" height={"28px"} alt="glow" />
               </button>
               <button
-                style={{ ...(effect === 'loud' ? { backgroundColor: "#555" } : {}) }}
-                onClick={() => effect === 'loud' ? setEffect('') : setEffect('loud')}
+                style={{
+                  ...(effect === "loud" ? { backgroundColor: "#555" } : {}),
+                }}
+                onClick={() =>
+                  effect === "loud" ? setEffect("") : setEffect("loud")
+                }
               >
                 <img src="/files/angerbubble.png" height={"28px"} alt="loud" />
               </button>

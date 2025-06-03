@@ -1,5 +1,9 @@
 const isLocal = window.location.hostname === 'localhost';
 
-export default {
-  apiUrl: isLocal ? "http://localhost:8080" : "https://ddechat-api.onrender.com"
+const settings = {
+  apiUrl: isLocal
+    ? "http://localhost:8080"
+    : "https://ddechat-api.onrender.com",
 };
+
+export default settings;

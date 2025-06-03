@@ -4,9 +4,12 @@ import config from "../config.js";
 import { useSearchParams } from "react-router-dom";
 import moment from "moment";
 import Loading from "../components/Loading";
+import Post from "../components/Post.js";
+import cache from "../cache.ts";
 
 export default function Userpage() {
   const [user, setUser] = useState(null);
+  const [posts, setPosts] = useState(null);
   const [localUser, setLocalUser] = useState(null);
   const [searchParams] = useSearchParams();
 
@@ -27,36 +30,77 @@ export default function Userpage() {
 
           const token = localStorage.getItem("accountToken");
           if (token) {
-            axios
-              .get(`${config.apiUrl}/users/me`, {
-                headers: {
-                  Authorization: token,
-                },
-              })
-              .then((data) => {
-                setLocalUser(data.data);
-                setPendingFR(
-                  (data.data?.outgoingFR ?? []).some((v) => v.id === userId)
-                );
-                setIncomingFR(
-                  (data.data?.incomingFR ?? []).some((v) => v.id === userId)
-                );
-                setIsFriend(
-                  (data.data?.friends ?? []).some((v) => v.id === userId)
-                );
-                setTimeout(() => { setLoading(false) }, 200);
-              })
-              .catch((error) => {
-                console.error("Error fetching user data:", error);
+            if (!cache["user"]) {
+              axios
+                .get(`${config.apiUrl}/users/me`, {
+                  headers: {
+                    Authorization: token,
+                  },
+                })
+                .then((data) => {
+                  cache["user"] = data.data;
+                  setLocalUser(data.data);
+                  setPendingFR(
+                    (data.data?.outgoingFR ?? []).some((v) => v.id === userId)
+                  );
+                  setIncomingFR(
+                    (data.data?.incomingFR ?? []).some((v) => v.id === userId)
+                  );
+                  setIsFriend(
+                    (data.data?.friends ?? []).some((v) => v.id === userId)
+                  );
+                })
+                .catch((error) => {
+                  console.error("Error fetching user data:", error);
+                })
+                .finally(() => {
+                  setTimeout(() => {
+                    setLoading(false);
+                  }, 50);
+                });
+            } else {
+              let data = cache["user"];
+              setLocalUser(data);
+              setPendingFR(
+                (data?.outgoingFR ?? []).some((v) => v.id === userId)
+              );
+              setIncomingFR(
+                (data?.incomingFR ?? []).some((v) => v.id === userId)
+              );
+              setIsFriend((data?.friends ?? []).some((v) => v.id === userId));
+              setTimeout(() => {
                 setLoading(false);
-              });
+              }, 50);
+            }
           }
         })
         .catch((error) => {
           console.error("Error fetching user data:", error);
           setLoading(false);
         });
+
+      if (!cache["posts"]) cache["posts"] = {};
+      if (!Object.values(cache["posts"]).some((i) => i?.author?.id === userId)) {
+        axios
+          .get(`${config.apiUrl}/users/${userId}/posts`)
+          .then((data) => {
+            const postsArray = data.data ?? [];
+            postsArray.forEach((post) => {
+              if (post && post?.id) cache["posts"][post.id] = post;
+            });
+            setPosts(postsArray);
+          })
+          .catch((err) => {
+            console.error("Error fetching user posts:", err);
+            setPosts([]);
+          });
+      } else {
+        setPosts(
+          Object.values(cache["posts"]).filter((i) => i?.author?.id === userId)
+        );
+      }
     }
+    console.log(cache)
   }, [userId]);
 
   function sendFriendRequest() {
@@ -142,7 +186,8 @@ export default function Userpage() {
   }
 
   const renderFriendButtons = () => {
-    if (!localUser?.id || !user?.id || isFriend || user.id === localUser.id) return;
+    if (!localUser?.id || !user?.id || isFriend || user.id === localUser.id)
+      return;
 
     if (incomingFR) {
       return (
@@ -182,27 +227,40 @@ export default function Userpage() {
         {loading === false ? (
           <>
             <p className="title">
-              {user.id ? (
+              {user?.id ? (
                 <img alt="" src={`${config.apiUrl}/users/${user.id}/avatar`} />
               ) : (
                 <i className="fa-solid fa-user" />
               )}
-              {user.username ?? "Unknown user"}
-              {user.isModerator && (<i className="fa-solid fa-hammer"></i>)}
+              {user?.username ?? "Unknown user"}
+              {user?.isModerator && <i className="fa-solid fa-hammer"></i>}
+              {isFriend && localUser?.id && <i className="fa-solid fa-users" />}
             </p>
 
-            {user.id && <p style={{ color: "var(--light)", fontSize: "18px" }}>{user.id}</p>}
-
-            {user.created && <p>{"Joined " + moment(user.created).fromNow()}</p>}
-
-            {isFriend && <p style={{ fontSize: "17px", display: 'flex', gap: '5px' }}>
-              <i className="fa-solid fa-users" />
-              Friends with this user
-            </p>}
-
-            {(isFriend && localUser?.id) && <div className="line" />}
+            {user?.created && (
+              <p>{"Joined " + moment(user.created).fromNow()}</p>
+            )}
 
             {renderFriendButtons()}
+
+            <div className="line" />
+
+            <h2>Posts</h2>
+
+            {posts ? (
+              posts.length > 0 ? (
+                posts.map((post, index) => (
+                  <>
+                    <Post data={post} showParentPost={true} />
+                    {index !== posts.length - 1 && <div className="line" />}
+                  </>
+                ))
+              ) : (
+                <p>This user hasn't posted anything yet.</p>
+              )
+            ) : (
+              <Loading />
+            )}
           </>
         ) : (
           <Loading />
