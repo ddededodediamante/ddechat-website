@@ -15,7 +15,7 @@ export default function Post({
   const [parentPost, setParentPost] = useState(null);
   const [loadingParent, setLoadingParent] = useState(false);
 
-  let hasReplies = data?.replies !== null && data?.replies?.length !== null;
+  let hasReplies = data?.replies && data.replies.length > 0;
 
   if (
     (!data.author || !data.author.username) &&
@@ -27,8 +27,9 @@ export default function Post({
   }
 
   useEffect(() => {
+    if (!cache["posts"]) cache["posts"] = {};
+
     if (showParentPost && data?.replyingToId) {
-      if (!cache["posts"]) cache["posts"] = {};
       if (!cache["posts"][data.replyingToId]) {
         setLoadingParent(true);
         axios
@@ -38,8 +39,7 @@ export default function Post({
             setParentPost(parentData.data);
             setLoadingParent(false);
           })
-          .catch((_) => {
-            cache["posts"][data.replyingToId] = {};
+          .catch(() => {
             setParentPost(null);
             setLoadingParent(false);
           });
@@ -47,7 +47,7 @@ export default function Post({
         setParentPost(cache["posts"][data.replyingToId]);
       }
     }
-  }, [data, showParentPost]);
+  }, [data.replyingToId, showParentPost]);
 
   let content = (
     <div className="vertical">
@@ -61,7 +61,7 @@ export default function Post({
         }}
       />
       <div className="horizontal" style={{ gap: "5px" }}>
-        <p className="grey">{formatTime(data.created)}</p>
+        <p className="grey">{data?.created ? formatTime(data.created) : 'Unknown date'}</p>
         {noSocial === false && (
           <>
             <p className="grey">· {data?.likes?.length ?? 0} likes</p>

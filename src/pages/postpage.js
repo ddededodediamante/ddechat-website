@@ -1,25 +1,29 @@
 import axios from "axios";
 import { useEffect, useState } from "react";
 import config from "../config.js";
-import { useSearchParams } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import Post from "../components/Post";
 import Loading from "../components/Loading";
 import Swal from "sweetalert2";
 import cache from "../cache.ts";
 
 export default function Postpage() {
+  const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+  const id = searchParams.get("id");
+
   const [post, setPost] = useState(null);
   const [parentPost, setParentPost] = useState(null);
   const [parentPostLoading, setParentPostLoading] = useState(false);
   const [user, setUser] = useState(null);
   const [replyContent, setReplyContent] = useState("");
-  const [searchParams] = useSearchParams();
-  const id = searchParams.get("id");
   const [liked, setLiked] = useState(false);
 
   useEffect(() => {
     const token = localStorage.getItem("accountToken");
-    if (token) {
+    if (!token) return;
+
+    if (!cache["user"])
       axios
         .get(`${config.apiUrl}/users/me`, {
           headers: { Authorization: token },
@@ -28,7 +32,7 @@ export default function Postpage() {
         .catch((error) => {
           console.error("Error fetching user data:", error);
         });
-    }
+    else setUser(cache["user"]);
   }, []);
 
   useEffect(() => {
@@ -38,10 +42,11 @@ export default function Postpage() {
     setParentPost(null);
     setParentPostLoading(false);
 
+    if (!cache["posts"]) cache["posts"] = {};
+
     const fetchParent = (parentId) => {
       setParentPostLoading(true);
 
-      if (!cache["posts"]) cache["posts"] = {};
       if (!cache["posts"][parentId]) {
         axios
           .get(`${config.apiUrl}/posts/${parentId}`)
@@ -62,7 +67,6 @@ export default function Postpage() {
       }
     };
 
-    if (!cache["posts"]) cache["posts"] = {};
     if (!cache["posts"][id]) {
       axios
         .get(`${config.apiUrl}/posts/${id}`)
@@ -108,6 +112,7 @@ export default function Postpage() {
         .then((res) => {
           setPost(res.data);
           setLiked(res.data.liked);
+          cache["posts"][id] = res.data;
         })
         .catch((error) => {
           console.error("Error toggling like:", error);
@@ -132,7 +137,8 @@ export default function Postpage() {
           })
           .then(() => {
             sessionStorage.removeItem("latestPosts");
-            window.location.href = "/posts";
+            if (parentPost?.id) window.location.href = `/post?id=${parentPost.id}`;
+            else window.location.href = "/posts";
           })
           .catch((error) => {
             console.error("Error deleting post:", error);
@@ -149,7 +155,10 @@ export default function Postpage() {
         { content: replyContent.trim(), reply: id },
         { headers: { Authorization: localStorage.getItem("accountToken") } }
       )
-      .then((res) => setPost(res.data))
+      .then((res) => {
+        setPost(res.data);
+        cache["posts"][id] = res.data;
+      })
       .catch((error) => {
         console.error("Error sending reply:", error);
       });

@@ -4,6 +4,7 @@ import config from "../config.js";
 import { Link, useNavigate } from "react-router-dom";
 import moment from "moment";
 import Loading from "../components/Loading";
+import cache from "../cache.ts";
 
 export default function Friends() {
   const navigate = useNavigate();
@@ -11,7 +12,7 @@ export default function Friends() {
 
   useEffect(() => {
     const token = localStorage.getItem("accountToken");
-    if (token) {
+    if (token)
       axios
         .get(`${config.apiUrl}/users/me`, {
           headers: {
@@ -19,15 +20,14 @@ export default function Friends() {
           },
         })
         .then((data) => {
+          cache["user"] = data.data;
           setUser(data.data);
         })
         .catch((error) => {
           console.error("Error fetching user data:", error);
           navigate("/login");
         });
-    } else {
-      navigate("/login");
-    }
+    else navigate("/login");
   }, [navigate]);
 
   return (
@@ -49,7 +49,9 @@ export default function Friends() {
                 )}
                 <div className="vertical">
                   <p>{f.username}</p>
-                  <p className="grey">Friends since {moment(f.addedOn).fromNow()}</p>
+                  <p className="grey">
+                    Friends since {moment(f.addedOn).fromNow()}
+                  </p>
                 </div>
                 <div className="buttons">
                   <button

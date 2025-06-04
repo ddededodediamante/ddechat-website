@@ -4,34 +4,20 @@ import config from "../config.js";
 import Swal from "sweetalert2";
 import { useNavigate } from "react-router-dom";
 import Loading from "../components/Loading";
+import cache from "../cache.ts";
 
 const setStyle = (property, value) =>
   document.documentElement.style.setProperty(property, value);
 
 export default function Settings() {
-  const navigate = useNavigate();
-  const [tab, setTab] = useState("avatar");
-  const [avatarFile, setAvatarFile] = useState(null);
-  const [avatarFileURI, setAvatarFileURI] = useState("");
-  const [user, setUser] = useState(null);
-  const [theme, setTheme] = useState({
-    background: "#111111",
-    midground: "#333333",
-    foreground: "#555555",
-    light: "#777777",
-    font: "#ffffff",
-  });
-  const [layoutSettings, setLayoutSettings] = useState({
-    showUserTag: true,
-    showToolbarLogo: true,
-  });
-
   const darkerTheme = {
     background: "#000000",
     midground: "#222222",
     foreground: "#444444",
     light: "#666666",
     font: "#ffffff",
+    primary: "#3d80e4",
+    danger: "#cf3232",
   };
 
   const darkTheme = {
@@ -40,6 +26,8 @@ export default function Settings() {
     foreground: "#555555",
     light: "#777777",
     font: "#ffffff",
+    primary: "#3d80e4",
+    danger: "#cf3232",
   };
 
   const lightTheme = {
@@ -48,21 +36,41 @@ export default function Settings() {
     foreground: "#bbbbbb",
     light: "#999999",
     font: "#000000",
+    primary: "#3d80e4",
+    danger: "#cf3232",
   };
 
+  const navigate = useNavigate();
+  const [tab, setTab] = useState("avatar");
+  const [avatarFile, setAvatarFile] = useState(null);
+  const [avatarFileURI, setAvatarFileURI] = useState("");
+  const [user, setUser] = useState(null);
+  const [theme, setTheme] = useState(darkTheme);
+  const [layoutSettings, setLayoutSettings] = useState({
+    showUserTag: true,
+    showToolbarLogo: true,
+  });
+
   useEffect(() => {
-    const token = localStorage.getItem("accountToken");
-    if (token) {
+    const token = localStorage.getItem("accountToken") ?? "";
+    if (token === "") return navigate("/login");
+
+    if (!cache["user"])
       axios
-        .get(`${config.apiUrl}/users/me`, { headers: { Authorization: token } })
-        .then((data) => setUser(data.data))
+        .get(`${config.apiUrl}/users/me`, {
+          headers: {
+            Authorization: token,
+          },
+        })
+        .then((data) => {
+          cache["user"] = data.data;
+          setUser(data.data);
+        })
         .catch((error) => {
-          console.error("Error fetching user data:", error);
-          navigate("/login");
+          console.error(error);
+          setUser("error");
         });
-    } else {
-      navigate("/login");
-    }
+    else setUser(cache["user"]);
   }, [navigate]);
 
   useEffect(() => {
@@ -114,19 +122,14 @@ export default function Settings() {
     setStyle("--foreground", preset.foreground);
     setStyle("--light", preset.light);
     setStyle("--font", preset.font);
+    setStyle("--primary", preset.primary);
+    setStyle("--danger", preset.danger);
 
     localStorage.setItem("themeSettings", JSON.stringify(preset));
   }
 
   async function handleAvatarSubmit() {
-    if (!avatarFile) {
-      Swal.fire({
-        title: "Avatar File Required",
-        text: "You must provide an image for your avatar",
-        animation: true,
-      });
-      return;
-    }
+    if (!avatarFile) return;
 
     const formData = new FormData();
     formData.append("avatar", avatarFile);
@@ -138,21 +141,24 @@ export default function Settings() {
           "Content-Type": "multipart/form-data",
         },
       })
-      .then(() =>
+      .then((data) => {
+        if (data.data) cache["user"] = data.data;
+        document.getElementById("avatarUpload").value = "";;
+        
         Swal.fire({
           title: "Avatar Updated",
           text: "Your avatar was updated",
           footer: "The changes will be visible on the next page reload",
           animation: true,
-        })
-      )
-      .catch((error) =>
+        });
+      })
+      .catch((error) => {
         Swal.fire({
           title: "Avatar Uploading Error",
           text: error?.response?.data?.error ?? error,
           animation: true,
-        })
-      );
+        });
+      });
   }
 
   function logout() {
@@ -167,10 +173,11 @@ export default function Settings() {
           <i className="fa-solid fa-cog" />
           Settings
         </p>
+
+        <div className="line" />
+
         {user ? (
           <>
-            <div className="line" />
-
             <div className="horizontal fit-all" style={{ gap: "5px" }}>
               {["avatar", "theme", "layout"].map((name) => (
                 <button

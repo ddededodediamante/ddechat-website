@@ -131,20 +131,24 @@ export default function Directmessage() {
   function sendMessage() {
     document.querySelector("div.horizontal textarea#postText").value = "";
 
-    socket.send(
-      JSON.stringify({
-        type: "dm:message",
-        recipientId: userId,
-        content: messageContent,
-        effect,
-        spoiler,
-      })
-    );
+    if (socket.current && socket.current.readyState === WebSocket.OPEN) {
+      socket.current.send(
+        JSON.stringify({
+          type: "dm:message",
+          recipientId: userId,
+          content: messageContent,
+          effect,
+          spoiler,
+        })
+      );
+    } else {
+      console.warn("WebSocket is not open");
+    }
 
     setMessageContent("");
     setEffect("");
     setSpoiler(false);
-  }
+  }  
 
   window.addEventListener("beforeunload", () => {
     if (socket !== null) socket.close();

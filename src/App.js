@@ -63,7 +63,7 @@ export default function App() {
     <>
       <Toolbar />
       <Routes>
-        <Route path="/" element={<Navigate to="/friends" />} />
+        <Route path="/" element={<Navigate to="/posts" />} />
         <Route path="/login" element={<Login />} />
         <Route path="/sign" element={<Sign />} />
         <Route path="/friends" element={<Friends />} />

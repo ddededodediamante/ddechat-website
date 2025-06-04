@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import config from "../config.js";
 import { useNavigate } from "react-router-dom";
 import Loading from "../components/Loading";
+import cache from "../cache.ts";
 
 export default function Alerts() {
   const navigate = useNavigate();
@@ -19,25 +20,23 @@ export default function Alerts() {
           },
         })
         .then((data) => {
+          cache["user"] = data.data;
           setUser(data.data);
 
           setTimeout(() => {
-            const token = localStorage.getItem("accountToken");
-            if (token) {
-              axios
-                .patch(
-                  `${config.apiUrl}/users/me/readAlerts`,
-                  {},
-                  {
-                    headers: {
-                      Authorization: token,
-                    },
-                  }
-                )
-                .catch((error) => {
-                  console.error(error);
-                });
-            }
+            axios
+              .patch(
+                `${config.apiUrl}/users/me/readAlerts`,
+                {},
+                {
+                  headers: {
+                    Authorization: token,
+                  },
+                }
+              )
+              .catch((error) => {
+                console.error(error);
+              });
           }, 1000);
         })
         .catch((error) => {

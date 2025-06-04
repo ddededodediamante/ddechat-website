@@ -7,9 +7,11 @@ import cache from "../cache.ts";
 export default function Toolbar() {
   const [user, setUser] = useState(null);
 
+  let loginLabel = <a href="/login">Login to ddeChat</a>;
+
   useEffect(() => {
     const token = localStorage.getItem("accountToken") ?? "";
-    if (!token || token === "") return;
+    if (!token || token === "") return setUser("error");
 
     if (!cache["user"])
       axios
@@ -69,10 +71,10 @@ export default function Toolbar() {
           (user !== "error" ? (
             <>
               <img alt="" src={`${config.apiUrl}/users/${user.id}/avatar`} />
-              <p>{user?.username ?? <a href="/login">Login to ddeChat</a>}</p>
+              <p>{user?.username ?? loginLabel}</p>
             </>
           ) : (
-            <a href="/login">Login to ddeChat</a>
+            loginLabel
           ))}
       </div>
     </nav>
