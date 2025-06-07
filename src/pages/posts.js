@@ -4,14 +4,18 @@ import { useEffect, useState } from "react";
 import config from "../config.js";
 import Loading from "../components/Loading";
 import { useNavigate } from "react-router-dom";
-import cache from "../cache.ts";
+import cache, { savePost } from "../cache.ts";
+import MarkdownIt from "markdown-it";
+const md = new MarkdownIt({ breaks: true, linkify: true });
 
 export default function Posts() {
+  const navigate = useNavigate();
+
   const [user, setUser] = useState(null);
   const [posts, setPosts] = useState({});
-  const [postContent, setPostContent] = useState();
+  const [postContent, setPostContent] = useState("");
+  const [activeTab, setActiveTab] = useState("edit");
   const [loading, setLoading] = useState(true);
-  const navigate = useNavigate();
 
   useEffect(() => {
     const token = localStorage.getItem("accountToken");
@@ -57,13 +61,11 @@ export default function Posts() {
   }, []);
 
   function sendPost() {
-    let textarea = document.getElementById("postText");
-    textarea.disabled = true;
-    textarea.ariaDisabled = true;
+    setPostContent('');
 
     let postbutton = document.getElementById("postButton");
     postbutton.disabled = true;
-    postbutton.ariaDisabled = true;
+    postbutton.onclick = () => {};
 
     axios
       .post(
@@ -78,8 +80,11 @@ export default function Posts() {
         }
       )
       .then((data) => {
-        if (cache["latestPosts"]) cache["latestPosts"].push(data.data);
-        navigate(`/post?id=${data.data.id}`, { replace: true });
+        if (!cache.latestPosts) cache.latestPosts = [];
+        cache.latestPosts.unshift(data.data);
+        savePost(data.data.id, data.data);
+
+        navigate(`/post?id=${data.data.id}`);
       });
   }
 
@@ -92,35 +97,90 @@ export default function Posts() {
           <>
             {user?.id ? (
               <div
-                className="horizontal"
                 style={{
                   width: "100%",
                   gap: "10px",
-                  height: "fit-content",
-                  alignItems: "center",
+                  display: "flex",
+                  flexDirection: "column",
                 }}
               >
-                <img
-                  alt=""
-                  src={`${config.apiUrl}/users/${user.id}/avatar`}
-                  width={60}
-                  height={60}
-                  style={{ borderRadius: "25%" }}
-                />
-                <textarea
-                  placeholder={
-                    user.username
-                      ? "What's new, " + user.username + "?"
-                      : "What's new?"
-                  }
-                  maxLength={2000}
-                  disabled={user?.id === null}
-                  onInput={(e) => setPostContent(e.target.value.trim())}
-                  id="postText"
-                />
-                <button id="postButton" onClick={sendPost}>
-                  Post
-                </button>
+                <div
+                  style={{ display: "flex", gap: "4px", marginBottom: "8px" }}
+                >
+                  {["edit", "preview"].map((tab) => (
+                    <button
+                      key={tab}
+                      onClick={() => setActiveTab(tab)}
+                      style={{
+                        background:
+                          activeTab === tab
+                            ? "var(--foreground)"
+                            : "var(--midground)",
+                      }}
+                    >
+                      {tab === "edit" ? "Edit" : "Preview"}
+                    </button>
+                  ))}
+                </div>
+
+                <div
+                  style={{
+                    display: "flex",
+                    gap: "10px",
+                    alignItems: "flex-start",
+                  }}
+                >
+                  <img
+                    alt=""
+                    src={`${config.apiUrl}/users/${user.id}/avatar`}
+                    width={60}
+                    height={60}
+                    style={{ borderRadius: "25%" }}
+                  />
+
+                  {activeTab === "edit" ? (
+                    <textarea
+                      value={postContent}
+                      onChange={(e) => setPostContent(e.target.value)}
+                      disabled={!user?.id}
+                      placeholder={
+                        user.username
+                          ? `What's new, ${user.username}?`
+                          : "What's new?"
+                      }
+                      style={{
+                        padding: "8px",
+                        borderRadius: "8px",
+                        minHeight: "60px",
+                        width: "100%",
+                        resize: "vertical",
+                      }}
+                    />
+                  ) : (
+                    <div
+                      style={{
+                        color: "var(--font)",
+                        border: "1px solid #ccc",
+                        padding: "8px",
+                        borderRadius: "8px",
+                        minHeight: "120px",
+                        width: "100%",
+                        overflowY: "auto",
+                      }}
+                      dangerouslySetInnerHTML={{
+                        __html: md.render(postContent),
+                      }}
+                    />
+                  )}
+
+                  <button
+                    onClick={() => sendPost(postContent)}
+                    disabled={!postContent.trim()}
+                    id="postButton"
+                  >
+                    Post
+                  </button>
+                </div>
               </div>
             ) : (
               <p>Login to send posts!</p>
@@ -132,7 +192,7 @@ export default function Posts() {
               posts.map((post, index) => (
                 <>
                   <Post data={post} />
-                  {(index !== posts.length - 1) && <div className="line" />}
+                  {index !== posts.length - 1 && <div className="line" />}
                 </>
               ))
             ) : (

@@ -5,7 +5,7 @@ import { useNavigate, useSearchParams } from "react-router-dom";
 import Post from "../components/Post";
 import Loading from "../components/Loading";
 import Swal from "sweetalert2";
-import cache from "../cache.ts";
+import cache, { savePost, getPost } from "../cache.ts";
 
 export default function Postpage() {
   const navigate = useNavigate();
@@ -42,16 +42,14 @@ export default function Postpage() {
     setParentPost(null);
     setParentPostLoading(false);
 
-    if (!cache["posts"]) cache["posts"] = {};
-
     const fetchParent = (parentId) => {
       setParentPostLoading(true);
 
-      if (!cache["posts"][parentId]) {
+      if (!getPost(parentId)) {
         axios
           .get(`${config.apiUrl}/posts/${parentId}`)
           .then((parentRes) => {
-            cache["posts"][parentId] = parentRes.data;
+            savePost(parentId, parentRes.data);
             setParentPost(parentRes.data);
           })
           .catch((error) => {
@@ -62,16 +60,16 @@ export default function Postpage() {
             setParentPostLoading(false);
           });
       } else {
-        setParentPost(cache["posts"][parentId]);
+        setParentPost(getPost(parentId));
         setParentPostLoading(false);
       }
     };
 
-    if (!cache["posts"][id]) {
+    if (!getPost(id)) {
       axios
         .get(`${config.apiUrl}/posts/${id}`)
         .then((res) => {
-          cache["posts"][id] = res.data;
+          savePost(id, res.data);
           setPost(res.data);
           setLiked(res.data.likes.includes(user.id));
 
@@ -87,7 +85,7 @@ export default function Postpage() {
           setParentPost(null);
         });
     } else {
-      const cached = cache["posts"][id];
+      const cached = getPost(id);
       setPost(cached);
       setLiked(cached.likes.includes(user.id));
 
@@ -112,7 +110,7 @@ export default function Postpage() {
         .then((res) => {
           setPost(res.data);
           setLiked(res.data.liked);
-          cache["posts"][id] = res.data;
+          savePost(id, res.data);
         })
         .catch((error) => {
           console.error("Error toggling like:", error);
@@ -136,9 +134,21 @@ export default function Postpage() {
             headers: { Authorization: localStorage.getItem("accountToken") },
           })
           .then(() => {
-            sessionStorage.removeItem("latestPosts");
-            if (parentPost?.id) window.location.href = `/post?id=${parentPost.id}`;
-            else window.location.href = "/posts";
+            const posts = cache?.posts;
+
+            if (posts) {
+              if (getPost(parentPost.id)) {
+                delete posts[parentPost.id];
+              } else {
+                cache.latestPosts = [];
+              }
+
+              if (posts[id]) {
+                delete posts[id];
+              }
+            }
+
+            navigate("/posts");
           })
           .catch((error) => {
             console.error("Error deleting post:", error);
@@ -148,20 +158,23 @@ export default function Postpage() {
   }
 
   function sendReply() {
-    if (!replyContent.trim()) return;
+    const postContent = replyContent?.trim();
+    if (!postContent) return;
+
     axios
       .post(
         `${config.apiUrl}/posts`,
-        { content: replyContent.trim(), reply: id },
+        { content: postContent, reply: id },
         { headers: { Authorization: localStorage.getItem("accountToken") } }
       )
       .then((res) => {
         setPost(res.data);
-        cache["posts"][id] = res.data;
+        savePost(id, res.data);
       })
       .catch((error) => {
         console.error("Error sending reply:", error);
       });
+
     setReplyContent("");
   }
 

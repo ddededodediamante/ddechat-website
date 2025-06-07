@@ -69,29 +69,19 @@ export default function Userpage() {
       } catch (err) {
         console.error("Error fetching user:", err);
       } finally {
-        setTimeout(() => setLoading(false), 50);
+        setLoading(false);
       }
 
-      if (!cache["posts"]) cache["posts"] = {};
-      const cachedPosts = Object.values(cache["posts"]).filter(
-        (p) => p?.author?.id === userId
-      );
+      if (!cache.posts) cache.posts = {};
 
-      if (cachedPosts.length === 0) {
-        try {
-          const { data: postsArray } = await axios.get(
-            `${config.apiUrl}/users/${userId}/posts`
-          );
-          (postsArray ?? []).forEach((post) => {
-            if (post?.id) cache["posts"][post.id] = post;
-          });
-          setPosts(postsArray ?? []);
-        } catch (err) {
-          console.error("Error fetching posts:", err);
-          setPosts([]);
-        }
-      } else {
-        setPosts(cachedPosts);
+      try {
+        const { data: postsArray } = await axios.get(
+          `${config.apiUrl}/users/${userId}/posts`
+        );
+        setPosts(postsArray ?? []);
+      } catch (err) {
+        console.error("Error fetching posts:", err);
+        setPosts([]);
       }
     };
 

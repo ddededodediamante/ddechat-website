@@ -1,11 +1,12 @@
 import formatTime from "../functions/time";
 import config from "../config.js";
 import { Link } from "react-router-dom";
-import markdownit from "markdown-it";
 import { useEffect, useState } from "react";
 import axios from "axios";
 import Loading from "./Loading.js";
 import cache from "../cache.ts";
+import MarkdownIt from "markdown-it";
+const md = new MarkdownIt({ breaks: true, linkify: true });
 
 export default function Post({
   data,
@@ -14,8 +15,6 @@ export default function Post({
 }) {
   const [parentPost, setParentPost] = useState(null);
   const [loadingParent, setLoadingParent] = useState(false);
-
-  let hasReplies = data?.replies && data.replies.length > 0;
 
   if (
     (!data.author || !data.author.username) &&
@@ -27,24 +26,25 @@ export default function Post({
   }
 
   useEffect(() => {
-    if (!cache["posts"]) cache["posts"] = {};
+    if (!cache?.posts) cache.posts = {};
 
     if (showParentPost && data?.replyingToId) {
-      if (!cache["posts"][data.replyingToId]) {
+      if (!cache.posts[data.replyingToId]) {
         setLoadingParent(true);
         axios
           .get(`${config.apiUrl}/posts/${data.replyingToId}`)
           .then((parentData) => {
-            cache["posts"][data.replyingToId] = parentData.data;
+            cache.posts[data.replyingToId] = parentData.data;
             setParentPost(parentData.data);
-            setLoadingParent(false);
           })
           .catch(() => {
-            setParentPost(null);
+            setParentPost({});
+          })
+          .finally(() => {
             setLoadingParent(false);
           });
       } else {
-        setParentPost(cache["posts"][data.replyingToId]);
+        setParentPost(cache.posts[data.replyingToId]);
       }
     }
   }, [data.replyingToId, showParentPost]);
@@ -54,20 +54,20 @@ export default function Post({
       {data?.author?.username && (
         <p className="grey">@{data.author.username}</p>
       )}
-      <p
+      <div
         style={{ color: "var(--font)" }}
         dangerouslySetInnerHTML={{
-          __html: markdownit().renderInline(data.content ?? "Missing content"),
+          __html: md.render(data.content ?? "Missing content"),
         }}
       />
       <div className="horizontal" style={{ gap: "5px" }}>
-        <p className="grey">{data?.created ? formatTime(data.created) : 'Unknown date'}</p>
+        <p className="grey">
+          {data?.created ? formatTime(data.created) : "Unknown date"}
+        </p>
         {noSocial === false && (
           <>
             <p className="grey">· {data?.likes?.length ?? 0} likes</p>
-            {hasReplies && (
-              <p className="grey">· {data?.replies?.length ?? 0} replies</p>
-            )}
+            <p className="grey">· {data?.replies?.length ?? 0} replies</p>
           </>
         )}
       </div>
@@ -76,7 +76,7 @@ export default function Post({
 
   return (
     <>
-      {showParentPost && (loadingParent || parentPost) && (
+      {showParentPost && (loadingParent || (parentPost && parentPost.id)) && (
         <div
           style={{
             borderLeft: "4px solid var(--light)",
@@ -92,13 +92,19 @@ export default function Post({
       )}
 
       <div className="posts-post">
-        {data?.author?.id && (
+        {data?.author?.id ? (
           <Link to={`/user?id=${data.author.id}`}>
             <img
               alt=""
               src={`${config.apiUrl}/users/${data.author.id}/avatar`}
+              onError={(e) => {
+                e.target.onerror = null;
+                e.target.src = "/files/unknown-icon.png";
+              }}
             />
           </Link>
+        ) : (
+          <img alt="" src="/files/unknown-icon.png" />
         )}
 
         {noSocial === false && data?.id ? (
