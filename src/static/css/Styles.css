@@ -348,7 +348,7 @@ h1, h2, h3, h4, h5, h6 {
   gap: 6px;
 }
 
-.panel-content p.title img {
+.panel-content p.title img, .panel-content p.title div img {
   width: 60px;
   height: 60px;
   border-radius: 25%;
@@ -614,4 +614,21 @@ input[type="color"] {
 
 .swal2-deny {
   background-color: var(--danger);
+}
+
+div.online-indicator {
+  position: relative;
+  display: inline-block; 
+}
+
+div.online-indicator::after {
+  content: '';
+  position: absolute;
+  bottom: -5px;
+  right: -5px;
+  width: 18px;
+  height: 18px;
+  background-color: #58cc5c;
+  outline: 3px solid var(--background);
+  border-radius: 50%;
 }

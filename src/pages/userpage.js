@@ -20,8 +20,8 @@ export default function Userpage() {
     friend: false,
   });
 
-  const userId = searchParams.get("id")?.trim();
-  const username = searchParams.get("username")?.trim();
+  const userIdentity =
+    searchParams.get("id")?.trim() ?? searchParams.get("username")?.trim();
 
   function updateFriendStatus(userData, targetId) {
     setFriendStatus({
@@ -31,21 +31,20 @@ export default function Userpage() {
     });
   }
 
-  function fetchLocalUser(token) {
-    return axios
-      .get(`${config.apiUrl}/users/me`, {
-        headers: { Authorization: token },
-      })
-      .then((res) => res.data);
+  async function fetchLocalUser(token) {
+    const res = await axios.get(`${config.apiUrl}/users/me`, {
+      headers: { Authorization: token },
+    });
+    return res.data;
   }
 
   useEffect(() => {
-    if (!userId && !username) return;
+    if (!userIdentity) return;
 
     const fetchUser = async () => {
       try {
         const { data: fetchedUser } = await axios.get(
-          `${config.apiUrl}/users/${userId ?? username}`
+          `${config.apiUrl}/users/${userIdentity}`
         );
         setUser(fetchedUser);
 
@@ -72,11 +71,9 @@ export default function Userpage() {
         setLoading(false);
       }
 
-      if (!cache.posts) cache.posts = {};
-
       try {
         const { data: postsArray } = await axios.get(
-          `${config.apiUrl}/users/${userId}/posts`
+          `${config.apiUrl}/users/${userIdentity}/posts`
         );
         setPosts(postsArray ?? []);
       } catch (err) {
@@ -86,14 +83,14 @@ export default function Userpage() {
     };
 
     fetchUser();
-  }, [userId, username]);
+  }, [userIdentity]);
 
   function sendFriendRequest() {
     if (!user?.id || user.id === localUser?.id) return;
 
     axios
       .post(
-        `${config.apiUrl}/users/${userId}/friendRequest`,
+        `${config.apiUrl}/users/${userIdentity}/friendRequest`,
         {},
         {
           headers: {
@@ -112,7 +109,7 @@ export default function Userpage() {
     if (!user?.id || user.id === localUser?.id) return;
 
     axios
-      .delete(`${config.apiUrl}/users/${userId}/friendRequest`, {
+      .delete(`${config.apiUrl}/users/${userIdentity}/friendRequest`, {
         headers: {
           Authorization: localStorage.getItem("accountToken"),
         },
@@ -129,7 +126,7 @@ export default function Userpage() {
 
     axios
       .post(
-        `${config.apiUrl}/users/${userId}/friendRequestAction`,
+        `${config.apiUrl}/users/${userIdentity}/friendRequestAction`,
         {},
         {
           headers: {
@@ -150,7 +147,7 @@ export default function Userpage() {
     if (!user?.id || user.id === localUser?.id) return;
 
     axios
-      .delete(`${config.apiUrl}/users/${userId}/friendRequestAction`, {
+      .delete(`${config.apiUrl}/users/${userIdentity}/friendRequestAction`, {
         headers: {
           Authorization: localStorage.getItem("accountToken"),
         },
@@ -211,7 +208,16 @@ export default function Userpage() {
         <>
           <p className="title">
             {user?.id ? (
-              <img alt="" src={`${config.apiUrl}/users/${user.id}/avatar`} />
+              <div
+                className={
+                  cache?.usersOnline?.includes(user?.id)
+                    ? "online-indicator"
+                    : ""
+                }
+                style={{ width: "60px", height: "60px" }}
+              >
+                <img alt="" src={`${config.apiUrl}/users/${user.id}/avatar`} />
+              </div>
             ) : (
               <i className="fa-solid fa-user" />
             )}

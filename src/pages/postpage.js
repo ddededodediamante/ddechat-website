@@ -148,10 +148,12 @@ export default function Postpage() {
             const posts = cache?.posts;
 
             if (posts) {
-              if (getPost(parentPost?.id)) {
-                delete posts[parentPost.id];
+              let _parentPost = getPost(parentPost?.id);
+              if (_parentPost && _parentPost.id) {
+                delete posts[_parentPost.id];
+                if (!_parentPost?.replyingToId) delete cache.latestPosts;
               } else {
-                cache.latestPosts = [];
+                delete cache.latestPosts;
               }
 
               if (posts[id]) {

@@ -76,7 +76,8 @@ export default function Directmessage() {
     notificationSound.volume = 0.5;
 
     newSocket.onopen = () => {
-      console.log("Connected to server");
+      console.log("Connected to DMs websocket");
+      
       newSocket.send(
         JSON.stringify({
           type: "dm:join",

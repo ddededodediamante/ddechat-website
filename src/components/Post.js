@@ -4,7 +4,7 @@ import { Link } from "react-router-dom";
 import { useEffect, useState } from "react";
 import axios from "axios";
 import Loading from "./Loading.js";
-import cache from "../cache.ts";
+import cache, { getPost, savePost } from "../cache.ts";
 import MarkdownIt from "markdown-it";
 const md = new MarkdownIt({ breaks: true, linkify: true });
 
@@ -17,6 +17,7 @@ export default function Post({
   const [loadingParent, setLoadingParent] = useState(false);
 
   if (
+    data &&
     (!data.author || !data.author.username) &&
     typeof data.username === "string"
   ) {
@@ -29,25 +30,36 @@ export default function Post({
     if (!cache?.posts) cache.posts = {};
 
     if (showParentPost && data?.replyingToId) {
-      if (!cache.posts[data.replyingToId]) {
+      const cached = getPost(data.replyingToId);
+
+      if (cached && cached.id === null) {
+        setParentPost(null);
+        return;
+      }
+
+      if (!cached) {
         setLoadingParent(true);
         axios
           .get(`${config.apiUrl}/posts/${data.replyingToId}`)
           .then((parentData) => {
-            cache.posts[data.replyingToId] = parentData.data;
+            savePost(data.replyingToId, parentData.data);
             setParentPost(parentData.data);
           })
-          .catch(() => {
-            setParentPost({});
+          .catch((err) => {
+            if ((err?.status ?? err?.response?.status) === 404) {
+              savePost(data.replyingToId, {});
+              setParentPost(null);
+            } else {
+              console.error("Failed to fetch parent post:", err);
+            }
+            console.error(err)
           })
           .finally(() => {
             setLoadingParent(false);
           });
-      } else {
-        setParentPost(cache.posts[data.replyingToId]);
-      }
+      } else setParentPost(cached);
     }
-  }, [data.replyingToId, showParentPost]);
+  }, [data?.replyingToId, showParentPost]);
 
   let content = (
     <div className="vertical">
@@ -57,7 +69,7 @@ export default function Post({
       <div
         style={{ color: "var(--font)" }}
         dangerouslySetInnerHTML={{
-          __html: md.render(data.content ?? "Missing content"),
+          __html: md.render(data?.content ?? "Missing content"),
         }}
       />
       <div className="horizontal" style={{ gap: "5px" }}>
@@ -76,20 +88,26 @@ export default function Post({
 
   return (
     <>
-      {showParentPost && (loadingParent || (parentPost && parentPost.id)) && (
-        <div
-          style={{
-            borderLeft: "4px solid var(--light)",
-            paddingLeft: "10px",
-          }}
-        >
-          {loadingParent ? (
+      {(showParentPost && data?.replyingToId) &&
+        (loadingParent ? (
+          <div
+            style={{
+              borderLeft: "4px solid var(--light)",
+              paddingLeft: "10px",
+            }}
+          >
             <Loading />
-          ) : (
-            <Post data={parentPost} noSocial showParentPost={false} />
-          )}
-        </div>
-      )}
+          </div>
+        ) : (
+          <div
+            style={{
+              borderLeft: "4px solid var(--light)",
+              paddingLeft: "10px",
+            }}
+          >
+            <Post data={parentPost} noSocial={noSocial} showParentPost={false} />
+          </div>
+        ))}
 
       <div className="posts-post">
         {data?.author?.id ? (

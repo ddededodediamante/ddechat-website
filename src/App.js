@@ -1,30 +1,33 @@
-import { Navigate, Route, Routes } from 'react-router-dom';
-import { useEffect } from 'react';
+import { Navigate, Route, Routes } from "react-router-dom";
+import { useEffect } from "react";
 
-import Toolbar from './components/Toolbar';
+import Toolbar from "./components/Toolbar";
 
-import Login from './pages/login';
-import Sign from './pages/sign';
-import Friends from './pages/friends.js';
-import Alerts from './pages/alerts.js';
-import Userpage from './pages/userpage.js';
-import Settings from './pages/settings.js';
-import Posts from './pages/posts.js';
-import Postpage from './pages/postpage.js';
-import Directmessage from './pages/directmessage.js';
+import Login from "./pages/login";
+import Sign from "./pages/sign";
+import Friends from "./pages/friends.js";
+import Alerts from "./pages/alerts.js";
+import Userpage from "./pages/userpage.js";
+import Settings from "./pages/settings.js";
+import Posts from "./pages/posts.js";
+import Postpage from "./pages/postpage.js";
+import Directmessage from "./pages/directmessage.js";
 
-import './static/css/Styles.css';
+import "./static/css/Styles.css";
+import config from "./config.js";
+import cache from "./cache.ts";
 
 export default function App() {
   useEffect(() => {
-    const setStyle = (property, value) => document.documentElement.style.setProperty(property, value);
+    const setStyle = (property, value) =>
+      document.documentElement.style.setProperty(property, value);
 
     let styleSettings = {
-      background: '#111',
-      midground: '#333',
-      foreground: '#555',
-      light: '#777',
-      font: '#fff'
+      background: "#111",
+      midground: "#333",
+      foreground: "#555",
+      light: "#777",
+      font: "#fff",
     };
 
     let layoutSettings = {
@@ -33,30 +36,68 @@ export default function App() {
     };
 
     try {
-      let myStyleSettings = localStorage.getItem('themeSettings');
+      let myStyleSettings = localStorage.getItem("themeSettings");
       let myLayoutSettings = localStorage.getItem("layoutSettings");
 
-      if (myStyleSettings === null || myStyleSettings === 'null') {
-        localStorage.setItem('themeSettings', JSON.stringify(styleSettings));
+      if (myStyleSettings === null || myStyleSettings === "null") {
+        localStorage.setItem("themeSettings", JSON.stringify(styleSettings));
       } else {
         styleSettings = JSON.parse(myStyleSettings);
       }
 
-      if (myLayoutSettings === null || myLayoutSettings === 'null') {
+      if (myLayoutSettings === null || myLayoutSettings === "null") {
         localStorage.setItem("layoutSettings", JSON.stringify(layoutSettings));
       } else {
         layoutSettings = JSON.parse(myLayoutSettings);
       }
-    } catch (_) { }
+    } catch (_) {}
 
-    setStyle('--background', styleSettings?.background ?? '#111');
-    setStyle('--midground', styleSettings?.midground ?? '#333');
-    setStyle('--foreground', styleSettings?.foreground ?? '#555');
-    setStyle('--light', styleSettings?.light ?? '#777');
-    setStyle('--font', styleSettings?.font ?? '#fff');
+    setStyle("--background", styleSettings?.background ?? "#111");
+    setStyle("--midground", styleSettings?.midground ?? "#333");
+    setStyle("--foreground", styleSettings?.foreground ?? "#555");
+    setStyle("--light", styleSettings?.light ?? "#777");
+    setStyle("--font", styleSettings?.font ?? "#fff");
 
     window.theme = styleSettings;
     window.layout = layoutSettings;
+
+    const token = localStorage.getItem("accountToken");
+    if (!token) return;
+
+    cache.usersOnline = [];
+
+    const ws = new WebSocket(
+      config.apiUrl.replace(/^http/, "ws") + "/users/presence"
+    );
+    let heartbeatInterval;
+
+    ws.onopen = () => {
+      console.log("Connected to DMs websocket");
+
+      ws.send(JSON.stringify({ type: "presence:join", token }));
+
+      heartbeatInterval = setInterval(() => {
+        if (ws.readyState === WebSocket.OPEN) {
+          ws.send(JSON.stringify({ type: "presence:heartbeat" }));
+        }
+      }, 10000);
+    };
+
+    ws.onmessage = (event) => {
+      const data = JSON.parse(event.data);
+      if (data.type === "presence:update") {
+        cache.usersOnline = data.online;
+      }
+    };
+
+    ws.onclose = () => {
+      clearInterval(heartbeatInterval);
+    };
+
+    return () => {
+      clearInterval(heartbeatInterval);
+      ws.close();
+    };
   }, []);
 
   return (
