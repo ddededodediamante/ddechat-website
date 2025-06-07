@@ -15,28 +15,37 @@ export default function Postpage() {
   const [post, setPost] = useState(null);
   const [parentPost, setParentPost] = useState(null);
   const [parentPostLoading, setParentPostLoading] = useState(false);
-  const [user, setUser] = useState(null);
+  const [user, setUser] = useState(undefined);
   const [replyContent, setReplyContent] = useState("");
   const [liked, setLiked] = useState(false);
 
   useEffect(() => {
     const token = localStorage.getItem("accountToken");
-    if (!token) return;
+    if (!token) {
+      setUser(null); 
+      return;
+    }
 
-    if (!cache["user"])
+    if (!cache["user"]) {
       axios
         .get(`${config.apiUrl}/users/me`, {
           headers: { Authorization: token },
         })
-        .then((res) => setUser(res.data))
+        .then((res) => {
+          setUser(res.data);
+          cache["user"] = res.data;
+        })
         .catch((error) => {
           console.error("Error fetching user data:", error);
+          setUser(null);
         });
-    else setUser(cache["user"]);
+    } else {
+      setUser(cache["user"]);
+    }
   }, []);
 
   useEffect(() => {
-    if (!id || user === null) return;
+    if (!id || user === undefined) return;
 
     setPost(null);
     setParentPost(null);
@@ -71,8 +80,9 @@ export default function Postpage() {
         .then((res) => {
           savePost(id, res.data);
           setPost(res.data);
-          setLiked(res.data.likes.includes(user.id));
-
+          if (user) {
+            setLiked(res.data.likes.includes(user.id));
+          }
           if (res.data.replyingToId) {
             fetchParent(res.data.replyingToId);
           } else {
@@ -87,8 +97,9 @@ export default function Postpage() {
     } else {
       const cached = getPost(id);
       setPost(cached);
-      setLiked(cached.likes.includes(user.id));
-
+      if (user) {
+        setLiked(cached.likes.includes(user.id));
+      }
       if (cached.replyingToId) {
         fetchParent(cached.replyingToId);
       } else {
@@ -137,7 +148,7 @@ export default function Postpage() {
             const posts = cache?.posts;
 
             if (posts) {
-              if (getPost(parentPost.id)) {
+              if (getPost(parentPost?.id)) {
                 delete posts[parentPost.id];
               } else {
                 cache.latestPosts = [];
