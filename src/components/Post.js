@@ -5,8 +5,7 @@ import { useEffect, useState } from "react";
 import axios from "axios";
 import Loading from "./Loading.js";
 import cache, { getPost, savePost } from "../cache.ts";
-import MarkdownIt from "markdown-it";
-const md = new MarkdownIt({ breaks: true, linkify: true });
+import markdown from "../functions/Markdown.js";
 
 export default function Post({
   data,
@@ -69,7 +68,7 @@ export default function Post({
       <div
         style={{ color: "var(--font)" }}
         dangerouslySetInnerHTML={{
-          __html: md.render(data?.content ?? "Missing content"),
+          __html: markdown.render(data?.content ?? "Missing content"),
         }}
       />
       <div className="horizontal" style={{ gap: "5px" }}>
@@ -88,7 +87,8 @@ export default function Post({
 
   return (
     <>
-      {(showParentPost && data?.replyingToId) &&
+      {showParentPost &&
+        data?.replyingToId &&
         (loadingParent ? (
           <div
             style={{
@@ -105,7 +105,11 @@ export default function Post({
               paddingLeft: "10px",
             }}
           >
-            <Post data={parentPost} noSocial={noSocial} showParentPost={false} />
+            <Post
+              data={parentPost}
+              noSocial={noSocial}
+              showParentPost={false}
+            />
           </div>
         ))}
 
@@ -126,7 +130,12 @@ export default function Post({
         )}
 
         {noSocial === false && data?.id ? (
-          <Link to={"/post?id=" + data.id}>{content}</Link>
+          <Link
+            to={"/post?id=" + data.id}
+            style={{ height: "fit-content" }}
+          >
+            {content}
+          </Link>
         ) : (
           content
         )}

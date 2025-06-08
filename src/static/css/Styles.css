@@ -16,6 +16,57 @@
   box-sizing: border-box !important;
 }
 
+code {
+  font-family: monospace;
+  background-color: var(--background);
+  color: var(--font);
+  padding: 4px;
+  border-radius: 4px;
+  font-size: 0.85em;
+  text-align: left;
+}
+
+pre {
+  background-color: var(--background);
+  color: var(--font);
+  padding: 0.5em;
+  border-radius: 4px;
+  overflow: auto;
+  font-family: monospace;
+  font-size: 0.85em;
+  line-height: 1.4;
+  margin: 10px 0;
+  border: 1px solid var(--foreground);
+  text-align: left;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 10px 0;
+}
+
+th,
+td {
+  border: 1px solid var(--foreground);
+  padding: 0.6em 0.8em;
+  text-align: left;
+}
+
+th {
+  background-color: var(--midground);
+  font-weight: 600;
+}
+
+blockquote {
+  border-left: 4px solid var(--primary);
+  background-color: var(--midground);
+  padding: 0.8em 1em;
+  margin: 10px 0;
+  color: var(--font);
+  border-radius: 4px;
+}
+
 @keyframes spin {
   from {
     transform: rotate(0deg);
@@ -101,7 +152,7 @@ input[type='file']::file-selector-button {
   cursor: pointer;
 }
 
-div.line {
+hr, div.line {
   width: 100%;
   height: 2px !important;
   opacity: 0.1;
@@ -159,6 +210,7 @@ div.horizontal.fit-all * {
 h1, h2, h3, h4, h5, h6 {
   margin: 0;
   padding: 0;
+  text-align: left;
 }
 
 .alertNewDot {
@@ -631,4 +683,33 @@ div.online-indicator::after {
   background-color: #58cc5c;
   outline: 3px solid var(--background);
   border-radius: 50%;
+}
+
+img.emoji-inline {
+  height: 1.5em;
+  width: 1.5em;
+  vertical-align: -0.375em;
+}
+
+div.emoji-panel {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+  gap: 5px;
+  background-color: var(--midground);
+  padding: 5px;
+  border-radius: 10px;
+}
+
+img.emoji-picker-item {
+  width: 64px;
+  transition: background-color 0.2s ease;
+  will-change: background-color;
+  padding: 2px;
+  border-radius: 10px;
+}
+
+img.emoji-picker-item:hover {
+  cursor: pointer;
+  background-color: var(--foreground);
 }

@@ -5,8 +5,8 @@ import config from "../config.js";
 import Loading from "../components/Loading";
 import { useNavigate } from "react-router-dom";
 import cache, { savePost } from "../cache.ts";
-import MarkdownIt from "markdown-it";
-const md = new MarkdownIt({ breaks: true, linkify: true });
+import markdown from "../functions/Markdown.js";
+import EmojiPanel from "../components/Emojipanel.js";
 
 export default function Posts() {
   const navigate = useNavigate();
@@ -16,6 +16,7 @@ export default function Posts() {
   const [postContent, setPostContent] = useState("");
   const [activeTab, setActiveTab] = useState("edit");
   const [loading, setLoading] = useState(true);
+  const [showEmojiPanel, setShowEmojiPanel] = useState(false);
 
   useEffect(() => {
     const token = localStorage.getItem("accountToken");
@@ -88,6 +89,10 @@ export default function Posts() {
       });
   }
 
+  function toggleEmojiPanel() {
+    setShowEmojiPanel((prev) => !prev);
+  }
+
   return (
     <>
       <div className="panel-content">
@@ -104,9 +109,7 @@ export default function Posts() {
                   flexDirection: "column",
                 }}
               >
-                <div
-                  style={{ display: "flex", gap: "4px", marginBottom: "8px" }}
-                >
+                <div style={{ display: "flex", gap: "5px" }}>
                   {["edit", "preview"].map((tab) => (
                     <button
                       key={tab}
@@ -121,7 +124,21 @@ export default function Posts() {
                       {tab === "edit" ? "Edit" : "Preview"}
                     </button>
                   ))}
+                  <button
+                    key="emojis"
+                    onClick={toggleEmojiPanel}
+                    style={{
+                      background:
+                        showEmojiPanel
+                          ? "var(--foreground)"
+                          : "var(--midground)",
+                    }}
+                  >
+                    Emojis
+                  </button>
                 </div>
+
+                {showEmojiPanel && <EmojiPanel />}
 
                 <div
                   style={{
@@ -168,7 +185,7 @@ export default function Posts() {
                         overflowY: "auto",
                       }}
                       dangerouslySetInnerHTML={{
-                        __html: md.render(postContent),
+                        __html: markdown.render(postContent),
                       }}
                     />
                   )}
