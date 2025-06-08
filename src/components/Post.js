@@ -11,6 +11,7 @@ export default function Post({
   data,
   noSocial = false,
   showParentPost = false,
+  style
 }) {
   const [parentPost, setParentPost] = useState(null);
   const [loadingParent, setLoadingParent] = useState(false);
@@ -113,7 +114,7 @@ export default function Post({
           </div>
         ))}
 
-      <div className="posts-post">
+      <div className="posts-post" style={style}>
         {data?.author?.id ? (
           <Link to={`/user?id=${data.author.id}`}>
             <img

@@ -17,6 +17,7 @@ export default function Posts() {
   const [activeTab, setActiveTab] = useState("edit");
   const [loading, setLoading] = useState(true);
   const [showEmojiPanel, setShowEmojiPanel] = useState(false);
+  const [isPosting, setPosting] = useState(false);
 
   useEffect(() => {
     const token = localStorage.getItem("accountToken");
@@ -36,9 +37,7 @@ export default function Posts() {
           .catch((error) => {
             console.error("Error fetching user data:", error);
           });
-    } else {
-      setUser(cache["user"]);
-    }
+    } else setUser(cache["user"]);
 
     if (!cache["latestPosts"]) {
       axios
@@ -62,17 +61,14 @@ export default function Posts() {
   }, []);
 
   function sendPost() {
-    setPostContent('');
-
-    let postbutton = document.getElementById("postButton");
-    postbutton.disabled = true;
-    postbutton.onclick = () => {};
+    setPostContent("");
+    setPosting(true);
 
     axios
       .post(
         config.apiUrl + "/posts",
         {
-          content: String(postContent).trim(),
+          content: postContent.trim(),
         },
         {
           headers: {
@@ -86,7 +82,8 @@ export default function Posts() {
         savePost(data.data.id, data.data);
 
         navigate(`/post?id=${data.data.id}`);
-      });
+      })
+      .finally(() => setPosting(false));
   }
 
   function toggleEmojiPanel() {
@@ -128,10 +125,9 @@ export default function Posts() {
                     key="emojis"
                     onClick={toggleEmojiPanel}
                     style={{
-                      background:
-                        showEmojiPanel
-                          ? "var(--foreground)"
-                          : "var(--midground)",
+                      background: showEmojiPanel
+                        ? "var(--foreground)"
+                        : "var(--midground)",
                     }}
                   >
                     Emojis
@@ -168,7 +164,8 @@ export default function Posts() {
                       style={{
                         padding: "8px",
                         borderRadius: "8px",
-                        minHeight: "60px",
+                        minHeight: '60px',
+                        height: 'fit-content',
                         width: "100%",
                         resize: "vertical",
                       }}
@@ -177,12 +174,10 @@ export default function Posts() {
                     <div
                       style={{
                         color: "var(--font)",
-                        border: "1px solid #ccc",
+                        backgroundColor: 'var(--midground)',
                         padding: "8px",
                         borderRadius: "8px",
-                        minHeight: "120px",
-                        width: "100%",
-                        overflowY: "auto",
+                        width: "100%"
                       }}
                       dangerouslySetInnerHTML={{
                         __html: markdown.render(postContent),
@@ -192,10 +187,10 @@ export default function Posts() {
 
                   <button
                     onClick={() => sendPost(postContent)}
-                    disabled={!postContent.trim()}
+                    disabled={isPosting || !postContent.trim()}
                     id="postButton"
                   >
-                    Post
+                    {isPosting ? <Loading size="15px" /> : "Post"}
                   </button>
                 </div>
               </div>

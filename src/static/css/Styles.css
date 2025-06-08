@@ -18,16 +18,17 @@
 
 code {
   font-family: monospace;
-  background-color: var(--background);
+  background-color: #282c34;
   color: var(--font);
   padding: 4px;
   border-radius: 4px;
   font-size: 0.85em;
   text-align: left;
+  margin: 10px 0;
 }
 
 pre {
-  background-color: var(--background);
+  background-color: #282c34;
   color: var(--font);
   padding: 0.5em;
   border-radius: 4px;
@@ -38,6 +39,7 @@ pre {
   margin: 10px 0;
   border: 1px solid var(--foreground);
   text-align: left;
+  
 }
 
 table {
@@ -231,19 +233,22 @@ h1, h2, h3, h4, h5, h6 {
 
 .loadingAnim {
   display: flex;
+  flex-direction: row;
   color: var(--font);
-  gap: 1rem;
+  gap: 0.3em;
   font-size: 40px;
   padding: 0;
   margin: 0;
+  justify-items: center;
+  align-items: center;
 }
 
 .loadingAnim .spinner {
   border: 4px solid transparent;
   border-radius: 50%;
   border-top: 4px solid rgb(153, 116, 255);
-  height: 3rem;
-  width: 3rem;
+  height: 1.5em;
+  width: 1.5em;
   animation: spin 0.7s infinite ease-in-out;
 }
 
@@ -453,6 +458,7 @@ h1, h2, h3, h4, h5, h6 {
   word-break: break-all;
   text-align: left;
   height: fit-content;
+  padding-bottom: 3px;
 }
 
 .panel-content .posts-post div p.grey {
@@ -686,10 +692,11 @@ div.online-indicator::after {
 }
 
 img.emoji-inline {
-  height: 1.5em;
-  width: 1.5em;
-  vertical-align: -0.375em;
+  width: 1.7em !important;
+  height: 1.7em !important;
+  vertical-align: -0.425em;
 }
+
 
 div.emoji-panel {
   display: flex;

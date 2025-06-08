@@ -18,11 +18,12 @@ export default function Postpage() {
   const [user, setUser] = useState(undefined);
   const [replyContent, setReplyContent] = useState("");
   const [liked, setLiked] = useState(false);
+  const [isReplying, setReplying] = useState(false);
 
   useEffect(() => {
     const token = localStorage.getItem("accountToken");
     if (!token) {
-      setUser(null); 
+      setUser(null);
       return;
     }
 
@@ -174,6 +175,8 @@ export default function Postpage() {
     const postContent = replyContent?.trim();
     if (!postContent) return;
 
+    setReplying(true);
+
     axios
       .post(
         `${config.apiUrl}/posts`,
@@ -183,10 +186,14 @@ export default function Postpage() {
       .then((res) => {
         setPost(res.data);
         savePost(id, res.data);
+
+        const index = cache["latestPosts"].findIndex((post) => post.id === id);
+        if (index !== -1) cache["latestPosts"][index] = res.data;
       })
       .catch((error) => {
         console.error("Error sending reply:", error);
-      });
+      })
+      .finally(() => setReplying(false));
 
     setReplyContent("");
   }
@@ -262,7 +269,9 @@ export default function Postpage() {
                     onChange={(e) => setReplyContent(e.target.value)}
                     id="postText"
                   />
-                  <button onClick={sendReply}>Reply</button>
+                  <button onClick={sendReply} disabled={!replyContent.trim()}>
+                    {isReplying ? <Loading size="15px" /> : "Reply"}
+                  </button>
                 </div>
               )}
 
