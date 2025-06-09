@@ -164,8 +164,8 @@ export default function Posts() {
                       style={{
                         padding: "8px",
                         borderRadius: "8px",
-                        minHeight: '60px',
-                        height: 'fit-content',
+                        minHeight: "60px",
+                        height: "fit-content",
                         width: "100%",
                         resize: "vertical",
                       }}
@@ -174,10 +174,11 @@ export default function Posts() {
                     <div
                       style={{
                         color: "var(--font)",
-                        backgroundColor: 'var(--midground)',
+                        backgroundColor: "var(--midground)",
                         padding: "8px",
                         borderRadius: "8px",
-                        width: "100%"
+                        minHeight: "60px",
+                        width: "100%",
                       }}
                       dangerouslySetInnerHTML={{
                         __html: markdown.render(postContent),

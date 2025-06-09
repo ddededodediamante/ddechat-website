@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 
 const emojiList = [];
 const importAll = (r) =>
@@ -17,6 +17,13 @@ emojiList
 
 export default function EmojiPanel() {
   const [targetInput, setTargetInput] = useState(null);
+  const panelRef = useRef(null);
+  const [position, setPosition] = useState({
+    x: 20,
+    y: 20,
+  });
+  const [dragging, setDragging] = useState(false);
+  const [rel, setRel] = useState({ x: 0, y: 0 });
 
   useEffect(() => {
     const handleFocus = (e) => {
@@ -27,6 +34,35 @@ export default function EmojiPanel() {
     window.addEventListener("focusin", handleFocus);
     return () => window.removeEventListener("focusin", handleFocus);
   }, []);
+
+  useEffect(() => {
+    const handleMouseMove = (e) => {
+      if (!dragging) return;
+      setPosition({ x: e.clientX - rel.x, y: e.clientY - rel.y });
+    };
+    const handleMouseUp = () => {
+      setDragging(false);
+    };
+    window.addEventListener("mousemove", handleMouseMove);
+    window.addEventListener("mouseup", handleMouseUp);
+    return () => {
+      window.removeEventListener("mousemove", handleMouseMove);
+      window.removeEventListener("mouseup", handleMouseUp);
+    };
+  }, [dragging, rel]);
+
+  const onMouseDown = (e) => {
+    if (
+      e.button !== 0 ||
+      (e.target && e.target.className === "emoji-picker-item")
+    )
+      return;
+    const rect = panelRef.current.getBoundingClientRect();
+    setDragging(true);
+    setRel({ x: e.clientX - rect.left, y: e.clientY - rect.top });
+    e.stopPropagation();
+    e.preventDefault();
+  };
 
   function setNativeValue(element, value) {
     const valueSetter = Object.getOwnPropertyDescriptor(element, "value")?.set;
@@ -62,17 +98,30 @@ export default function EmojiPanel() {
   };
 
   return (
-    <div className="emoji-panel">
-      {emojiList.map((name) => (
-        <img
-          key={name}
-          src={emojiMap[name]}
-          alt={name}
-          title={name}
-          onClick={() => insertEmoji(name)}
-          className="emoji-picker-item"
-        />
-      ))}
+    <div
+      ref={panelRef}
+      onMouseDown={onMouseDown}
+      className="emoji-panel"
+      style={{
+        cursor: dragging ? "grabbing" : "grab",
+        transform: `translate(${position.x}px, ${position.y}px)`,
+      }}
+    >
+      <div className="emoji-panel-header">Emojis</div>
+      <div className="line" />
+      <div className="emoji-grid">
+        {emojiList.map((name) => (
+          <img
+            key={name}
+            alt={name}
+            title={name}
+            src={emojiMap[name]}
+            onClick={() => insertEmoji(name)}
+            className="emoji-picker-item"
+            draggable={false}
+          />
+        ))}
+      </div>
     </div>
   );
 }

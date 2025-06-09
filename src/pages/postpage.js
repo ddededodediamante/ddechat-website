@@ -6,6 +6,8 @@ import Post from "../components/Post";
 import Loading from "../components/Loading";
 import Swal from "sweetalert2";
 import cache, { savePost, getPost } from "../cache.ts";
+import markdown from "../functions/Markdown.js";
+import EmojiPanel from "../components/Emojipanel.js";
 
 export default function Postpage() {
   const navigate = useNavigate();
@@ -13,12 +15,14 @@ export default function Postpage() {
   const id = searchParams.get("id");
 
   const [post, setPost] = useState(null);
+  const [liked, setLiked] = useState(false);
   const [parentPost, setParentPost] = useState(null);
   const [parentPostLoading, setParentPostLoading] = useState(false);
   const [user, setUser] = useState(undefined);
+  const [activeTab, setActiveTab] = useState("edit");
   const [replyContent, setReplyContent] = useState("");
-  const [liked, setLiked] = useState(false);
   const [isReplying, setReplying] = useState(false);
+  const [showEmojiPanel, setShowEmojiPanel] = useState(false);
 
   useEffect(() => {
     const token = localStorage.getItem("accountToken");
@@ -198,6 +202,10 @@ export default function Postpage() {
     setReplyContent("");
   }
 
+  function toggleEmojiPanel() {
+    setShowEmojiPanel((prev) => !prev);
+  }
+
   return (
     <>
       <div className="panel-content">
@@ -245,33 +253,103 @@ export default function Postpage() {
 
               <p className="small title">Replies</p>
 
-              {user && (
+              {user?.id && (
                 <div
-                  className="horizontal reply-section"
                   style={{
                     width: "100%",
                     gap: "10px",
-                    height: "fit-content",
-                    alignItems: "center",
+                    display: "flex",
+                    flexDirection: "column",
                   }}
                 >
-                  <img
-                    alt="User Avatar"
-                    src={`${config.apiUrl}/users/${user.id}/avatar`}
-                    width={60}
-                    height={60}
-                    style={{ borderRadius: "25%" }}
-                  />
-                  <textarea
-                    placeholder="Make a reply"
-                    maxLength={2000}
-                    value={replyContent}
-                    onChange={(e) => setReplyContent(e.target.value)}
-                    id="postText"
-                  />
-                  <button onClick={sendReply} disabled={!replyContent.trim()}>
-                    {isReplying ? <Loading size="15px" /> : "Reply"}
-                  </button>
+                  <div style={{ display: "flex", gap: "5px" }}>
+                    {["edit", "preview"].map((tab) => (
+                      <button
+                        key={tab}
+                        onClick={() => setActiveTab(tab)}
+                        style={{
+                          background:
+                            activeTab === tab
+                              ? "var(--foreground)"
+                              : "var(--midground)",
+                        }}
+                      >
+                        {tab === "edit" ? "Edit" : "Preview"}
+                      </button>
+                    ))}
+                    <button
+                      key="emojis"
+                      onClick={toggleEmojiPanel}
+                      style={{
+                        background: showEmojiPanel
+                          ? "var(--foreground)"
+                          : "var(--midground)",
+                      }}
+                    >
+                      Emojis
+                    </button>
+                  </div>
+
+                  {showEmojiPanel && <EmojiPanel />}
+
+                  <div
+                    style={{
+                      display: "flex",
+                      gap: "10px",
+                      alignItems: "flex-start",
+                    }}
+                  >
+                    <img
+                      alt=""
+                      src={`${config.apiUrl}/users/${user.id}/avatar`}
+                      width={60}
+                      height={60}
+                      style={{ borderRadius: "25%" }}
+                    />
+
+                    {activeTab === "edit" ? (
+                      <textarea
+                        value={replyContent}
+                        onChange={(e) => setReplyContent(e.target.value)}
+                        disabled={!user?.id}
+                        placeholder={
+                          user.username
+                            ? `What's new, ${user.username}?`
+                            : "What's new?"
+                        }
+                        style={{
+                          padding: "8px",
+                          borderRadius: "8px",
+                          minHeight: "60px",
+                          height: "fit-content",
+                          width: "100%",
+                          resize: "vertical",
+                        }}
+                      />
+                    ) : (
+                      <div
+                        style={{
+                          color: "var(--font)",
+                          backgroundColor: "var(--midground)",
+                          padding: "8px",
+                          borderRadius: "8px",
+                          minHeight: "60px",
+                          width: "100%",
+                        }}
+                        dangerouslySetInnerHTML={{
+                          __html: markdown.render(replyContent),
+                        }}
+                      />
+                    )}
+
+                    <button
+                      onClick={sendReply}
+                      disabled={isReplying || !replyContent.trim()}
+                      id="postButton"
+                    >
+                      {isReplying ? <Loading size="15px" /> : "Post"}
+                    </button>
+                  </div>
                 </div>
               )}
 

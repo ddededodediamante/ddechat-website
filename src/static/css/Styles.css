@@ -39,7 +39,6 @@ pre {
   margin: 10px 0;
   border: 1px solid var(--foreground);
   text-align: left;
-  
 }
 
 table {
@@ -63,10 +62,14 @@ th {
 blockquote {
   border-left: 4px solid var(--primary);
   background-color: var(--midground);
-  padding: 0.8em 1em;
+  padding: 0.5em;
   margin: 10px 0;
   color: var(--font);
   border-radius: 4px;
+}
+
+blockquote blockquote {
+  margin-bottom: 0;
 }
 
 @keyframes spin {
@@ -697,23 +700,41 @@ img.emoji-inline {
   vertical-align: -0.425em;
 }
 
-
 div.emoji-panel {
   display: flex;
-  flex-direction: row;
-  flex-wrap: wrap;
-  gap: 5px;
+  flex-direction: column;
+  position: fixed;
+  top: 0;
+  left: 0;
   background-color: var(--midground);
-  padding: 5px;
+  padding: 10px;
   border-radius: 10px;
+  gap: 10px;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+  user-select: none;
+  z-index: 1000;
+}
+
+.emoji-panel-header {
+  font-weight: bold;
+  cursor: inherit;
+  text-align: center;
+}
+
+.emoji-grid {
+  display: grid;
+  grid-template-columns: repeat(6, 48px);
+  gap: 5px;
+  max-height: 300px;
+  overflow-y: auto;
+  width: auto;
 }
 
 img.emoji-picker-item {
-  width: 64px;
+  width: 48px;
   transition: background-color 0.2s ease;
-  will-change: background-color;
-  padding: 2px;
-  border-radius: 10px;
+  padding: 4px;
+  border-radius: 8px;
 }
 
 img.emoji-picker-item:hover {

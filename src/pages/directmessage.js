@@ -168,7 +168,7 @@ export default function Directmessage() {
             ))}
 
             <div
-              className="horizontal reply-section"
+              className="horizontal"
               style={{
                 width: "100%",
                 gap: "10px",
