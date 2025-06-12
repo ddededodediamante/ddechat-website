@@ -76,6 +76,10 @@ export default function Toolbar() {
               <i className="fa-solid fa-gear" />
               Settings
             </Link>
+            <Link to="/tos" onClick={() => setMenuOpen(false)}>
+              <i className="fa-solid fa-scroll" />
+              Terms
+            </Link>
           </div>
         </div>
 
@@ -125,6 +129,10 @@ export default function Toolbar() {
             <Link to="/settings">
               <i className="fa-solid fa-gear" />
               Settings
+            </Link>
+            <Link to="/tos">
+              <i className="fa-solid fa-scroll" />
+              Terms
             </Link>
           </div>
         </div>

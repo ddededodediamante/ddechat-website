@@ -16,6 +16,7 @@ import Directmessage from "./pages/directmessage.js";
 import "./static/css/Styles.css";
 import config from "./config.js";
 import cache from "./cache.ts";
+import TOS from "./pages/tos.js";
 
 export default function App() {
   useEffect(() => {
@@ -96,10 +97,9 @@ export default function App() {
 
     return () => {
       clearInterval(heartbeatInterval);
-      ws.close();
+      if (ws) ws?.close();
     };
   }, []);
-
   return (
     <>
       <Toolbar />
@@ -114,6 +114,7 @@ export default function App() {
         <Route path="/posts" element={<Posts />} />
         <Route path="/post" element={<Postpage />} />
         <Route path="/directmessage" element={<Directmessage />} />
+        <Route path="/tos" element={<TOS />} />
       </Routes>
     </>
   );
