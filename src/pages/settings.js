@@ -143,8 +143,8 @@ export default function Settings() {
       })
       .then((data) => {
         if (data.data) cache["user"] = data.data;
-        document.getElementById("avatarUpload").value = "";;
-        
+        document.getElementById("avatarUpload").value = "";
+
         Swal.fire({
           title: "Avatar Updated",
           text: "Your avatar was updated",
@@ -195,7 +195,26 @@ export default function Settings() {
 
             <div className="settingsWrap">
               <div className={tab === "avatar" ? "settings" : "hidden"}>
-                <h2>Preview</h2>
+                <h2>Change Avatar</h2>
+
+                <label htmlFor="avatarUpload" className="file-upload-label">
+                  {avatarFile ? avatarFile.name : "Choose an avatar image"}
+                </label>
+                <input
+                  type="file"
+                  id="avatarUpload"
+                  accept="image/png, image/jpeg, image/webp"
+                  style={{ display: "none" }}
+                  onChange={handleAvatarChange}
+                />
+                <button
+                  disabled={avatarFileURI === ""}
+                  onClick={handleAvatarSubmit}
+                >
+                  Submit Avatar
+                </button>
+
+                <p>Preview</p>
                 <div className="horizontal fit-all">
                   <img
                     alt=""
@@ -213,20 +232,6 @@ export default function Settings() {
                     }}
                   />
                 </div>
-
-                <p>Change Avatar</p>
-                <input
-                  type="file"
-                  id="avatarUpload"
-                  accept="image/png, image/jpeg, image/webp"
-                  onChange={handleAvatarChange}
-                />
-                <button
-                  disabled={avatarFileURI === ""}
-                  onClick={handleAvatarSubmit}
-                >
-                  Submit Avatar
-                </button>
               </div>
               <div className={tab === "theme" ? "settings" : "hidden"}>
                 {Object.keys(theme).map((key) => (
@@ -241,6 +246,9 @@ export default function Settings() {
                     />
                   </div>
                 ))}
+
+                <h2>Presets</h2>
+
                 <div className="horizontal" style={{ gap: "5px" }}>
                   <button onClick={() => applyPreset(darkerTheme)}>
                     <i className="fa-solid fa-cloud-moon"></i>

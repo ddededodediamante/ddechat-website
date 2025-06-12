@@ -6,8 +6,8 @@
   --font: #fff;
   --primary: #3d80e4;
   --danger: #cf3232;
-  --family-font: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
-    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
+  --family-font: -apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto",
+    "Oxygen", "Ubuntu", "Cantarell", "Fira Sans", "Droid Sans", "Helvetica Neue",
     sans-serif;
 }
 
@@ -117,7 +117,8 @@ a:hover {
 
 button,
 input,
-textarea {
+textarea,
+.file-upload-label {
   background-color: var(--midground);
   color: var(--font);
   border-radius: 5px;
@@ -133,13 +134,13 @@ textarea {
   height: fit-content;
 }
 
-button {
+button, .file-upload-label {
   padding-left: 10px;
   padding-right: 10px;
   cursor: pointer;
 }
 
-button:active {
+button:active, .file-upload-label:active {
   scale: 0.97;
 }
 
@@ -147,17 +148,8 @@ button i {
   margin-right: 5px;
 }
 
-input[type='file']::file-selector-button {
-  background-color: var(--light);
-  color: var(--font);
-  border-radius: 5px;
-  padding: 5px;
-  border: none;
-  font-size: 15px;
-  cursor: pointer;
-}
-
-hr, div.line {
+hr,
+div.line {
   width: 100%;
   height: 2px !important;
   opacity: 0.1;
@@ -212,7 +204,12 @@ div.horizontal.fit-all * {
   pointer-events: none;
 }
 
-h1, h2, h3, h4, h5, h6 {
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
   margin: 0;
   padding: 0;
   text-align: left;
@@ -223,7 +220,7 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 .alertNewDot::after {
-  content: '';
+  content: "";
   position: absolute;
   top: -5px;
   right: -5px;
@@ -408,7 +405,8 @@ h1, h2, h3, h4, h5, h6 {
   gap: 6px;
 }
 
-.panel-content p.title img, .panel-content p.title div img {
+.panel-content p.title img,
+.panel-content p.title div img {
   width: 60px;
   height: 60px;
   border-radius: 25%;
@@ -513,9 +511,15 @@ h1, h2, h3, h4, h5, h6 {
   z-index: 999;
 }
 
-.settings button, .settings input[type='file'] {
+.settings button, .settings .file-upload-label {
   background-color: var(--foreground);
   width: fit-content;
+  height: fit-content;
+}
+
+.settings .file-upload-label {
+  background-color: var(--foreground);
+  max-width: 180px;
   height: fit-content;
 }
 
@@ -524,7 +528,7 @@ input[type="color"] {
   -webkit-appearance: none;
   border: none;
   padding: 0;
-  width: 32px; 
+  width: 32px;
   height: 32px;
   cursor: pointer;
 }
@@ -621,7 +625,7 @@ input[type="color"] {
 }
 
 .toolbar-links a::before {
-  content: '';
+  content: "";
   position: absolute;
   bottom: -2px;
   left: 0;
@@ -639,6 +643,62 @@ input[type="color"] {
 
 .toolbar-links a i {
   margin-right: 8px;
+}
+
+@media (max-width: 768px) {
+  div#root {
+    flex-direction: column;
+    width: calc(100vw - 20px);
+    height: calc(100vh - 20px);
+  }
+
+  .panel-content {
+    padding: 0;
+    margin-top: 10px;
+    padding-right: 10px;
+  }
+
+  .toolbar {
+    width: 100%;
+    height: fit-content;
+    flex-direction: row;
+  }
+
+  .toolbar-container {
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  .hamburger-btn {
+    display: block;
+    padding: 0;
+    margin: 0;
+    background: none;
+    border: none;
+    font-size: 24px;
+    color: var(--font);
+    cursor: pointer;
+    margin-left: auto;
+  }
+
+  .toolbar-links {
+    display: none;
+    position: absolute;
+    width: fit-content;
+    top: 70px;
+    left: 10px;
+    background-color: var(--foreground);
+    flex-direction: column;
+    gap: 10px;
+    padding: 10px;
+    z-index: 1000000;
+    border-radius: 10px;
+  }
+
+  .toolbar-links.open {
+    display: flex;
+  }
 }
 
 .swal2-popup,
@@ -679,11 +739,11 @@ input[type="color"] {
 
 div.online-indicator {
   position: relative;
-  display: inline-block; 
+  display: inline-block;
 }
 
 div.online-indicator::after {
-  content: '';
+  content: "";
   position: absolute;
   bottom: -5px;
   right: -5px;

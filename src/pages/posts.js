@@ -140,7 +140,8 @@ export default function Posts() {
                   style={{
                     display: "flex",
                     gap: "10px",
-                    alignItems: "flex-start",
+                    alignItems: "center",
+                    justifyContent: "center",
                   }}
                 >
                   <img

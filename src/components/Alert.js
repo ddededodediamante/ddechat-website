@@ -60,6 +60,7 @@ export default function Alert({ data }) {
                 marginTop: "10px",
                 marginBottom: "10px",
               }}
+              noSocial={true}
             />
           )}
         </>
