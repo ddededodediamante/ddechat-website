@@ -31,8 +31,7 @@ export default function TOS() {
         <h2>3. Use of the Platform</h2>
         <p>
           Users may browse public content without registration. To post content,
-          message others, or add friends, registration is required. You must
-          provide a username and password. Avatars are optional.
+          message others, or add friends, registration is required.
         </p>
 
         <h2>4. User Conduct</h2>
@@ -41,6 +40,7 @@ export default function TOS() {
           <li>Post or share spam, harmful, harassing, or explicit content.</li>
           <li>Engage in illegal or malicious behavior.</li>
           <li>Impersonate others or misuse the platform in any way.</li>
+          <li>Cause damage to ddeChat or related services.</li>
         </ul>
         <p>
           Staff members may remove content and suspend or ban accounts that

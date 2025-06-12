@@ -289,19 +289,19 @@ h6 {
 
 @keyframes loud {
   0% {
-    font-size: unset;
+    font-weight: unset;
   }
 
   25% {
-    font-size: 35px;
+    font-weight: 900;
   }
 
   50% {
-    font-size: 35px;
+    font-weight: 900;
   }
 
   100% {
-    font-size: unset;
+    font-weight: unset;
   }
 }
 

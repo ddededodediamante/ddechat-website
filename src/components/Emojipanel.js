@@ -119,6 +119,7 @@ export default function EmojiPanel() {
             onClick={() => insertEmoji(name)}
             className="emoji-picker-item"
             draggable={false}
+            loading="lazy"
           />
         ))}
       </div>

@@ -135,7 +135,7 @@ export default function Userpage() {
         }
       )
       .then(() =>
-        setFriendStatus((s) => ({ ...s, pending: false, incoming: false }))
+        setFriendStatus((_) => ({ friend: true, pending: false, incoming: false }))
       )
       .catch((err) => {
         console.error("Error accepting friend request:", err);

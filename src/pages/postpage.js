@@ -175,6 +175,51 @@ export default function Postpage() {
     });
   }
 
+  function editPost() {
+    if (!user || !(user.isModerator || user.id === post?.author?.id)) return;
+
+    Swal.fire({
+      title: "Edit Post",
+      input: "textarea",
+      inputValue: post.content,
+      inputAttributes: {
+        "aria-label": "Edit your post content",
+      },
+      showCancelButton: true,
+      confirmButtonText: "Save",
+      preConfirm: (newContent) => {
+        if (!newContent || newContent.trim().length === 0) {
+          Swal.showValidationMessage("Content can't be empty");
+          return false;
+        }
+        if (newContent.length > 2000) {
+          Swal.showValidationMessage(
+            "Content is too long (max 2000 characters)."
+          );
+          return false;
+        }
+
+        return axios
+          .patch(
+            `${config.apiUrl}/posts/${id}`,
+            { content: newContent },
+            { headers: { Authorization: localStorage.getItem("accountToken") } }
+          )
+          .then((res) => {
+            setPost(res.data);
+            savePost(id, res.data);
+            const index = cache["latestPosts"]?.findIndex((p) => p.id === id);
+            if (index !== -1) cache["latestPosts"][index] = res.data;
+            Swal.fire("Post Updated", "Your post has been edited", "success");
+          })
+          .catch((error) => {
+            console.error("Error updating post:", error);
+            Swal.showValidationMessage("Failed to update post.");
+          });
+      },
+    });
+  }
+
   function sendReply() {
     const postContent = replyContent?.trim();
     if (!postContent) return;
@@ -235,6 +280,16 @@ export default function Postpage() {
                   />
                   {post?.likes?.length ?? 0}
                 </button>
+
+                {user && post && user?.id === post?.author?.id && (
+                  <button onClick={editPost} disabled={!user}>
+                    <i
+                      style={{ color: "#ffffff" }}
+                      className="fa-solid fa-pen"
+                    />
+                    Edit
+                  </button>
+                )}
 
                 {user &&
                   post &&

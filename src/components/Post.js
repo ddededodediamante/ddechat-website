@@ -11,7 +11,7 @@ export default function Post({
   data,
   noSocial = false,
   showParentPost = false,
-  style
+  style,
 }) {
   const [parentPost, setParentPost] = useState(null);
   const [loadingParent, setLoadingParent] = useState(false);
@@ -52,7 +52,7 @@ export default function Post({
             } else {
               console.error("Failed to fetch parent post:", err);
             }
-            console.error(err)
+            console.error(err);
           })
           .finally(() => {
             setLoadingParent(false);
@@ -73,6 +73,12 @@ export default function Post({
         }}
       />
       <div className="horizontal" style={{ gap: "5px" }}>
+        {data?.edited === true && (
+          <p className="grey">
+            <i className="fa-solid fa-pen" style={{ marginRight: "5px" }} />
+            Edited ·
+          </p>
+        )}
         <p className="grey">
           {data?.created ? formatTime(data.created) : "Unknown date"}
         </p>
@@ -131,10 +137,7 @@ export default function Post({
         )}
 
         {noSocial === false && data?.id ? (
-          <Link
-            to={"/post?id=" + data.id}
-            style={{ height: "fit-content" }}
-          >
+          <Link to={"/post?id=" + data.id} style={{ height: "fit-content" }}>
             {content}
           </Link>
         ) : (
