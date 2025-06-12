@@ -26,12 +26,12 @@ export default function Login() {
         animation: true,
       });
 
-      const username = document.querySelector(
-        '.login-form input[type="text"]'
-      ).value;
-      const password = document.querySelector(
-        '.login-form input[type="password"]'
-      ).value;
+    const username = document.querySelector(
+      '.login-form input[type="text"]'
+    ).value;
+    const password = document.querySelector(
+      '.login-form input[type="password"]'
+    ).value;
 
     await axios
       .post(config.apiUrl + "/users/create", { username, password })
@@ -87,6 +87,11 @@ export default function Login() {
             Sign Up
           </button>
         </div>
+
+        <p>
+          By creating an account, you agree to our{" "}
+          <a href="/tos">Terms of Service</a>.
+        </p>
       </div>
     </>
   );
