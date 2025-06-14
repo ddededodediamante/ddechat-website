@@ -4,8 +4,7 @@ export default function TOS() {
       <div className="panel-content">
         <blockquote>
           <strong>Disclaimer:</strong> This document was not created by a
-          lawyer. It is provided as a general-purpose template and may not meet
-          all legal requirements in your jurisdiction.
+          lawyer and may not meet all legal requirements in your jurisdiction.
         </blockquote>
 
         <h1>Terms of Service</h1>

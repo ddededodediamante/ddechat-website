@@ -135,7 +135,11 @@ export default function Userpage() {
         }
       )
       .then(() =>
-        setFriendStatus((_) => ({ friend: true, pending: false, incoming: false }))
+        setFriendStatus((_) => ({
+          friend: true,
+          pending: false,
+          incoming: false,
+        }))
       )
       .catch((err) => {
         console.error("Error accepting friend request:", err);
@@ -206,7 +210,17 @@ export default function Userpage() {
     <div className="panel-content">
       {!loading ? (
         <>
-          <p className="title">
+          <p
+            className={`${user?.banner ? "banner " : ""}title`}
+            style={{
+              backgroundImage: user?.banner
+                ? `url(${config.apiUrl}/users/${user.id}/banner/)`
+                : "none",
+              backgroundSize: "cover",
+              backgroundPosition: "center",
+              borderRadius: '10px'
+            }}
+          >
             {user?.id ? (
               <div
                 className={

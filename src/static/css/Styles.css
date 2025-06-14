@@ -129,18 +129,24 @@ textarea,
   box-sizing: border-box;
 }
 
+button.danger {
+  background-color: var(--danger);
+}
+
 textarea {
   width: 40%;
   height: fit-content;
 }
 
-button, .file-upload-label {
+button,
+.file-upload-label {
   padding-left: 10px;
   padding-right: 10px;
   cursor: pointer;
 }
 
-button:active, .file-upload-label:active {
+button:active,
+.file-upload-label:active {
   scale: 0.97;
 }
 
@@ -395,6 +401,12 @@ h6 {
   gap: 10px;
 }
 
+.panel-content p.title.banner {
+  padding: 10px;
+  background-color: var(--midground);
+  text-shadow: 0px 5px 5px #000000;
+}
+
 .panel-content p.title.small {
   font-size: 30px;
   gap: 8px;
@@ -511,10 +523,15 @@ h6 {
   z-index: 999;
 }
 
-.settings button, .settings .file-upload-label {
+.settings button,
+.settings .file-upload-label {
   background-color: var(--foreground);
   width: fit-content;
   height: fit-content;
+}
+
+.settings button.danger {
+  background-color: var(--danger);
 }
 
 .settings .file-upload-label {
@@ -645,62 +662,6 @@ input[type="color"] {
   margin-right: 8px;
 }
 
-@media (max-width: 768px) {
-  div#root {
-    flex-direction: column;
-    width: calc(100vw - 20px);
-    height: calc(100vh - 20px);
-  }
-
-  .panel-content {
-    padding: 0;
-    margin-top: 10px;
-    padding-right: 10px;
-  }
-
-  .toolbar {
-    width: 100%;
-    height: fit-content;
-    flex-direction: row;
-  }
-
-  .toolbar-container {
-    flex-direction: row;
-    justify-content: space-between;
-    align-items: center;
-  }
-
-  .hamburger-btn {
-    display: block;
-    padding: 0;
-    margin: 0;
-    background: none;
-    border: none;
-    font-size: 24px;
-    color: var(--font);
-    cursor: pointer;
-    margin-left: auto;
-  }
-
-  .toolbar-links {
-    display: none;
-    position: absolute;
-    width: fit-content;
-    top: 70px;
-    left: 10px;
-    background-color: var(--foreground);
-    flex-direction: column;
-    gap: 10px;
-    padding: 10px;
-    z-index: 1000000;
-    border-radius: 10px;
-  }
-
-  .toolbar-links.open {
-    display: flex;
-  }
-}
-
 .swal2-popup,
 .swal2-toast {
   font-family: var(--family-font);
@@ -800,4 +761,60 @@ img.emoji-picker-item {
 img.emoji-picker-item:hover {
   cursor: pointer;
   background-color: var(--foreground);
+}
+
+@media (max-width: 768px) {
+  div#root {
+    flex-direction: column;
+    width: calc(100vw - 20px);
+    height: calc(100vh - 20px);
+  }
+
+  .panel-content {
+    padding: 0;
+    margin-top: 10px;
+    padding-right: 10px;
+  }
+
+  .toolbar {
+    width: 100%;
+    height: fit-content;
+    flex-direction: row;
+  }
+
+  .toolbar-container {
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  .hamburger-btn {
+    display: block;
+    padding: 0;
+    margin: 0;
+    background: none;
+    border: none;
+    font-size: 24px;
+    color: var(--font);
+    cursor: pointer;
+    margin-left: auto;
+  }
+
+  .toolbar-links {
+    display: none;
+    position: absolute;
+    width: fit-content;
+    top: 70px;
+    left: 10px;
+    background-color: var(--foreground);
+    flex-direction: column;
+    gap: 10px;
+    padding: 10px;
+    z-index: 1000000;
+    border-radius: 10px;
+  }
+
+  .toolbar-links.open {
+    display: flex;
+  }
 }

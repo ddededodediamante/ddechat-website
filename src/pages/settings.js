@@ -41,9 +41,11 @@ export default function Settings() {
   };
 
   const navigate = useNavigate();
-  const [tab, setTab] = useState("avatar");
+  const [tab, setTab] = useState("profile");
   const [avatarFile, setAvatarFile] = useState(null);
   const [avatarFileURI, setAvatarFileURI] = useState("");
+  const [bannerFile, setBannerFile] = useState(null);
+  const [bannerFileURI, setBannerFileURI] = useState("");
   const [user, setUser] = useState(null);
   const [theme, setTheme] = useState(darkTheme);
   const [layoutSettings, setLayoutSettings] = useState({
@@ -99,6 +101,20 @@ export default function Settings() {
     setAvatarFile(file);
   }
 
+  function handleBannerChange(event) {
+    let file = event.target.files[0];
+
+    if (file) {
+      const reader = new FileReader();
+      reader.onload = (e) => setBannerFileURI(e.target.result);
+      reader.readAsDataURL(file);
+    } else {
+      setBannerFileURI("");
+    }
+
+    setBannerFile(file);
+  }
+
   function handleThemeChange(key, value) {
     const newTheme = { ...theme, [key]: value };
 
@@ -147,8 +163,7 @@ export default function Settings() {
 
         Swal.fire({
           title: "Avatar Updated",
-          text: "Your avatar was updated",
-          footer: "The changes will be visible on the next page reload",
+          text: "The changes will be visible on the next page reload",
           animation: true,
         });
       })
@@ -157,6 +172,86 @@ export default function Settings() {
           title: "Avatar Uploading Error",
           text: error?.response?.data?.error ?? error,
           animation: true,
+        });
+      });
+  }
+
+  async function handleBannerSubmit() {
+    if (!bannerFile) return;
+
+    const formData = new FormData();
+    formData.append("banner", bannerFile);
+
+    axios
+      .post(`${config.apiUrl}/users/me/banner`, formData, {
+        headers: {
+          Authorization: localStorage.getItem("accountToken"),
+          "Content-Type": "multipart/form-data",
+        },
+      })
+      .then((data) => {
+        if (data.data) cache["user"] = data.data;
+        document.getElementById("bannerUpload").value = "";
+
+        Swal.fire({
+          title: "Banner Updated",
+          text: "The changes will be visible on the next page reload",
+          animation: true,
+        });
+      })
+      .catch((error) => {
+        Swal.fire({
+          title: "Banner Uploading Error",
+          text: error?.response?.data?.error ?? error,
+          animation: true,
+        });
+      });
+  }
+
+  function deleteAvatar() {
+    axios
+      .delete(`${config.apiUrl}/users/me/avatar`, {
+        headers: {
+          Authorization: localStorage.getItem("accountToken"),
+        },
+      })
+      .then((res) => {
+        cache["user"] = res.data;
+        setAvatarFile(null);
+        setAvatarFileURI("");
+        Swal.fire({
+          title: "Avatar Deleted",
+          text: "The changes will be visible on the next page reload",
+        });
+      })
+      .catch((error) => {
+        Swal.fire({
+          title: "Failed to delete avatar",
+          text: error?.response?.data?.error ?? error,
+        });
+      });
+  }
+
+  function deleteBanner() {
+    axios
+      .delete(`${config.apiUrl}/users/me/banner`, {
+        headers: {
+          Authorization: localStorage.getItem("accountToken"),
+        },
+      })
+      .then((res) => {
+        cache["user"] = res.data;
+        setBannerFile(null);
+        setBannerFileURI("");
+        Swal.fire({
+          title: "Banner Deleted",
+          text: "The changes will be visible on the next page reload",
+        });
+      })
+      .catch((error) => {
+        Swal.fire({
+          title: "Failed to delete banner",
+          text: error?.response?.data?.error ?? error,
         });
       });
   }
@@ -179,7 +274,7 @@ export default function Settings() {
         {user ? (
           <>
             <div className="horizontal fit-all" style={{ gap: "5px" }}>
-              {["avatar", "theme", "layout"].map((name) => (
+              {["profile", "theme", "layout"].map((name) => (
                 <button
                   key={name}
                   onClick={() => setTab(name)}
@@ -194,12 +289,13 @@ export default function Settings() {
             </div>
 
             <div className="settingsWrap">
-              <div className={tab === "avatar" ? "settings" : "hidden"}>
+              <div className={tab === "profile" ? "settings" : "hidden"}>
                 <h2>Change Avatar</h2>
 
                 <label htmlFor="avatarUpload" className="file-upload-label">
                   {avatarFile ? avatarFile.name : "Choose an avatar image"}
                 </label>
+
                 <input
                   type="file"
                   id="avatarUpload"
@@ -207,14 +303,25 @@ export default function Settings() {
                   style={{ display: "none" }}
                   onChange={handleAvatarChange}
                 />
-                <button
-                  disabled={avatarFileURI === ""}
-                  onClick={handleAvatarSubmit}
-                >
-                  Submit Avatar
-                </button>
+
+                <div className="horizontal fit-all" style={{ gap: "5px" }}>
+                  <button
+                    disabled={avatarFileURI === ""}
+                    onClick={handleAvatarSubmit}
+                  >
+                    Submit Avatar
+                  </button>
+                  <button
+                    className="danger"
+                    disabled={user?.avatar === ""}
+                    onClick={deleteAvatar}
+                  >
+                    Delete Avatar
+                  </button>
+                </div>
 
                 <p>Preview</p>
+
                 <div className="horizontal fit-all">
                   <img
                     alt=""
@@ -229,6 +336,59 @@ export default function Settings() {
                       padding: "8px",
                       width: "70px",
                       height: "70px",
+                    }}
+                  />
+                </div>
+
+                <hr />
+
+                <h2>Change Banner</h2>
+
+                <label htmlFor="bannerUpload" className="file-upload-label">
+                  {bannerFile ? bannerFile.name : "Choose a banner image"}
+                </label>
+
+                <input
+                  type="file"
+                  id="bannerUpload"
+                  accept="image/png, image/jpeg, image/webp"
+                  style={{ display: "none" }}
+                  onChange={handleBannerChange}
+                />
+
+                <div className="horizontal fit-all" style={{ gap: "5px" }}>
+                  <button
+                    disabled={bannerFileURI === ""}
+                    onClick={handleBannerSubmit}
+                  >
+                    Submit Banner
+                  </button>
+                  <button
+                    className="danger"
+                    disabled={user?.banner === ""}
+                    onClick={deleteBanner}
+                  >
+                    Delete Banner
+                  </button>
+                </div>
+
+                <p>Preview</p>
+
+                <div className="horizontal fit-all">
+                  <img
+                    alt=""
+                    src={
+                      bannerFileURI !== ""
+                        ? bannerFileURI
+                        : `${config.apiUrl}/users/${user.id}/banner`
+                    }
+                    style={{
+                      backgroundColor: "var(--foreground)",
+                      padding: "4px",
+                      width: "300px",
+                      height: "120px",
+                      objectFit: "cover",
+                      borderRadius: "10px",
                     }}
                   />
                 </div>

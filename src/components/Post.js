@@ -126,6 +126,7 @@ export default function Post({
             <img
               alt=""
               src={`${config.apiUrl}/users/${data.author.id}/avatar`}
+              loading="lazy"
               onError={(e) => {
                 e.target.onerror = null;
                 e.target.src = "/files/unknown-icon.png";
@@ -133,7 +134,7 @@ export default function Post({
             />
           </Link>
         ) : (
-          <img alt="" src="/files/unknown-icon.png" />
+          <img alt="" src="/files/unknown-icon.png" loading="lazy" />
         )}
 
         {noSocial === false && data?.id ? (

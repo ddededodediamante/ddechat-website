@@ -88,7 +88,11 @@ export default function Toolbar() {
             window?.layout?.showUserTag !== false &&
             (user !== "error" ? (
               <>
-                <img alt="" src={`${config.apiUrl}/users/${user.id}/avatar`} />
+                <img
+                  alt=""
+                  src={`${config.apiUrl}/users/${user.id}/avatar`}
+                  loading="lazy"
+                />
                 <p>{user?.username ?? loginLabel}</p>
               </>
             ) : (
@@ -103,7 +107,7 @@ export default function Toolbar() {
         <div className="toolbar-container">
           {window?.layout?.showToolbarLogo !== false && (
             <Link to="/" className="toolbar-logo">
-              <img src="/files/logo.png" alt="ddeChat Icon" />
+              <img src="/files/logo.png" alt="ddeChat Icon" loading="lazy" />
             </Link>
           )}
 
@@ -142,7 +146,11 @@ export default function Toolbar() {
             window?.layout?.showUserTag !== false &&
             (user !== "error" ? (
               <>
-                <img alt="" src={`${config.apiUrl}/users/${user.id}/avatar`} />
+                <img
+                  alt=""
+                  src={`${config.apiUrl}/users/${user.id}/avatar`}
+                  loading="lazy"
+                />
                 <p>{user?.username ?? loginLabel}</p>
               </>
             ) : (
