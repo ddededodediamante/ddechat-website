@@ -145,14 +145,14 @@ export default function Toolbar() {
           {user &&
             window?.layout?.showUserTag !== false &&
             (user !== "error" ? (
-              <>
+              <Link to={user?.id ? `/user?id=${user?.id}` : "/login"}>
                 <img
                   alt=""
                   src={`${config.apiUrl}/users/${user.id}/avatar`}
                   loading="lazy"
                 />
                 <p>{user?.username ?? loginLabel}</p>
-              </>
+              </Link>
             ) : (
               loginLabel
             ))}
