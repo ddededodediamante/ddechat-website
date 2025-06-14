@@ -1,15 +1,21 @@
 import { useEffect, useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import config from "../config.js";
 import axios from "axios";
 import cache from "../cache.ts";
 
 export default function Toolbar() {
+  const navigate = useNavigate();
+
   const [user, setUser] = useState(null);
   const [menuOpen, setMenuOpen] = useState(false);
   const [smallScreen, setSmallScreen] = useState(false);
 
-  let loginLabel = <a href="/login">Login to ddeChat</a>;
+  let loginLabel = (
+    <p>
+      <a href="/login">Login to ddeChat</a>
+    </p>
+  );
 
   useEffect(() => {
     const token = localStorage.getItem("accountToken") ?? "";
@@ -93,7 +99,13 @@ export default function Toolbar() {
                   src={`${config.apiUrl}/users/${user.id}/avatar`}
                   loading="lazy"
                 />
-                <p>{user?.username ?? loginLabel}</p>
+                {user?.username ? (
+                  <p onClick={navigate(`/user?id=${user?.id}`)}>
+                    {user.username}
+                  </p>
+                ) : (
+                  loginLabel
+                )}
               </>
             ) : (
               loginLabel
@@ -145,14 +157,25 @@ export default function Toolbar() {
           {user &&
             window?.layout?.showUserTag !== false &&
             (user !== "error" ? (
-              <Link to={user?.id ? `/user?id=${user?.id}` : "/login"}>
+              <>
                 <img
                   alt=""
                   src={`${config.apiUrl}/users/${user.id}/avatar`}
                   loading="lazy"
                 />
-                <p>{user?.username ?? loginLabel}</p>
-              </Link>
+                {user?.username ? (
+                  <p
+                    onClick={() => {
+                      navigate(`/user?id=${user?.id}`);
+                    }}
+                    style={{ cursor: "pointer" }}
+                  >
+                    {user.username}
+                  </p>
+                ) : (
+                  loginLabel
+                )}
+              </>
             ) : (
               loginLabel
             ))}
