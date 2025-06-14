@@ -100,7 +100,12 @@ export default function Toolbar() {
                   loading="lazy"
                 />
                 {user?.username ? (
-                  <p onClick={navigate(`/user?id=${user?.id}`)}>
+                  <p
+                    onClick={() => {
+                      navigate(`/user?id=${user?.id}`);
+                    }}
+                    style={{ cursor: "pointer" }}
+                  >
                     {user.username}
                   </p>
                 ) : (
