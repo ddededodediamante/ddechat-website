@@ -153,7 +153,27 @@ export default function Userpage() {
       )
       .catch((err) => {
         console.error("Error accepting friend request:", err);
-        alert("Failed to accept friend request.");
+      });
+  }
+
+  function removeFriend() {
+    if (!user?.id || user.id === localUser?.id) return;
+
+    axios
+      .delete(`${config.apiUrl}/users/${userIdentity}/friend`, {
+        headers: {
+          Authorization: localStorage.getItem("accountToken"),
+        },
+      })
+      .then(() =>
+        setFriendStatus((_) => ({
+          friend: false,
+          pending: false,
+          incoming: false,
+        }))
+      )
+      .catch((error) => {
+        console.error("Error unfriending user:", error);
       });
   }
 
@@ -243,13 +263,16 @@ export default function Userpage() {
   }
 
   const renderFriendButtons = () => {
-    if (
-      !localUser?.id ||
-      !user?.id ||
-      friendStatus.friend ||
-      user.id === localUser.id
-    )
-      return;
+    if (!localUser?.id || !user?.id || user.id === localUser.id) return;
+
+    if (friendStatus.friend) {
+      return (
+        <button onClick={removeFriend}>
+          <i className="fa-solid fa-user-slash" />
+          Unfriend
+        </button>
+      );
+    }
 
     if (friendStatus.incoming) {
       return (
@@ -277,7 +300,7 @@ export default function Userpage() {
 
     return (
       <button onClick={cancelFriendRequest}>
-        <i className="fa-solid fa-user-slash" />
+        <i className="fa-solid fa-user-minus" />
         Cancel Friend Request
       </button>
     );
@@ -288,12 +311,12 @@ export default function Userpage() {
 
     return isFollowing ? (
       <button onClick={unfollowUser}>
-        <i className="fa-solid fa-user-minus" />
+        <i className="fa-solid fa-user-xmark" />
         Unfollow
       </button>
     ) : (
       <button onClick={followUser}>
-        <i className="fa-solid fa-user-plus" />
+        <i className="fa-solid fa-user-check" />
         Follow
       </button>
     );
@@ -352,9 +375,11 @@ export default function Userpage() {
             </p>
           )}
 
-          {renderFollowButton()}
+          <div className="horizontal fit-all" style={{ gap: "10px" }}>
+            {renderFollowButton()}
 
-          {renderFriendButtons()}
+            {renderFriendButtons()}
+          </div>
 
           <div className="line" />
 
