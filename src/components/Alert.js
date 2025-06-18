@@ -42,7 +42,11 @@ export default function Alert({ data }) {
       break;
 
     case "friendRequest":
-      message = <p>{data.author.username} wants to add you as a friend!</p>;
+      message = <p>{data.author.username} wants to add you as a friend.</p>;
+      break;
+
+    case "follow":
+      message = <p>{data.author.username} is now following you.</p>;
       break;
 
     case "repliedPost":
@@ -73,7 +77,7 @@ export default function Alert({ data }) {
 
   return (
     <div className={data.read === false ? "unread posts-post" : "posts-post"}>
-      {data.author.id && (
+      {data?.author?.id && (
         <Link to={`/user?id=${data.author.id}`}>
           <img alt="" src={`${config.apiUrl}/users/${data.author.id}/avatar`} />
         </Link>

@@ -156,9 +156,6 @@ export default function Postpage() {
               let _parentPost = getPost(parentPost?.id);
               if (_parentPost && _parentPost.id) {
                 delete posts[_parentPost.id];
-                if (!_parentPost?.replyingToId) delete cache.latestPosts;
-              } else {
-                delete cache.latestPosts;
               }
 
               if (posts[id]) {
@@ -208,8 +205,6 @@ export default function Postpage() {
           .then((res) => {
             setPost(res.data);
             savePost(id, res.data);
-            const index = cache["latestPosts"]?.findIndex((p) => p.id === id);
-            if (index !== -1) cache["latestPosts"][index] = res.data;
             Swal.fire("Post Updated", "Your post has been edited", "success");
           })
           .catch((error) => {
@@ -235,9 +230,6 @@ export default function Postpage() {
       .then((res) => {
         setPost(res.data);
         savePost(id, res.data);
-
-        const index = cache["latestPosts"].findIndex((post) => post.id === id);
-        if (index !== -1) cache["latestPosts"][index] = res.data;
       })
       .catch((error) => {
         console.error("Error sending reply:", error);

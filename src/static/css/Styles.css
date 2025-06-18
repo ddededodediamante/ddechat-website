@@ -118,6 +118,7 @@ a:hover {
 button,
 input,
 textarea,
+select,
 .file-upload-label {
   background-color: var(--midground);
   color: var(--font);

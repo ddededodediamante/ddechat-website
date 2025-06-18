@@ -13,7 +13,7 @@ export default function Userpage() {
   const [localUser, setLocalUser] = useState(null);
   const [searchParams] = useSearchParams();
   const [loading, setLoading] = useState(true);
-
+  const [isFollowing, setIsFollowing] = useState(false);
   const [friendStatus, setFriendStatus] = useState({
     pending: false,
     incoming: false,
@@ -25,8 +25,12 @@ export default function Userpage() {
 
   function updateFriendStatus(userData, targetId) {
     setFriendStatus({
-      pending: (userData?.outgoingFR ?? []).some((v) => v.id === targetId),
-      incoming: (userData?.incomingFR ?? []).some((v) => v.id === targetId),
+      pending: (userData?.friendrequests?.outgoing ?? []).some(
+        (v) => v.id === targetId
+      ),
+      incoming: (userData?.friendrequests?.incoming ?? []).some(
+        (v) => v.id === targetId
+      ),
       friend: (userData?.friends ?? []).some((v) => v.id === targetId),
     });
   }
@@ -56,6 +60,9 @@ export default function Userpage() {
               cache["user"] = me;
               setLocalUser(me);
               updateFriendStatus(me, fetchedUser.id);
+              setIsFollowing(
+                me?.follow?.following?.some((u) => u.id === fetchedUser.id)
+              );
             } catch (err) {
               console.error("Error fetching local user:", err);
             }
@@ -63,6 +70,9 @@ export default function Userpage() {
             const me = cache["user"];
             setLocalUser(me);
             updateFriendStatus(me, fetchedUser.id);
+            setIsFollowing(
+              me?.follow?.following?.some((u) => u.id === fetchedUser.id)
+            );
           }
         }
       } catch (err) {
@@ -165,6 +175,73 @@ export default function Userpage() {
       });
   }
 
+  function followUser() {
+    axios
+      .post(
+        `${config.apiUrl}/users/${userIdentity}/follow`,
+        {},
+        {
+          headers: {
+            Authorization: localStorage.getItem("accountToken"),
+          },
+        }
+      )
+      .then((response) => {
+        cache["user"] = response.data;
+        setLocalUser(response.data);
+        setIsFollowing(true);
+        setUser((prev) => {
+          if (!prev || !localUser?.id) return prev;
+          const newFollowers = [
+            ...(prev.follow?.followers ?? []),
+            localUser.id,
+          ];
+          return {
+            ...prev,
+            follow: {
+              ...prev.follow,
+              followers: newFollowers,
+            },
+          };
+        });
+      })
+      .catch((err) => {
+        console.error("Error following user:", err);
+        alert("Failed to follow user.");
+      });
+  }
+
+  function unfollowUser() {
+    axios
+      .delete(`${config.apiUrl}/users/${userIdentity}/follow`, {
+        headers: {
+          Authorization: localStorage.getItem("accountToken"),
+        },
+      })
+      .then((response) => {
+        cache["user"] = response.data;
+        setLocalUser(response.data);
+        setIsFollowing(false);
+        setUser((prev) => {
+          if (!prev || !localUser?.id) return prev;
+          const newFollowers = (prev.follow?.followers ?? []).filter(
+            (id) => id !== localUser.id
+          );
+          return {
+            ...prev,
+            follow: {
+              ...prev.follow,
+              followers: newFollowers,
+            },
+          };
+        });
+      })
+      .catch((err) => {
+        console.error("Error unfollowing user:", err);
+        alert("Failed to unfollow user.");
+      });
+  }
+
   const renderFriendButtons = () => {
     if (
       !localUser?.id ||
@@ -206,6 +283,22 @@ export default function Userpage() {
     );
   };
 
+  const renderFollowButton = () => {
+    if (!localUser?.id || !user?.id || user.id === localUser.id) return null;
+
+    return isFollowing ? (
+      <button onClick={unfollowUser}>
+        <i className="fa-solid fa-user-minus" />
+        Unfollow
+      </button>
+    ) : (
+      <button onClick={followUser}>
+        <i className="fa-solid fa-user-plus" />
+        Follow
+      </button>
+    );
+  };
+
   return (
     <div className="panel-content">
       {!loading ? (
@@ -218,7 +311,7 @@ export default function Userpage() {
                 : "none",
               backgroundSize: "cover",
               backgroundPosition: "center",
-              borderRadius: '10px'
+              borderRadius: "10px",
             }}
           >
             {user?.id ? (
@@ -230,7 +323,11 @@ export default function Userpage() {
                 }
                 style={{ width: "60px", height: "60px" }}
               >
-                <img alt="" src={`${config.apiUrl}/users/${user.id}/avatar`} />
+                <img
+                  alt=""
+                  src={`${config.apiUrl}/users/${user.id}/avatar`}
+                  style={{ outline: "3px solid var(--background)" }}
+                />
               </div>
             ) : (
               <i className="fa-solid fa-user" />
@@ -240,7 +337,22 @@ export default function Userpage() {
             {friendStatus.friend && <i className="fa-solid fa-users" />}
           </p>
 
-          {user?.created && <p>{"Joined " + moment(user.created).fromNow()}</p>}
+          {user?.created && (
+            <p>
+              {user?.follow?.followers?.length > 0 && (
+                <>
+                  {user.follow.followers.length}{" "}
+                  {user.follow.followers.length === 1
+                    ? "follower"
+                    : "followers"}
+                  {" · "}
+                </>
+              )}
+              Joined {moment(user.created).fromNow()}
+            </p>
+          )}
+
+          {renderFollowButton()}
 
           {renderFriendButtons()}
 
