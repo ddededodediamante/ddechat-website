@@ -500,6 +500,29 @@ h6 {
   background-color: var(--danger);
 }
 
+.panel-content .posts-post div.vertical h1 {
+  font-size: 30px;
+}
+
+.panel-content .posts-post div.vertical h2 {
+  font-size: 25px;
+}
+
+.panel-content .posts-post div.vertical h3 {
+  font-size: 22px;
+}
+
+.panel-content .posts-post div.vertical h4 {
+  font-size: 19px;
+}
+
+.panel-content .posts-post div.vertical h5 {
+  font-size: 17px;
+}
+.panel-content .posts-post div.vertical h6 {
+  font-size: 1tpx;
+}
+
 .panel-content .post-page-buttons {
   display: flex;
   flex-direction: row;

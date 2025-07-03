@@ -111,7 +111,6 @@ export default function Userpage() {
       .then(() => setFriendStatus((s) => ({ ...s, pending: true })))
       .catch((err) => {
         console.error("Error sending friend request:", err);
-        alert("Failed to send friend request.");
       });
   }
 
@@ -127,7 +126,6 @@ export default function Userpage() {
       .then(() => setFriendStatus((s) => ({ ...s, pending: false })))
       .catch((err) => {
         console.error("Error canceling friend request:", err);
-        alert("Failed to cancel friend request.");
       });
   }
 
@@ -191,7 +189,6 @@ export default function Userpage() {
       )
       .catch((err) => {
         console.error("Error declining friend request:", err);
-        alert("Failed to decline friend request.");
       });
   }
 
@@ -227,7 +224,6 @@ export default function Userpage() {
       })
       .catch((err) => {
         console.error("Error following user:", err);
-        alert("Failed to follow user.");
       });
   }
 
@@ -258,7 +254,6 @@ export default function Userpage() {
       })
       .catch((err) => {
         console.error("Error unfollowing user:", err);
-        alert("Failed to unfollow user.");
       });
   }
 

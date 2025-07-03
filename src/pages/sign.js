@@ -19,12 +19,7 @@ export default function Login() {
   }, [usernameInput, passwordInput]);
 
   async function signButton() {
-    if (!valid)
-      return Swal.fire({
-        title: "Invalid Input/s",
-        text: "One or more inputs are invalid, please make sure they are valid first!",
-        animation: true,
-      });
+    if (!valid) return;
 
     const username = document.querySelector(
       '.login-form input[type="text"]'
