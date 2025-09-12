@@ -72,6 +72,10 @@ blockquote blockquote {
   margin-bottom: 0;
 }
 
+ul {
+  margin: 0;
+}
+
 @keyframes spin {
   from {
     transform: rotate(0deg);
@@ -517,10 +521,11 @@ h6 {
 }
 
 .panel-content .posts-post div.vertical h5 {
-  font-size: 17px;
+  font-size: 16px;
 }
+
 .panel-content .posts-post div.vertical h6 {
-  font-size: 1tpx;
+  font-size: 10px;
 }
 
 .panel-content .post-page-buttons {
@@ -553,7 +558,8 @@ h6 {
 }
 
 .settings button,
-.settings .file-upload-label {
+.settings .file-upload-label,
+.settings input:not([type="color"]) {
   background-color: var(--foreground);
   width: fit-content;
   height: fit-content;

@@ -333,7 +333,7 @@ export default function Settings() {
                     style={{
                       borderRadius: "25%",
                       backgroundColor: "var(--foreground)",
-                      padding: "8px",
+                      padding: "5px",
                       width: "70px",
                       height: "70px",
                     }}
@@ -384,7 +384,7 @@ export default function Settings() {
                     }
                     style={{
                       backgroundColor: "var(--foreground)",
-                      padding: "4px",
+                      padding: "5px",
                       width: "300px",
                       height: "120px",
                       objectFit: "cover",

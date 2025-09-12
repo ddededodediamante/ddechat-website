@@ -337,7 +337,7 @@ export default function Postpage() {
                     </button>
                   </div>
 
-                  {showEmojiPanel && <EmojiPanel />}
+                  {showEmojiPanel && <EmojiPanel close={toggleEmojiPanel} />}
 
                   <div
                     style={{

@@ -86,6 +86,12 @@ export default function Toolbar() {
               <i className="fa-solid fa-scroll" />
               Terms
             </Link>
+            {user && user.isModerator === true && (
+              <Link to="/modpanel" onClick={() => setMenuOpen(false)}>
+                <i className="fa-solid fa-wrench" />
+                Mod Panel
+              </Link>
+            )}
           </div>
         </div>
 
@@ -155,6 +161,12 @@ export default function Toolbar() {
               <i className="fa-solid fa-scroll" />
               Terms
             </Link>
+            {user && user.isModerator === true && (
+              <Link to="/modpanel">
+                <i className="fa-solid fa-wrench" />
+                Mod Panel
+              </Link>
+            )}
           </div>
         </div>
 

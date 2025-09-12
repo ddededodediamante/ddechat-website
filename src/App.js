@@ -12,11 +12,12 @@ import Settings from "./pages/settings.js";
 import Posts from "./pages/posts.js";
 import Postpage from "./pages/postpage.js";
 import Directmessage from "./pages/directmessage.js";
+import TOS from "./pages/tos.js";
+import Modpanel from "./pages/modpanel.js";
 
 import "./static/css/Styles.css";
 import config from "./config.js";
 import cache from "./cache.ts";
-import TOS from "./pages/tos.js";
 
 export default function App() {
   useEffect(() => {
@@ -115,6 +116,7 @@ export default function App() {
         <Route path="/post" element={<Postpage />} />
         <Route path="/directmessage" element={<Directmessage />} />
         <Route path="/tos" element={<TOS />} />
+        <Route path="/modpanel" element={<Modpanel />} />
       </Routes>
     </>
   );

@@ -138,7 +138,7 @@ export default function Posts() {
               </button>
             </div>
 
-            {showEmojiPanel && <EmojiPanel />}
+            {showEmojiPanel && <EmojiPanel close={toggleEmojiPanel} />}
 
             <div
               style={{
