@@ -6,14 +6,14 @@ import "highlight.js/styles/atom-one-dark.css";
 const emojiList = [];
 const importAll = (r) =>
   r.keys().forEach((key) => {
-    const name = key.match(/\.\/([\w-]+)\.png$/)?.[1];
+    const name = key.match(/\.\/([\w-]+)\.avif$/)?.[1];
     if (name) emojiList.push(name);
   });
-importAll(require.context("../static/emojis", false, /\.png$/));
+importAll(require.context("../static/emojis", false, /\.avif$/));
 
 const emojiMap = {};
 emojiList.forEach((name) => {
-  emojiMap[name] = require(`../static/emojis/${name}.png`);
+  emojiMap[name] = require(`../static/emojis/${name}.avif`);
 });
 
 const markdown = new MarkdownIt({

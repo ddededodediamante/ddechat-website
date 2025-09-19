@@ -428,7 +428,7 @@ export default function Settings() {
                 <p style={{ color: "var(--font)", opacity: 0.5 }}>
                   Applies after page refresh
                 </p>
-                <label>
+                <div className="horizontal centered" style={{ gap: "5px" }}>
                   <input
                     type="checkbox"
                     checked={window?.layout?.showUserTag ?? true}
@@ -436,9 +436,9 @@ export default function Settings() {
                       handleLayoutChange("showUserTag", e.target.checked)
                     }
                   />
-                  Show User Tag
-                </label>
-                <label>
+                  <label>Show User Tag</label>
+                </div>
+                <div className="horizontal centered" style={{ gap: "5px" }}>
                   <input
                     type="checkbox"
                     checked={window?.layout?.showToolbarLogo ?? true}
@@ -446,8 +446,8 @@ export default function Settings() {
                       handleLayoutChange("showToolbarLogo", e.target.checked)
                     }
                   />
-                  Show Toolbar Logo
-                </label>
+                  <label>Show Toolbar Logo</label>
+                </div>
               </div>
             </div>
 

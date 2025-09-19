@@ -1,3 +1,5 @@
+@import url("https://fonts.googleapis.com/css2?family=Lexend:wght@100..900&display=swap");
+
 :root {
   --background: #111;
   --midground: #333;
@@ -6,6 +8,7 @@
   --font: #fff;
   --primary: #3d80e4;
   --danger: #cf3232;
+  --big-font: "Lexend", sans-serif;
   --family-font: -apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto",
     "Oxygen", "Ubuntu", "Cantarell", "Fira Sans", "Droid Sans", "Helvetica Neue",
     sans-serif;
@@ -134,6 +137,34 @@ select,
   box-sizing: border-box;
 }
 
+input[type="checkbox"] {
+  appearance: none; 
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  margin: 0;
+  padding: 10px;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+input[type="checkbox"]:checked {
+  background-color: var(--primary) !important; 
+  border-color: var(--primary);
+  position: relative;
+}
+
+input[type="checkbox"]:checked::after {
+  content: "";
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 4px;
+  height: 9px;
+  border: solid var(--font);
+  border-width: 0 2px 2px 0;
+  transform: translate(-50%, -50%) rotate(45deg);
+}
+
 button.danger {
   background-color: var(--danger);
 }
@@ -188,6 +219,10 @@ div.horizontal {
 div.horizontal.fit-all,
 div.horizontal.fit-all * {
   height: fit-content;
+}
+
+div.horizontal.centered {
+  align-items: center;
 }
 
 ::-webkit-scrollbar {
@@ -396,6 +431,7 @@ h6 {
 }
 
 .panel-content p.title {
+  font-family: var(--big-font);
   display: flex;
   font-size: 40px;
   font-weight: 700;
@@ -611,7 +647,6 @@ input[type="color"] {
   align-content: center;
   justify-content: center;
   align-items: center;
-  text-align: center;
   gap: 5px;
   padding: 4px;
   margin: 0;
@@ -623,6 +658,7 @@ input[type="color"] {
   width: 100%;
   text-overflow: ellipsis;
   overflow: hidden;
+  text-align: center;
   margin: 0;
   padding: 0;
 }
@@ -799,6 +835,10 @@ img.emoji-picker-item:hover {
 }
 
 @media (max-width: 768px) {
+  .toolbar .localusertag p {
+    text-align: right;
+  }
+
   div#root {
     flex-direction: column;
     width: calc(100vw - 20px);
