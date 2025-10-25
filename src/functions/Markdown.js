@@ -3,11 +3,11 @@ import { full as emoji } from "markdown-it-emoji";
 import hljs from "highlight.js";
 import "highlight.js/styles/atom-one-dark.css";
 
-const emojiModules = import.meta.glob("../static/emojis/*.avif", { eager: true });
+const emojiModules = import.meta.glob("../static/emojis/*.png", { eager: true });
 export const emojiMap = {};
 
 for (const path in emojiModules) {
-  const name = path.match(/([\w-]+)\.avif$/)?.[1];
+  const name = path.match(/([\w-]+)\.png$/)?.[1];
   if (name) {
     emojiMap[name] = emojiModules[path].default || emojiModules[path];
   }
