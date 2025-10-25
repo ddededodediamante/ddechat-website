@@ -1,19 +1,5 @@
 import { useState, useEffect, useRef } from "react";
-
-const emojiList = [];
-const importAll = (r) =>
-  r.keys().forEach((key) => {
-    const name = key.match(/\.\/([\w-]+)\.avif$/)?.[1];
-    if (name) emojiList.push(name);
-  });
-importAll(require.context("../static/emojis", false, /\.avif$/));
-
-const emojiMap = {};
-emojiList
-  .sort((a, b) => a.localeCompare(b))
-  .forEach((name) => {
-    emojiMap[name] = require(`../static/emojis/${name}.avif`);
-  });
+import { emojiMap, emojiList } from "../functions/Markdown";
 
 export default function EmojiPanel({ close = () => {} }) {
   const [targetInput, setTargetInput] = useState(null);

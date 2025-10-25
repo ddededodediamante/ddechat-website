@@ -3,18 +3,17 @@ import { full as emoji } from "markdown-it-emoji";
 import hljs from "highlight.js";
 import "highlight.js/styles/atom-one-dark.css";
 
-const emojiList = [];
-const importAll = (r) =>
-  r.keys().forEach((key) => {
-    const name = key.match(/\.\/([\w-]+)\.avif$/)?.[1];
-    if (name) emojiList.push(name);
-  });
-importAll(require.context("../static/emojis", false, /\.avif$/));
+const emojiModules = import.meta.glob("../static/emojis/*.avif", { eager: true });
+export const emojiMap = {};
 
-const emojiMap = {};
-emojiList.forEach((name) => {
-  emojiMap[name] = require(`../static/emojis/${name}.avif`);
-});
+for (const path in emojiModules) {
+  const name = path.match(/([\w-]+)\.avif$/)?.[1];
+  if (name) {
+    emojiMap[name] = emojiModules[path].default || emojiModules[path];
+  }
+}
+
+export const emojiList = Object.keys(emojiMap).sort((a, b) => a.localeCompare(b));
 
 const markdown = new MarkdownIt({
   breaks: true,

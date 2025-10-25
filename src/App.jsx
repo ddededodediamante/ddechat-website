@@ -1,19 +1,19 @@
 import { Navigate, Route, Routes } from "react-router-dom";
 import { useEffect } from "react";
 
-import Toolbar from "./components/Toolbar";
+import Toolbar from "./components/Toolbar.jsx";
 
-import Login from "./pages/login";
-import Sign from "./pages/sign";
-import Friends from "./pages/friends.js";
-import Alerts from "./pages/alerts.js";
-import Userpage from "./pages/userpage.js";
-import Settings from "./pages/settings.js";
-import Posts from "./pages/posts.js";
-import Postpage from "./pages/postpage.js";
-import Directmessage from "./pages/directmessage.js";
-import TOS from "./pages/tos.js";
-import Modpanel from "./pages/modpanel.js";
+import Login from "./pages/login.jsx";
+import Sign from "./pages/sign.jsx";
+import Friends from "./pages/friends.jsx";
+import Alerts from "./pages/alerts.jsx";
+import Userpage from "./pages/userpage.jsx";
+import Settings from "./pages/settings.jsx";
+import Posts from "./pages/posts.jsx";
+import Postpage from "./pages/postpage.jsx";
+import Directmessage from "./pages/directmessage.jsx";
+import TOS from "./pages/tos.jsx";
+import Modpanel from "./pages/modpanel.jsx";
 
 import "./static/css/Styles.css";
 import config from "./config.js";
