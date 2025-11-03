@@ -70,7 +70,7 @@ export default function Settings() {
         })
         .catch((error) => {
           console.error(error);
-          setUser("error");
+          return navigate("/login");
         });
     else setUser(cache["user"]);
   }, [navigate]);
@@ -256,6 +256,43 @@ export default function Settings() {
       });
   }
 
+  async function handleChangePassword(e) {
+    e.preventDefault();
+    const currentPassword = document
+      .getElementById("currentPassword")
+      .value.trim();
+    const newPassword = document.getElementById("newPassword").value.trim();
+
+    if (!currentPassword || !newPassword)
+      return Swal.fire({
+        title: "Error",
+        text: "Please fill out both password fields",
+      });
+
+    try {
+      await axios.post(
+        `${config.apiUrl}/users/me/changePassword`,
+        { currentPassword, newPassword },
+        {
+          headers: { Authorization: localStorage.getItem("accountToken") },
+        }
+      );
+
+      Swal.fire({
+        title: "Password Changed",
+        text: "Your password has been updated successfully",
+      });
+
+      document.getElementById("currentPassword").value = "";
+      document.getElementById("newPassword").value = "";
+    } catch (error) {
+      Swal.fire({
+        title: "Failed to change password",
+        text: error?.response?.data?.error ?? error.message,
+      });
+    }
+  }
+
   function logout() {
     localStorage.removeItem("accountToken");
     window.location.replace("/login");
@@ -274,7 +311,7 @@ export default function Settings() {
         {user ? (
           <>
             <div className="horizontal fit-all" style={{ gap: "5px" }}>
-              {["profile", "theme", "layout", {/* "account" */}].map((name) => (
+              {["profile", "theme", "layout", "account"].map((name) => (
                 <button
                   key={name}
                   onClick={() => setTab(name)}
@@ -449,13 +486,34 @@ export default function Settings() {
                   <label>Show Toolbar Logo</label>
                 </div>
               </div>
-              {/* <div className={tab === "account" ? "settings" : "hidden"}>
+              <div className={tab === "account" ? "settings" : "hidden"}>
+                <h2>Change Password</h2>
+                <form onSubmit={handleChangePassword}>
+                  <div className="settings">
+                    <input
+                      type="password"
+                      id="currentPassword"
+                      placeholder="Current password"
+                      autoComplete="current-password"
+                    />
+                    <input
+                      type="password"
+                      id="newPassword"
+                      placeholder="New password"
+                      autoComplete="new-password"
+                    />
+                    <button type="submit">Change Password</button>
+                  </div>
+                </form>
+
+                <hr />
+
                 {!user.github || !user.github.id ? (
                   <a href={config.apiUrl + "/auth/github"}>Login with GitHub</a>
                 ) : (
-                  <p>Logged in with GitHub ({user.github.username ?? "🎉"})</p>
+                  <p>Logged in with GitHub ({user.github?.username || "🎉"})</p>
                 )}
-              </div> */}
+              </div>
             </div>
 
             <div className="line" />
