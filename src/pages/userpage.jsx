@@ -19,6 +19,8 @@ export default function Userpage() {
     incoming: false,
     friend: false,
   });
+  const [followLoading, setFollowLoading] = useState(false);
+  const [friendLoading, setFriendLoading] = useState(false);
 
   const userIdentity =
     searchParams.get("id")?.trim() ?? searchParams.get("username")?.trim();
@@ -97,7 +99,7 @@ export default function Userpage() {
 
   function sendFriendRequest() {
     if (!user?.id || user.id === localUser?.id) return;
-
+    setFriendLoading(true);
     axios
       .post(
         `${config.apiUrl}/users/${userIdentity}/friendRequest`,
@@ -111,12 +113,13 @@ export default function Userpage() {
       .then(() => setFriendStatus((s) => ({ ...s, pending: true })))
       .catch((err) => {
         console.error("Error sending friend request:", err);
-      });
+      })
+      .finally(() => setFriendLoading(false));
   }
 
   function cancelFriendRequest() {
     if (!user?.id || user.id === localUser?.id) return;
-
+    setFriendLoading(true);
     axios
       .delete(`${config.apiUrl}/users/${userIdentity}/friendRequest`, {
         headers: {
@@ -126,12 +129,13 @@ export default function Userpage() {
       .then(() => setFriendStatus((s) => ({ ...s, pending: false })))
       .catch((err) => {
         console.error("Error canceling friend request:", err);
-      });
+      })
+      .finally(() => setFriendLoading(false));
   }
 
   function addFriend() {
     if (!user?.id || user.id === localUser?.id) return;
-
+    setFriendLoading(true);
     axios
       .post(
         `${config.apiUrl}/users/${userIdentity}/friendRequestAction`,
@@ -151,12 +155,13 @@ export default function Userpage() {
       )
       .catch((err) => {
         console.error("Error accepting friend request:", err);
-      });
+      })
+      .finally(() => setFriendLoading(false));
   }
 
   function removeFriend() {
     if (!user?.id || user.id === localUser?.id) return;
-
+    setFriendLoading(true);
     axios
       .delete(`${config.apiUrl}/users/${userIdentity}/friend`, {
         headers: {
@@ -172,12 +177,13 @@ export default function Userpage() {
       )
       .catch((error) => {
         console.error("Error unfriending user:", error);
-      });
+      })
+      .finally(() => setFriendLoading(false));
   }
 
   function declineFriend() {
     if (!user?.id || user.id === localUser?.id) return;
-
+    setFriendLoading(true);
     axios
       .delete(`${config.apiUrl}/users/${userIdentity}/friendRequestAction`, {
         headers: {
@@ -189,72 +195,60 @@ export default function Userpage() {
       )
       .catch((err) => {
         console.error("Error declining friend request:", err);
-      });
+      })
+      .finally(() => setFriendLoading(false));
   }
 
   function followUser() {
+    if (!user?.id || user.id === localUser?.id) return;
+    setFollowLoading(true);
     axios
       .post(
         `${config.apiUrl}/users/${userIdentity}/follow`,
         {},
         {
-          headers: {
-            Authorization: localStorage.getItem("accountToken"),
-          },
+          headers: { Authorization: localStorage.getItem("accountToken") },
         }
       )
       .then((response) => {
         cache["user"] = response.data;
         setLocalUser(response.data);
         setIsFollowing(true);
-        setUser((prev) => {
-          if (!prev || !localUser?.id) return prev;
-          const newFollowers = [
-            ...(prev.follow?.followers ?? []),
-            localUser.id,
-          ];
-          return {
-            ...prev,
-            follow: {
-              ...prev.follow,
-              followers: newFollowers,
-            },
-          };
-        });
+        setUser((prev) => ({
+          ...prev,
+          follow: {
+            ...prev.follow,
+            followers: [...(prev.follow?.followers ?? []), localUser.id],
+          },
+        }));
       })
-      .catch((err) => {
-        console.error("Error following user:", err);
-      });
+      .catch((err) => console.error("Error following user:", err))
+      .finally(() => setFollowLoading(false));
   }
 
   function unfollowUser() {
+    if (!user?.id || user.id === localUser?.id) return;
+    setFollowLoading(true);
     axios
       .delete(`${config.apiUrl}/users/${userIdentity}/follow`, {
-        headers: {
-          Authorization: localStorage.getItem("accountToken"),
-        },
+        headers: { Authorization: localStorage.getItem("accountToken") },
       })
       .then((response) => {
         cache["user"] = response.data;
         setLocalUser(response.data);
         setIsFollowing(false);
-        setUser((prev) => {
-          if (!prev || !localUser?.id) return prev;
-          const newFollowers = (prev.follow?.followers ?? []).filter(
-            (id) => id !== localUser.id
-          );
-          return {
-            ...prev,
-            follow: {
-              ...prev.follow,
-              followers: newFollowers,
-            },
-          };
-        });
+        setUser((prev) => ({
+          ...prev,
+          follow: {
+            ...prev.follow,
+            followers: (prev.follow?.followers ?? []).filter(
+              (id) => id !== localUser.id
+            ),
+          },
+        }));
       })
-      .catch((err) => {
-        console.error("Error unfollowing user:", err);
-      });
+      .catch((err) => console.error("Error unfollowing user:", err))
+      .finally(() => setFollowLoading(false));
   }
 
   const renderFriendButtons = () => {
@@ -262,7 +256,7 @@ export default function Userpage() {
 
     if (friendStatus.friend) {
       return (
-        <button onClick={removeFriend}>
+        <button disabled={friendLoading} onClick={removeFriend}>
           <i className="fa-solid fa-user-slash" />
           Unfriend
         </button>
@@ -272,11 +266,11 @@ export default function Userpage() {
     if (friendStatus.incoming) {
       return (
         <>
-          <button onClick={addFriend}>
+          <button disabled={friendLoading} onClick={addFriend}>
             <i className="fa-solid fa-user-plus" />
             Accept Friend Request
           </button>
-          <button onClick={declineFriend}>
+          <button disabled={friendLoading} onClick={declineFriend}>
             <i className="fa-solid fa-user-minus" />
             Decline Friend Request
           </button>
@@ -286,7 +280,7 @@ export default function Userpage() {
 
     if (!friendStatus.pending) {
       return (
-        <button onClick={sendFriendRequest}>
+        <button disabled={friendLoading} onClick={sendFriendRequest}>
           <i className="fa-solid fa-user-plus" />
           Send Friend Request
         </button>
@@ -294,7 +288,7 @@ export default function Userpage() {
     }
 
     return (
-      <button onClick={cancelFriendRequest}>
+      <button disabled={friendLoading} onClick={cancelFriendRequest}>
         <i className="fa-solid fa-user-minus" />
         Cancel Friend Request
       </button>
@@ -305,14 +299,12 @@ export default function Userpage() {
     if (!localUser?.id || !user?.id || user.id === localUser.id) return null;
 
     return isFollowing ? (
-      <button onClick={unfollowUser}>
-        <i className="fa-solid fa-user-xmark" />
-        Unfollow
+      <button disabled={followLoading} onClick={unfollowUser}>
+        <i className="fa-solid fa-user-xmark" /> Unfollow
       </button>
     ) : (
-      <button onClick={followUser}>
-        <i className="fa-solid fa-user-check" />
-        Follow
+      <button disabled={followLoading} onClick={followUser}>
+        <i className="fa-solid fa-user-check" /> Follow
       </button>
     );
   };

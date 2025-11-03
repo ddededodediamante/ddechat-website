@@ -34,6 +34,13 @@ export default function Alerts() {
                   },
                 }
               )
+              .then(() => {
+                cache["user"]["alerts"] = (
+                  cache["user"]["alerts"] || []
+                ).forEach((i) => {
+                  i.read = true;
+                });
+              })
               .catch((error) => {
                 console.error(error);
               });
