@@ -274,7 +274,7 @@ export default function Settings() {
         {user ? (
           <>
             <div className="horizontal fit-all" style={{ gap: "5px" }}>
-              {["profile", "theme", "layout", "account"].map((name) => (
+              {["profile", "theme", "layout", {/* "account" */}].map((name) => (
                 <button
                   key={name}
                   onClick={() => setTab(name)}
@@ -449,13 +449,13 @@ export default function Settings() {
                   <label>Show Toolbar Logo</label>
                 </div>
               </div>
-              <div className={tab === "account" ? "settings" : "hidden"}>
+              {/* <div className={tab === "account" ? "settings" : "hidden"}>
                 {!user.github || !user.github.id ? (
                   <a href={config.apiUrl + "/auth/github"}>Login with GitHub</a>
                 ) : (
                   <p>Logged in with GitHub ({user.github.username ?? "🎉"})</p>
                 )}
-              </div>
+              </div> */}
             </div>
 
             <div className="line" />
