@@ -18,6 +18,7 @@ import Modpanel from "./pages/modpanel.jsx";
 import "./static/css/Styles.css";
 import config from "./config.js";
 import cache from "./cache.ts";
+import Auth from "./pages/auth.jsx";
 
 export default function App() {
   useEffect(() => {
@@ -117,6 +118,7 @@ export default function App() {
         <Route path="/directmessage" element={<Directmessage />} />
         <Route path="/tos" element={<TOS />} />
         <Route path="/modpanel" element={<Modpanel />} />
+        <Route path="/auth" element={<Auth />} />
       </Routes>
     </>
   );
