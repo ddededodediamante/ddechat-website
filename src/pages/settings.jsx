@@ -509,9 +509,15 @@ export default function Settings() {
                 <hr />
 
                 {!user.github || !user.github.id ? (
-                  <a href={config.apiUrl + "/auth/github"}>Login with GitHub</a>
+                  <a
+                    href={`${config.apiUrl}/auth/github?token=${
+                      localStorage.getItem("accountToken") || ""
+                    }`}
+                  >
+                    Add GitHub account
+                  </a>
                 ) : (
-                  <p>Logged in with GitHub ({user.github?.username || "🎉"})</p>
+                  <p>Logged in with GitHub account ({user.github?.username || "🎉"})</p>
                 )}
               </div>
             </div>
