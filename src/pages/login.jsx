@@ -47,41 +47,50 @@ export default function Login() {
       });
   }
 
+  function githubLogin() {
+    const token = localStorage.getItem("accountToken");
+    const authUrl = `${config.apiUrl}/auth/github${
+      token ? `?token=${token}` : ""
+    }`;
+    window.location.href = authUrl;
+  }
+
   return (
-    <>
-      <div className="login-container">
-        <h1>
-          Login to <strong>ddeChat</strong>
-        </h1>
+    <div className="login-container">
+      <h1>
+        Login to <strong>ddeChat</strong>
+      </h1>
 
-        <Link to="/sign">No account? Sign up instead!</Link>
+      <Link to="/sign">No account? Sign up instead!</Link>
 
-        <div className="login-form">
-          <input
-            type="text"
-            placeholder="Username"
-            maxLength={20}
-            minLength={3}
-            required={true}
-            onInput={(e) => setUsernameInput(e.currentTarget.value)}
-          />
-          <input
-            type="password"
-            placeholder="Password"
-            maxLength={50}
-            minLength={8}
-            required={true}
-            onInput={(e) => setPasswordInput(e.currentTarget.value)}
-          />
-          <button
-            onClick={loginButton}
-            disabled={!valid}
-            aria-disabled={!valid}
-          >
-            Login
-          </button>
-        </div>
+      <div className="login-form">
+        <input
+          type="text"
+          placeholder="Username"
+          maxLength={20}
+          minLength={3}
+          required
+          onInput={(e) => setUsernameInput(e.currentTarget.value)}
+        />
+        <input
+          type="password"
+          placeholder="Password"
+          maxLength={50}
+          minLength={8}
+          required
+          onInput={(e) => setPasswordInput(e.currentTarget.value)}
+        />
+        <button onClick={loginButton} disabled={!valid}>
+          Login
+        </button>
+
+        <div style={{ textAlign: "center" }}>or</div>
+
+        <button onClick={githubLogin}>
+          <i className="fa-brands fa-github" />
+          Continue with GitHub
+        </button>
       </div>
-    </>
+    </div>
   );
 }

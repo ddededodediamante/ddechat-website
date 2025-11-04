@@ -47,6 +47,14 @@ export default function Login() {
       });
   }
 
+  function githubLogin() {
+    const token = localStorage.getItem("accountToken");
+    const authUrl = `${config.apiUrl}/auth/github${
+      token ? `?token=${token}` : ""
+    }`;
+    window.location.href = authUrl;
+  }
+
   return (
     <>
       <div className="login-container">
@@ -80,6 +88,13 @@ export default function Login() {
             aria-disabled={!valid}
           >
             Sign Up
+          </button>
+
+          <div style={{ textAlign: "center" }}>or</div>
+
+          <button onClick={githubLogin}>
+            <i className="fa-brands fa-github" />
+            Continue with GitHub
           </button>
         </div>
 
