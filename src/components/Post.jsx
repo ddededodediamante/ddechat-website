@@ -97,21 +97,11 @@ export default function Post({
       {showParentPost &&
         data?.replyingToId &&
         (loadingParent ? (
-          <div
-            style={{
-              borderLeft: "4px solid var(--light)",
-              paddingLeft: "10px",
-            }}
-          >
+          <div className="reply">
             <Loading />
           </div>
         ) : (
-          <div
-            style={{
-              borderLeft: "4px solid var(--light)",
-              paddingLeft: "10px",
-            }}
-          >
+          <div className="reply">
             <Post
               data={parentPost}
               noSocial={noSocial}

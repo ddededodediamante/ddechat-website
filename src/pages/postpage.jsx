@@ -252,12 +252,7 @@ export default function Postpage() {
           ) : (
             <>
               {parentPost && (
-                <div
-                  style={{
-                    borderLeft: "4px solid var(--light)",
-                    paddingLeft: "10px",
-                  }}
-                >
+                <div className="reply">
                   <Post data={parentPost} />
                 </div>
               )}
@@ -352,6 +347,7 @@ export default function Postpage() {
                       width={60}
                       height={60}
                       style={{ borderRadius: "25%" }}
+                      loading="lazy"
                     />
 
                     {activeTab === "edit" ? (

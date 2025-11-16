@@ -62,7 +62,7 @@ export default function Friends() {
               <div className="posts-post" key={f.id}>
                 {f.id && (
                   <Link to={`/user?id=${f.id}`}>
-                    <img alt="" src={`${config.apiUrl}/users/${f.id}/avatar`} />
+                    <img alt="" src={`${config.apiUrl}/users/${f.id}/avatar`} loading="lazy" />
                   </Link>
                 )}
                 <div className="vertical">

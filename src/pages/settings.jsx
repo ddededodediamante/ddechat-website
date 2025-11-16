@@ -374,6 +374,7 @@ export default function Settings() {
                       width: "70px",
                       height: "70px",
                     }}
+                    loading="lazy"
                   />
                 </div>
 
@@ -427,6 +428,7 @@ export default function Settings() {
                       objectFit: "cover",
                       borderRadius: "10px",
                     }}
+                    loading="lazy"
                   />
                 </div>
               </div>

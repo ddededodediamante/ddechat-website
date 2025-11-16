@@ -38,7 +38,7 @@ const markdown = new MarkdownIt({
       const emojiName = tokens[idx].markup;
       const src = emojiMap[emojiName];
       if (src) {
-        return `<img src="${src}" alt=":${emojiName}:" class="emoji-inline"/>`;
+        return `<img src="${src}" alt=":${emojiName}:" class="emoji-inline" loading="lazy" />`;
       }
       return `:${emojiName}:`;
     };

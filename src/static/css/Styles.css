@@ -289,9 +289,9 @@ h6 {
 }
 
 .loadingAnim .spinner {
-  border: 0.25em solid transparent; 
+  border: 0.15em solid transparent; 
   border-radius: 50%;
-  border-top: 0.25em solid rgb(153, 116, 255);
+  border-top: 0.15em solid rgb(153, 116, 255);
   height: 1.5em;
   width: 1.5em;
   animation: spin 0.7s infinite ease-in-out;
@@ -483,6 +483,20 @@ h6 {
 
 .panel-content .posts-post.unread {
   background-color: var(--midground);
+}
+
+div.reply {
+  display: flex;
+  flex-direction: row;
+  gap: 10px;
+}
+
+div.reply::before {
+  content: "";
+  width: 4px;
+  height: 100%;
+  background-color: var(--light);
+  border-radius: 4px;
 }
 
 .panel-content .posts-post img {
@@ -766,23 +780,6 @@ input[type="color"] {
 
 .swal2-deny {
   background-color: var(--danger);
-}
-
-div.online-indicator {
-  position: relative;
-  display: inline-block;
-}
-
-div.online-indicator::after {
-  content: "";
-  position: absolute;
-  bottom: -5px;
-  right: -5px;
-  width: 18px;
-  height: 18px;
-  background-color: #58cc5c;
-  outline: 3px solid var(--background);
-  border-radius: 50%;
 }
 
 img.emoji-inline {

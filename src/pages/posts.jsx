@@ -154,6 +154,7 @@ export default function Posts() {
                 width={60}
                 height={60}
                 style={{ borderRadius: "25%" }}
+                loading="lazy"
               />
 
               {activeTab === "edit" ? (

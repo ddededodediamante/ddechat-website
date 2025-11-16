@@ -14,11 +14,9 @@ import Postpage from "./pages/postpage.jsx";
 import Directmessage from "./pages/directmessage.jsx";
 import TOS from "./pages/tos.jsx";
 import Modpanel from "./pages/modpanel.jsx";
+import Auth from "./pages/auth.jsx";
 
 import "./static/css/Styles.css";
-import config from "./config.js";
-import cache from "./cache.ts";
-import Auth from "./pages/auth.jsx";
 
 export default function App() {
   useEffect(() => {
@@ -63,44 +61,6 @@ export default function App() {
 
     window.theme = styleSettings;
     window.layout = layoutSettings;
-
-    const token = localStorage.getItem("accountToken");
-    if (!token) return;
-
-    cache.usersOnline = [];
-
-    const ws = new WebSocket(
-      config.apiUrl.replace(/^http/, "ws") + "/users/presence"
-    );
-    let heartbeatInterval;
-
-    ws.onopen = () => {
-      console.log("Connected to DMs websocket");
-
-      ws.send(JSON.stringify({ type: "presence:join", token }));
-
-      heartbeatInterval = setInterval(() => {
-        if (ws.readyState === WebSocket.OPEN) {
-          ws.send(JSON.stringify({ type: "presence:heartbeat" }));
-        }
-      }, 10000);
-    };
-
-    ws.onmessage = (event) => {
-      const data = JSON.parse(event.data);
-      if (data.type === "presence:update") {
-        cache.usersOnline = data.online;
-      }
-    };
-
-    ws.onclose = () => {
-      clearInterval(heartbeatInterval);
-    };
-
-    return () => {
-      clearInterval(heartbeatInterval);
-      if (ws) ws?.close();
-    };
   }, []);
   return (
     <>

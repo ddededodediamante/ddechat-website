@@ -326,17 +326,13 @@ export default function Userpage() {
           >
             {user?.id ? (
               <div
-                className={
-                  cache?.usersOnline?.includes(user?.id)
-                    ? "online-indicator"
-                    : ""
-                }
                 style={{ width: "60px", height: "60px" }}
               >
                 <img
                   alt=""
                   src={`${config.apiUrl}/users/${user.id}/avatar`}
                   style={{ outline: "3px solid var(--background)" }}
+                  loading="lazy"
                 />
               </div>
             ) : (

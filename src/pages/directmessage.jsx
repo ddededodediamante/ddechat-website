@@ -197,7 +197,7 @@ export default function Directmessage() {
                   effect === "zoomIn" ? setEffect("") : setEffect("zoomIn")
                 }
               >
-                <img src="/files/megaphone.png" height={"28px"} alt="zoomIn" />
+                <img src="/files/megaphone.png" height={"28px"} alt="zoomIn" loading="lazy" />
               </button>
               <button
                 style={{
@@ -207,7 +207,7 @@ export default function Directmessage() {
                   effect === "glow" ? setEffect("") : setEffect("glow")
                 }
               >
-                <img src="/files/star.png" height={"28px"} alt="glow" />
+                <img src="/files/star.png" height={"28px"} alt="glow" loading="lazy" />
               </button>
               <button
                 style={{
@@ -217,13 +217,13 @@ export default function Directmessage() {
                   effect === "loud" ? setEffect("") : setEffect("loud")
                 }
               >
-                <img src="/files/angerbubble.png" height={"28px"} alt="loud" />
+                <img src="/files/angerbubble.png" height={"28px"} alt="loud" loading="lazy" />
               </button>
               <button
                 style={{ ...(spoiler ? { backgroundColor: "#555" } : {}) }}
                 onClick={() => setSpoiler(!spoiler)}
               >
-                <img src="/files/eyes.png" height={"28px"} alt="spoiler" />
+                <img src="/files/eyes.png" height={"28px"} alt="spoiler" loading="lazy" />
               </button>
               <button onClick={sendMessage}>Send</button>
             </div>

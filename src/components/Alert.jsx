@@ -79,7 +79,7 @@ export default function Alert({ data }) {
     <div className={data.read === false ? "unread posts-post" : "posts-post"}>
       {data?.author?.id && (
         <Link to={`/user?id=${data.author.id}`}>
-          <img alt="" src={`${config.apiUrl}/users/${data.author.id}/avatar`} />
+          <img alt="" src={`${config.apiUrl}/users/${data.author.id}/avatar`} loading="lazy" />
         </Link>
       )}
       <div className="vertical">
