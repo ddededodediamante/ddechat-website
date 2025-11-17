@@ -54,7 +54,8 @@ export default function Alert({ data }) {
         <>
           <p>
             {data.author.username} made a{" "}
-            <a href={`/post?id=${data.data?.postId}`}>reply</a> to your post.
+            <Link to={`/post?id=${data.data?.postId}`}>reply</Link> to your
+            post.
           </p>
           {postData && (
             <Post
@@ -79,7 +80,11 @@ export default function Alert({ data }) {
     <div className={data.read === false ? "unread posts-post" : "posts-post"}>
       {data?.author?.id && (
         <Link to={`/user?id=${data.author.id}`}>
-          <img alt="" src={`${config.apiUrl}/users/${data.author.id}/avatar`} loading="lazy" />
+          <img
+            alt=""
+            src={`${config.apiUrl}/users/${data.author.id}/avatar`}
+            loading="lazy"
+          />
         </Link>
       )}
       <div className="vertical">

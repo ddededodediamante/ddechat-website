@@ -138,7 +138,7 @@ select,
 }
 
 input[type="checkbox"] {
-  appearance: none; 
+  appearance: none;
   -webkit-appearance: none;
   -moz-appearance: none;
   margin: 0;
@@ -148,7 +148,7 @@ input[type="checkbox"] {
 }
 
 input[type="checkbox"]:checked {
-  background-color: var(--primary) !important; 
+  background-color: var(--primary) !important;
   border-color: var(--primary);
   position: relative;
 }
@@ -289,7 +289,7 @@ h6 {
 }
 
 .loadingAnim .spinner {
-  border: 0.15em solid transparent; 
+  border: 0.15em solid transparent;
   border-radius: 50%;
   border-top: 0.15em solid rgb(153, 116, 255);
   height: 1.5em;
@@ -788,7 +788,7 @@ img.emoji-inline {
   vertical-align: -0.425em;
 }
 
-div.emoji-panel {
+.emoji-panel {
   display: flex;
   flex-direction: column;
   position: fixed;
@@ -801,33 +801,57 @@ div.emoji-panel {
   box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
   user-select: none;
   z-index: 1000;
+  width: max-content;
+  max-width: 90%;
 }
 
 .emoji-panel-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  text-align: center;
   font-weight: bold;
   cursor: inherit;
-  text-align: center;
 }
 
 .emoji-grid {
   display: grid;
-  grid-template-columns: repeat(6, 48px);
+  overflow-y: auto;
+  grid-template-columns: repeat(auto-fill, minmax(48px, 1fr));
   gap: 5px;
   max-height: 300px;
-  overflow-y: auto;
-  width: auto;
 }
 
-img.emoji-picker-item {
+.emoji-picker-item {
   width: 48px;
   transition: background-color 0.2s ease;
   padding: 4px;
   border-radius: 8px;
 }
 
-img.emoji-picker-item:hover {
+.emoji-picker-item:hover {
   cursor: pointer;
   background-color: var(--foreground);
+}
+
+.emoji-category-bar {
+  display: flex;
+  flex-direction: row;
+  overflow-x: auto;
+  overflow-y: hidden;
+  gap: 5px;
+}
+
+.emoji-category-button {
+  display: flex;
+  align-items: center;
+  background: #222;
+  gap: 4px;
+  padding-left: 5px;
+}
+
+.emoji-category-button img {
+  width: 24px;
 }
 
 @media (max-width: 768px) {
@@ -861,14 +885,14 @@ img.emoji-picker-item:hover {
 
   .hamburger-btn {
     display: block;
-    padding: 0;
-    margin: 0;
     background: none;
     border: none;
-    font-size: 24px;
-    color: var(--font);
     cursor: pointer;
     margin-left: auto;
+    padding: 0;
+    margin: 0;
+    font-size: 24px;
+    color: var(--font);
   }
 
   .toolbar-links {

@@ -3,17 +3,24 @@ import { full as emoji } from "markdown-it-emoji";
 import hljs from "highlight.js";
 import "highlight.js/styles/atom-one-dark.css";
 
-const emojiModules = import.meta.glob("../static/emojis/*.png", { eager: true });
+const emojiModules = import.meta.glob("../static/emojis/*/*.png", {
+  eager: true,
+});
 export const emojiMap = {};
 
 for (const path in emojiModules) {
-  const name = path.match(/([\w-]+)\.png$/)?.[1];
-  if (name) {
-    emojiMap[name] = emojiModules[path].default || emojiModules[path];
-  }
+  const match = path.match(/emojis\/([\w-]+)\/([\w-]+)\.png$/);
+  if (!match) continue;
+
+  const [, category, name] = match;
+  const file = emojiModules[path].default || emojiModules[path];
+
+  emojiMap[name] = { src: file, category };
 }
 
-export const emojiList = Object.keys(emojiMap).sort((a, b) => a.localeCompare(b));
+export const emojiList = Object.keys(emojiMap).sort((a, b) =>
+  a.localeCompare(b)
+);
 
 const markdown = new MarkdownIt({
   breaks: true,
@@ -26,7 +33,9 @@ const markdown = new MarkdownIt({
         }</code></pre>`;
       } catch (__) {}
     }
-    return `<pre class="hljs"><code>${markdown.utils.escapeHtml(str)}</code></pre>`;
+    return `<pre class="hljs"><code>${markdown.utils.escapeHtml(
+      str
+    )}</code></pre>`;
   },
 })
   .disable("image")
@@ -35,12 +44,11 @@ const markdown = new MarkdownIt({
   })
   .use(function emojiPlugin(md) {
     md.renderer.rules.emoji = function (tokens, idx) {
-      const emojiName = tokens[idx].markup;
-      const src = emojiMap[emojiName];
-      if (src) {
-        return `<img src="${src}" alt=":${emojiName}:" class="emoji-inline" loading="lazy" />`;
-      }
-      return `:${emojiName}:`;
+      const name = tokens[idx].markup;
+      const src = emojiMap[name]?.src;
+      if (src)
+        return `<img src="${src}" alt=":${name}:" class="emoji-inline" loading="lazy" />`;
+      else return `:${name}:`;
     };
   });
 

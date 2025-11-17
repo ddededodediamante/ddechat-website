@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from "react";
-import { emojiMap, emojiList } from "../functions/Markdown";
+import { emojiMap } from "../functions/Markdown";
 
 export default function EmojiPanel({ close = () => {} }) {
   const [targetInput, setTargetInput] = useState(null);
@@ -8,6 +8,17 @@ export default function EmojiPanel({ close = () => {} }) {
   const [position, setPosition] = useState({ x: 15, y: 15 });
   const [dragging, setDragging] = useState(false);
   const [rel, setRel] = useState({ x: 0, y: 0 });
+
+  const categories = {};
+  for (const name in emojiMap) {
+    const { category, src } = emojiMap[name];
+    if (!categories[category]) categories[category] = [];
+    categories[category].push({ name, src });
+  }
+
+  const categoryList = Object.keys(categories);
+
+  const [activeCategory, setActiveCategory] = useState(categoryList[0]);
 
   useEffect(() => {
     const handleFocus = (e) => {
@@ -28,7 +39,6 @@ export default function EmojiPanel({ close = () => {} }) {
 
     window.addEventListener("mousemove", handleMouseMove);
     window.addEventListener("mouseup", handleMouseUp);
-
     return () => {
       window.removeEventListener("mousemove", handleMouseMove);
       window.removeEventListener("mouseup", handleMouseUp);
@@ -38,10 +48,10 @@ export default function EmojiPanel({ close = () => {} }) {
   useEffect(() => {
     const handleTouchMove = (e) => {
       if (!dragging) return;
-      const touch = e.touches[0];
+      const t = e.touches[0];
       setPosition({
-        x: touch.clientX - rel.x,
-        y: touch.clientY - rel.y,
+        x: t.clientX - rel.x,
+        y: t.clientY - rel.y,
       });
       e.preventDefault();
     };
@@ -59,7 +69,6 @@ export default function EmojiPanel({ close = () => {} }) {
 
   useEffect(() => {
     if (dragging) return;
-
     const panel = panelRef.current;
     if (!panel) return;
 
@@ -94,35 +103,28 @@ export default function EmojiPanel({ close = () => {} }) {
   };
 
   const onTouchStart = (e) => {
-    const touch = e.touches[0];
+    const t = e.touches[0];
     const rect = panelRef.current.getBoundingClientRect();
     setDragging(true);
-    setRel({
-      x: touch.clientX - rect.left,
-      y: touch.clientY - rect.top,
-    });
+    setRel({ x: t.clientX - rect.left, y: t.clientY - rect.top });
     e.stopPropagation();
     e.preventDefault();
   };
 
   function setNativeValue(element, value) {
     const valueSetter = Object.getOwnPropertyDescriptor(element, "value")?.set;
-    const prototype = Object.getPrototypeOf(element);
-    const prototypeValueSetter = Object.getOwnPropertyDescriptor(
-      prototype,
-      "value"
-    )?.set;
-    if (valueSetter && valueSetter !== prototypeValueSetter) {
-      prototypeValueSetter.call(element, value);
-    } else {
-      valueSetter.call(element, value);
-    }
+    const proto = Object.getPrototypeOf(element);
+    const protoSetter = Object.getOwnPropertyDescriptor(proto, "value")?.set;
+    if (valueSetter && valueSetter !== protoSetter)
+      protoSetter.call(element, value);
+    else valueSetter.call(element, value);
   }
 
   const insertEmoji = (name) => {
     if (!targetInput) return;
     const emojiSyntax = `:${name}:`;
     const { selectionStart, selectionEnd, value } = targetInput;
+
     const newText =
       value.substring(0, selectionStart) +
       emojiSyntax +
@@ -132,9 +134,7 @@ export default function EmojiPanel({ close = () => {} }) {
     targetInput.focus();
     targetInput.selectionStart = targetInput.selectionEnd =
       selectionStart + emojiSyntax.length;
-    targetInput.dispatchEvent(
-      new Event("input", { bubbles: true, cancelable: true })
-    );
+    targetInput.dispatchEvent(new Event("input", { bubbles: true }));
   };
 
   return (
@@ -148,24 +148,14 @@ export default function EmojiPanel({ close = () => {} }) {
         transform: `translate(${position.x}px, ${position.y}px)`,
       }}
     >
-      <div
-        className="emoji-panel-header"
-        style={{
-          display: "flex",
-          justifyContent: "space-between",
-          alignItems: "center",
-        }}
-      >
+      <div className="emoji-panel-header">
         <span>Emojis</span>
         <button
           onClick={(e) => {
             e.stopPropagation();
             close();
           }}
-          style={{
-            background: "red",
-            fontWeight: "bold",
-          }}
+          style={{ background: "red", fontWeight: "bold" }}
         >
           X
         </button>
@@ -173,13 +163,36 @@ export default function EmojiPanel({ close = () => {} }) {
 
       <div className="line" />
 
+      <div className="emoji-category-bar">
+        {categoryList.map((cat) => {
+          const firstEmoji = categories[cat][0];
+          return (
+            <button
+              key={cat}
+              onClick={(e) => {
+                e.stopPropagation();
+                setActiveCategory(cat);
+              }}
+              className="emoji-category-button"
+            >
+              <img
+                src={firstEmoji.src}
+                alt={firstEmoji.name}
+                draggable={false}
+              />
+              <span style={{ fontSize: "0.9em" }}>{cat}</span>
+            </button>
+          );
+        })}
+      </div>
+
       <div className="emoji-grid">
-        {emojiList.map((name) => (
+        {categories[activeCategory].map(({ name, src }) => (
           <img
             key={name}
             alt={name}
             title={name}
-            src={emojiMap[name]}
+            src={src}
             onClick={() => insertEmoji(name)}
             className="emoji-picker-item"
             draggable={false}
