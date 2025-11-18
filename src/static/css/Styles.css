@@ -783,6 +783,7 @@ input[type="color"] {
 }
 
 img.emoji-inline {
+  border-radius: 0 !important;
   width: 1.7em !important;
   height: 1.7em !important;
   vertical-align: -0.425em;
