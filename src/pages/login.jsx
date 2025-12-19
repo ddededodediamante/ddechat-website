@@ -4,10 +4,13 @@ import { Link } from "react-router-dom";
 import Swal from "sweetalert2";
 import { useEffect, useState } from "react";
 
+import Loading from "../components/Loading.jsx";
+
 export default function Login() {
   const [usernameInput, setUsernameInput] = useState("");
   const [passwordInput, setPasswordInput] = useState("");
   const [valid, setValid] = useState(false);
+  const [loading, setLoading] = useState(false);
 
   useEffect(() => {
     let isValid = true;
@@ -28,15 +31,17 @@ export default function Login() {
       '.login-form input[type="password"]'
     ).value;
 
+    setLoading(true);
+
     await axios
       .put(config.apiUrl + "/users/login", { username, password })
-      .then((data) => {
-        document.querySelector(".login-form button").innerText =
-          "Logging in...";
+      .then(data => {
+        setLoading(false)
+
         localStorage.setItem("accountToken", data.data.token);
         window.location.href = "/posts";
       })
-      .catch((error) => {
+      .catch(error => {
         console.error(error);
 
         return Swal.fire({
@@ -70,7 +75,7 @@ export default function Login() {
           maxLength={20}
           minLength={3}
           required
-          onInput={(e) => setUsernameInput(e.currentTarget.value)}
+          onInput={e => setUsernameInput(e.currentTarget.value)}
         />
         <input
           type="password"
@@ -78,10 +83,11 @@ export default function Login() {
           maxLength={50}
           minLength={8}
           required
-          onInput={(e) => setPasswordInput(e.currentTarget.value)}
+          onInput={e => setPasswordInput(e.currentTarget.value)}
         />
-        <button onClick={loginButton} disabled={!valid}>
+        <button onClick={loginButton} disabled={!valid || loading}>
           Login
+          {loading && <Loading iconOnly={true} size="1em"></Loading>}
         </button>
 
         <div style={{ textAlign: "center" }}>or</div>
