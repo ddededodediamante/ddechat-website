@@ -1,19 +1,19 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url>
-    <loc>/posts</loc>
+    <loc>https://ddechat.vercel.app/posts</loc>
     <priority>1.00</priority>
   </url>
   <url>
-    <loc>/tos</loc>
+    <loc>https://ddechat.vercel.app/tos</loc>
     <priority>0.30</priority>
   </url>
   <url>
-    <loc>/login</loc>
+    <loc>https://ddechat.vercel.app/login</loc>
     <priority>0.50</priority>
   </url>
   <url>
-    <loc>/sign</loc>
+    <loc>https://ddechat.vercel.app/sign</loc>
     <priority>0.50</priority>
   </url>
 </urlset>
