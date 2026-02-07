@@ -13,6 +13,9 @@ export default function Modpanel() {
   const [author, setAuthor] = useState("");
   const [content, setContent] = useState("");
 
+  const [banUserId, setBanUserId] = useState("");
+  const [banReason, setBanReason] = useState("");
+
   useEffect(() => {
     const token = localStorage.getItem("accountToken");
 
@@ -87,6 +90,22 @@ export default function Modpanel() {
     }
   }
 
+  async function handleUserBan() {
+    const token = localStorage.getItem("accountToken");
+    try {
+      await axios.post(
+        `${config.apiUrl}/users/ban/user`,
+        { userId: banUserId, reason: banReason },
+        { headers: { Authorization: token } }
+      );
+      Swal.fire("Success", "User and all associated IPs banned", "success");
+      setBanUserId("");
+      setBanReason("");
+    } catch (err) {
+      Swal.fire("Error", err.response?.data?.error || "Failed to ban", "error");
+    }
+  }
+
   return (
     <>
       <div className="panel-content">
@@ -98,14 +117,14 @@ export default function Modpanel() {
           <div className="settings">
             <div className="settingsWrap">
               <div className="settings">
-                <h2>Bulk Delete Posts</h2>
+                <h2>Target User Posts</h2>
 
                 <label>Author ID</label>
                 <input
                   type="text"
                   value={author}
                   onChange={(e) => setAuthor(e.target.value)}
-                  placeholder="Enter author id"
+                  placeholder="Enter ID..."
                 />
 
                 <label>Content</label>
@@ -113,11 +132,37 @@ export default function Modpanel() {
                   type="text"
                   value={content}
                   onChange={(e) => setContent(e.target.value)}
-                  placeholder="Enter exact content"
+                  placeholder="Enter exact content..."
                 />
                 <button className="danger" onClick={handleBulkDelete}>
                   <i className="fa-solid fa-trash" /> Delete Matching Posts
                 </button>
+              </div>
+            </div>
+
+            <div className="settingsWrap">
+              <div className="settings">
+                <h2>Ban User</h2>
+                <label>Target User ID</label>
+                <input
+                  type="text"
+                  value={banUserId}
+                  onChange={(e) => setBanUserId(e.target.value)}
+                  placeholder="Enter ID..."
+                />
+                <label>Reason</label>
+                <input
+                  type="text"
+                  value={banReason}
+                  onChange={(e) => setBanReason(e.target.value)}
+                  placeholder="Reason for ban..."
+                />
+                <button className="danger" onClick={handleUserBan}>
+                  <i className="fa-solid fa-gavel" /> Ban Permanently
+                </button>
+                <p style={{ fontSize: '12px', opacity: 0.5 }}>
+                  Note: This will automatically blacklist every IP address this user has ever logged in from.
+                </p>
               </div>
             </div>
           </div>

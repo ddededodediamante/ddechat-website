@@ -2,23 +2,29 @@ export default function TOS() {
   return (
     <>
       <div className="panel-content">
+        <p className="title">
+          <i className="fa-solid fa-file-contract" /> Legal Documents
+        </p>
+        <div className="line" />
+
         <blockquote>
           <strong>Disclaimer:</strong> This document was not created by a
           lawyer and may not meet all legal requirements in your jurisdiction.
+          It is provided for transparency regarding how ddeChat operates.
         </blockquote>
 
         <h1>Terms of Service</h1>
 
         <p>
-          <strong>Effective Date:</strong> June 11, 2025
+          <strong>Effective Date:</strong> February 7, 2026
         </p>
 
         <h2>1. Introduction</h2>
         <p>
-          ddeChat is a social platform developed and maintained by an
-          individual, known online as <strong>ddededodediamante</strong>, and
-          based in Argentina. By using ddeChat, you agree to these Terms of
-          Service ("Terms"). If you do not agree, you must not use the platform.
+          ddeChat is a social platform developed and maintained by
+          <strong> ddededodediamante</strong>, based in Argentina. By using ddeChat,
+          you agree to these Terms of Service ("Terms"). If you do not agree,
+          you must not use the platform.
         </p>
 
         <h2>2. Eligibility</h2>
@@ -30,26 +36,35 @@ export default function TOS() {
         <h2>3. Use of the Platform</h2>
         <p>
           Users may browse public content without registration. To post content,
-          message others, or add friends, registration is required.
+          message others, or add friends, registration is required. You may
+          register via username/password or through <strong>GitHub OAuth</strong>.
         </p>
 
-        <h2>4. User Conduct</h2>
+        <h2>4. User Conduct & Anti-Abuse</h2>
         <p>By using ddeChat, you agree not to:</p>
         <ul>
-          <li>Post or share spam, harmful, harassing, or explicit content.</li>
-          <li>Engage in illegal or malicious behavior.</li>
-          <li>Impersonate others or misuse the platform in any way.</li>
-          <li>Cause damage to ddeChat or related services.</li>
+          <li>Post or share spam, explicit, harmful, abusive, harassing, hateful, or misleading content.</li>
+          <li>Promote or engage in violence, discrimination, self-harm, suicide, or illegal activity.</li>
+          <li>Impersonate others, misuse the platform, or harm the reputation of ddeChat or its users.</li>
+          <li>Engage in illegal, malicious, or disruptive behavior, including malware distribution or phishing.</li>
+          <li>Attempt to bypass security, access restricted areas, or gain unauthorized access to accounts or data.</li>
+          <li>Use bots, automated scripts, or multiple accounts to manipulate the platform or evade enforcement.</li>
+          <li>Violate intellectual property rights or the rights, privacy, or data of other users.</li>
+          <li>Use the platform for unauthorized commercial purposes.</li>
+          <li>Engage in any activity that violates applicable laws, regulations, or platform integrity.</li>
         </ul>
+
         <p>
-          Staff members may remove content and suspend or ban accounts that
-          violate these rules.
+          <strong>Ban Policy:</strong> Staff members may suspend or ban accounts
+          that violate these rules. ddeChat employs <strong>IP-based blocking</strong>.
+          If an account is banned, all associated IP addresses used by that
+          account will be blacklisted to prevent ban evasion.
         </p>
 
         <h2>5. Account Responsibility</h2>
         <p>
           You are responsible for maintaining the confidentiality of your
-          password and for all activities that occur under your account.
+          password/token and for all activities that occur under your account.
         </p>
 
         <h2>6. Content Ownership</h2>
@@ -61,16 +76,15 @@ export default function TOS() {
 
         <h2>7. Platform Availability</h2>
         <p>
-          ddeChat is provided "as is" with no warranties regarding uptime,
-          accuracy, or reliability. The developer is not liable for any losses
-          or damages arising from your use of the platform.
+          ddeChat is provided "as is" with no warranties regarding uptime.
+          The developer is not liable for any losses arising from your use of
+          the platform or the loss of access due to an IP or account ban.
         </p>
 
         <h2>8. Changes to These Terms</h2>
         <p>
-          These Terms may be updated from time to time. Updates will be
-          reflected by the "Effective Date" shown above. Continued use of
-          ddeChat after changes constitutes acceptance of the updated Terms.
+          Continued use of ddeChat after changes constitutes acceptance of the
+          updated Terms.
         </p>
 
         <h2>9. Governing Law</h2>
@@ -78,14 +92,15 @@ export default function TOS() {
 
         <h2>10. Contact</h2>
         <p>
-          For questions regarding these Terms, please contact:{" "}
-          <strong>heliumboat@gmail.com</strong>
+          Contact: <strong>heliumboat@gmail.com</strong>
         </p>
+
+        <div className="line" />
 
         <h1>Privacy Policy</h1>
 
         <p>
-          <strong>Effective Date:</strong> June 11, 2025
+          <strong>Effective Date:</strong> February 7, 2026
         </p>
 
         <h2>1. Introduction</h2>
@@ -95,120 +110,56 @@ export default function TOS() {
         </p>
 
         <h2>2. Information Collected</h2>
-        <p>ddeChat stores the following information about its users:</p>
+        <p>ddeChat stores the following information:</p>
         <ul>
+          <li><strong>Username & ID</strong> - To identify your account.</li>
+          <li><strong>Password</strong> - Stored securely using salt/hashing.</li>
           <li>
-            <strong>Username</strong> - Required for account creation and
-            identification.
+            <strong>Network Identifiers (IP Addresses)</strong> - We log every
+            IP address used to access your account. This is used strictly for
+            security, rate limiting, and enforcing bans.
           </li>
           <li>
-            <strong>Account ID</strong> - A unique generated ID for each user.
+            <strong>GitHub Data</strong> - If you use GitHub login, we store your
+            GitHub ID and username.
           </li>
-          <li>
-            <strong>Password</strong> - Stored securely using hashing (not in
-            plain text).
-          </li>
-          <li>
-            <strong>Authentication Tokens</strong> - Stored as hashed values
-            with an expiration timestamp. Multiple tokens may exist for a single
-            account to support multi-session use.
-          </li>
-          <li>
-            <strong>Avatar</strong> - Optional image URL or identifier.
-          </li>
-          <li>
-            <strong>Posts and Comments</strong> - Including content, author ID,
-            replies, timestamps, and likes (current and all-time).
-          </li>
-          <li>
-            <strong>Direct Messages</strong> - Stored per user, including
-            content, timestamp, author ID, and spoiler status.
-          </li>
-          <li>
-            <strong>Alerts</strong> - Notifications for events on the platform,
-            with read/unread status and related metadata.
-          </li>
-          <li>
-            <strong>Friends</strong> - Includes friend lists, friend requests
-            (incoming and outgoing), and timestamps of friend additions.
-          </li>
-          <li>
-            <strong>Moderator Status</strong> - Indicates whether a user has
-            moderation privileges.
-          </li>
+          <li><strong>Posts, Comments, & Messages</strong> - All content you create.</li>
+          <li><strong>Interaction Data</strong> - Friends, likes, and alerts.</li>
         </ul>
 
         <h2>3. How Information Is Used</h2>
-        <p>Your data is used for the following purposes:</p>
         <ul>
+          <li>To manage user sessions via hashed tokens.</li>
+          <li>To display your profile and content to other users.</li>
           <li>
-            To authenticate and manage user sessions securely using hashed
-            tokens.
-          </li>
-          <li>
-            To display posts, messages, and profiles associated with your
-            account.
-          </li>
-          <li>
-            To facilitate direct messaging, friend connections, and
-            notifications.
-          </li>
-          <li>
-            To identify moderation status (if applicable) and grant appropriate
-            permissions.
+            <strong>Security:</strong> To detect multi-account abuse and
+            permanently block banned users via their IP history.
           </li>
         </ul>
-        <p>
-          No data is sold or monetized. Data is only used internally for
-          platform functionality.
-        </p>
+        <p><strong>No data is sold or shared with third-party advertisers.</strong></p>
 
         <h2>4. Data Storage and Security</h2>
         <p>
-          All user data is stored in a MongoDB database hosted on Render.com.
-          Passwords and tokens are hashed and not accessible in plain text.
-          Reasonable steps are taken to secure the database and prevent
-          unauthorized access, including limiting external exposure and using
-          hashed authentication credentials.
-        </p>
-        <p>
-          While no system is completely immune to breaches, ddeChat applies
-          modern security practices within the scope of its development and
-          hosting tools.
+          All data is stored in a MongoDB database. We take reasonable steps
+          to secure your information, including the use of modern hashing
+          algorithms for passwords and tokens.
         </p>
 
-        <h2>5. Data Sharing</h2>
+        <h2>5. Data Retention & Deletion</h2>
         <p>
-          No user data is sold or shared with third parties. Hosting and
-          database services are used solely for operating the platform.
+          User content and IP logs are stored as long as the account is active.
+          Banned IP addresses are stored indefinitely in a blacklist to maintain
+          platform safety. You may request account deletion by emailing us.
         </p>
 
-        <h2>6. Your Rights and Choices</h2>
-        <ul>
-          <li>You may change your avatar at any time.</li>
-          <li>
-            You may request account deletion by contacting the administrator at{" "}
-            <strong>heliumboat@gmail.com</strong>.
-          </li>
-        </ul>
-
-        <h2>7. Children's Privacy</h2>
+        <h2>6. Children's Privacy</h2>
         <p>
-          ddeChat is not intended for users under the age of 13. No data is
-          knowingly collected from individuals under this age.
+          ddeChat does not knowingly collect data from individuals under 13.
         </p>
 
-        <h2>8. Policy Updates</h2>
+        <h2>7. Contact</h2>
         <p>
-          This policy may be updated periodically. Changes will be reflected by
-          the "Effective Date" at the top of this page. Continued use of the
-          platform implies acceptance of any updates.
-        </p>
-
-        <h2>9. Contact</h2>
-        <p>
-          For questions regarding this Privacy Policy, contact:{" "}
-          <strong>heliumboat@gmail.com</strong>
+          For privacy concerns, contact: <strong>heliumboat@gmail.com</strong>
         </p>
       </div>
     </>
