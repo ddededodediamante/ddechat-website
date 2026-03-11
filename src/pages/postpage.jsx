@@ -295,7 +295,7 @@ export default function Postpage() {
 
               <p className="small title">Replies</p>
 
-              {user?.id && (
+              {(user?.id && user?.readOnly !== true) && (
                 <div
                   style={{
                     width: "100%",
@@ -395,6 +395,7 @@ export default function Postpage() {
                   </div>
                 </div>
               )}
+              {(user?.id && user?.readOnly === true) && <p>This account is read-only.</p>}
 
               {post?.replies && post?.replies.length > 0 ? (
                 post.replies.map((reply) => (

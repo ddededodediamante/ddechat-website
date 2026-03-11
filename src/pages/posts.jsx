@@ -101,7 +101,7 @@ export default function Posts() {
   return (
     <>
       <div className="panel-content">
-        {user?.id ? (
+        {(user?.id && user?.readOnly !== true) ? (
           <div
             style={{
               width: "100%",
@@ -202,7 +202,9 @@ export default function Posts() {
             </div>
           </div>
         ) : (
-          <p>Login to send posts.</p>
+          (user?.readOnly === true)
+            ? <p>This account is read-only.</p>
+            : <p>Login to send posts.</p>
         )}
 
         <div className="line" />

@@ -9,9 +9,9 @@
   --primary: #3d80e4;
   --danger: #cf3232;
   --big-font: "Lexend", sans-serif;
-  --family-font: -apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto",
-    "Oxygen", "Ubuntu", "Cantarell", "Fira Sans", "Droid Sans", "Helvetica Neue",
-    sans-serif;
+  --family-font:
+    -apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto", "Oxygen", "Ubuntu",
+    "Cantarell", "Fira Sans", "Droid Sans", "Helvetica Neue", sans-serif;
 }
 
 * {
@@ -133,7 +133,9 @@ select,
   padding: 5px;
   border: none;
   font-size: 15px;
-  transition: background-color 0.2s ease, scale 0.2s ease;
+  transition:
+    background-color 0.2s ease,
+    scale 0.2s ease;
   box-sizing: border-box;
 }
 
@@ -756,7 +758,9 @@ input[type="color"] {
   width: 0;
   height: 2px;
   background-color: currentColor;
-  transition: width 0.2s ease, box-shadow 0.2s ease;
+  transition:
+    width 0.2s ease,
+    box-shadow 0.2s ease;
   box-shadow: none;
 }
 
@@ -935,4 +939,75 @@ img.emoji-inline {
   .toolbar-links.open {
     display: flex;
   }
+}
+
+/* Mod Panel */
+.mod-tabs {
+  gap: 5px;
+}
+
+.mod-tabs button.tab-active {
+  background-color: var(--foreground);
+}
+
+.mod-note {
+  font-size: 12px;
+  opacity: 0.5;
+}
+
+.mod-checkbox-group {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.mod-checkbox-label {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  cursor: pointer;
+}
+
+.mod-alts-summary {
+  font-size: 12px;
+  opacity: 0.6;
+}
+
+.mod-empty {
+  opacity: 0.5;
+}
+
+.mod-alts-list, .mod-alts-result {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.mod-alt-card {
+  background: var(--foreground);
+  border-radius: 8px;
+  padding: 8px 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.mod-alt-card-header {
+  display: flex;
+  place-items: center;
+  gap: 5px;
+}
+
+.mod-alt-id,
+.mod-alt-ips {
+  font-size: 11px;
+  opacity: 0.5;
+}
+
+.mod-alt-banned {
+  font-size: 11px;
+  color: var(--danger, #e55);
+  background: rgba(255, 80, 80, 0.15);
+  padding: 1px 6px;
+  border-radius: 4px;
 }

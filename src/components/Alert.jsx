@@ -72,6 +72,13 @@ export default function Alert({ data }) {
       );
       break;
 
+    case "moderatorWarning":
+      message = <p>
+        <img src="/src/static/emojis/symbols/x.png" alt=":x:" class="emoji-inline" loading="lazy" />
+        {" Moderation warning: " + data.data?.reason ?? "Unknown reason."}
+      </p>;
+      break;
+
     default:
       message = <p>Unknown notification</p>;
   }

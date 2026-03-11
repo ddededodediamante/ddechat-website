@@ -29,6 +29,13 @@ export default function Modpanel() {
   const [warnTarget, setWarnTarget] = useState("");
   const [warnReason, setWarnReason] = useState("");
 
+  const [usernameTarget, setUsernameTarget] = useState("");
+  const [newUsername, setNewUsername] = useState("");
+
+  const [altsTarget, setAltsTarget] = useState("");
+  const [altsResult, setAltsResult] = useState(null);
+  const [altsLoading, setAltsLoading] = useState(false);
+
   useEffect(() => {
     const token = localStorage.getItem("accountToken");
 
@@ -190,11 +197,47 @@ export default function Modpanel() {
     }
   }
 
+  async function handleResetUsername() {
+    if (!usernameTarget.trim()) return Swal.fire("Error", "Please enter a target user.", "error");
+    if (!newUsername.trim()) return Swal.fire("Error", "Please enter a new username.", "error");
+
+    try {
+      const res = await axios.patch(
+        `${config.apiUrl}/users/mod/${encodeURIComponent(usernameTarget)}/username`,
+        { username: newUsername },
+        { headers: { Authorization: token() } }
+      );
+      Swal.fire("Updated", res.data.message, "success");
+      setUsernameTarget("");
+      setNewUsername("");
+    } catch (err) {
+      Swal.fire("Error", err.response?.data?.error || "Failed to update username", "error");
+    }
+  }
+
+  async function handleFindAlts() {
+    if (!altsTarget.trim()) return Swal.fire("Error", "Please enter a target user.", "error");
+    setAltsLoading(true);
+    setAltsResult(null);
+    try {
+      const res = await axios.get(
+        `${config.apiUrl}/users/mod/${encodeURIComponent(altsTarget)}/alts`,
+        { headers: { Authorization: token() } }
+      );
+      setAltsResult(res.data);
+    } catch (err) {
+      Swal.fire("Error", err.response?.data?.error || "Failed to fetch alts", "error");
+    } finally {
+      setAltsLoading(false);
+    }
+  }
+
   const tabs = [
     { id: "posts", label: "Posts" },
     { id: "ban", label: "Ban" },
     { id: "restrict", label: "Restrict" },
     { id: "profile", label: "Profile" },
+    { id: "alts", label: "Alts" },
   ];
 
   return (
@@ -206,14 +249,12 @@ export default function Modpanel() {
         <div className="line" />
         {user ? (
           <>
-            <div className="horizontal fit-all" style={{ gap: "5px" }}>
+            <div className="horizontal fit-all mod-tabs">
               {tabs.map(({ id, label }) => (
                 <button
                   key={id}
                   onClick={() => setTab(id)}
-                  style={{
-                    background: tab === id ? "var(--foreground)" : "var(--midground)",
-                  }}
+                  className={tab === id ? "tab-active" : undefined}
                 >
                   {label}
                 </button>
@@ -261,7 +302,7 @@ export default function Modpanel() {
                 <button className="danger" onClick={handleUserBan}>
                   <i className="fa-solid fa-gavel" /> Ban Permanently
                 </button>
-                <p style={{ fontSize: "12px", opacity: 0.5 }}>
+                <p className="mod-note">
                   Note: This will automatically blacklist every IP address this user has ever logged in from.
                 </p>
 
@@ -278,7 +319,7 @@ export default function Modpanel() {
                 <button onClick={handleUserUnban}>
                   <i className="fa-solid fa-unlock" /> Unban User
                 </button>
-                <p style={{ fontSize: "12px", opacity: 0.5 }}>
+                <p className="mod-note">
                   Note: This will also remove all IP bans associated with this user.
                 </p>
               </div>
@@ -328,13 +369,13 @@ export default function Modpanel() {
                   placeholder="Enter username or ID..."
                 />
                 <label>Fields to Clear</label>
-                <div style={{ display: "flex", gap: "12px", flexWrap: "wrap" }}>
+                <div className="mod-checkbox-group">
                   {[
                     { label: "Avatar", state: clearAvatar, setter: setClearAvatar },
                     { label: "Banner", state: clearBanner, setter: setClearBanner },
                     { label: "Bio", state: clearBio, setter: setClearBio },
                   ].map(({ label, state, setter }) => (
-                    <label key={label} style={{ display: "flex", alignItems: "center", gap: "6px", cursor: "pointer" }}>
+                    <label key={label} className="mod-checkbox-label">
                       <input
                         type="checkbox"
                         checked={state}
@@ -347,6 +388,72 @@ export default function Modpanel() {
                 <button className="danger" onClick={handleClearProfile}>
                   <i className="fa-solid fa-eraser" /> Clear Selected Fields
                 </button>
+
+                <hr />
+
+                <h2>Reset Username</h2>
+                <label>Username or ID</label>
+                <input
+                  type="text"
+                  value={usernameTarget}
+                  onChange={(e) => setUsernameTarget(e.target.value)}
+                  placeholder="Enter username or ID..."
+                />
+                <label>New Username</label>
+                <input
+                  type="text"
+                  value={newUsername}
+                  onChange={(e) => setNewUsername(e.target.value)}
+                  placeholder="Enter new username..."
+                />
+                <button onClick={handleResetUsername}>
+                  <i className="fa-solid fa-user-pen" /> Set Username
+                </button>
+              </div>
+
+              <div className={tab === "alts" ? "settings" : "hidden"}>
+                <h2>Find Alt Accounts</h2>
+                <label>Username or ID</label>
+                <input
+                  type="text"
+                  value={altsTarget}
+                  onChange={(e) => { setAltsTarget(e.target.value); setAltsResult(null); }}
+                  placeholder="Enter username or ID..."
+                  onKeyDown={(e) => e.key === "Enter" && handleFindAlts()}
+                />
+                <button onClick={handleFindAlts} disabled={altsLoading}>
+                  <i className={`fa-solid ${altsLoading ? "fa-spinner fa-spin" : "fa-magnifying-glass"}`} /> {altsLoading ? "Searching..." : "Find Alts"}
+                </button>
+
+                {altsResult && (
+                  <div className="mod-alts-result">
+                    <p className="mod-alts-summary">
+                      Checked {altsResult.checkedIps} IP(s) and found {altsResult.alts.length} alt account(s)
+                    </p>
+                    {altsResult.alts.length === 0 ? (
+                      <p className="mod-empty">No alt accounts found.</p>
+                    ) : (
+                      <div className="mod-alts-list">
+                        {altsResult.alts.map((alt) => (
+                          <div key={alt.id} className="mod-alt-card">
+                            <div className="mod-alt-card-header">
+                              <strong>{alt.username}</strong>
+                              <span className="mod-alt-id">ID: {alt.id}</span>
+                              {alt.banned && (
+                                <span className="mod-alt-banned">
+                                  banned
+                                </span>
+                              )}
+                            </div>
+                            <span className="mod-alt-ips">
+                              Shared IPs: {alt.sharedIps.join(", ")}
+                            </span>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                )}
               </div>
             </div>
           </>
