@@ -9,12 +9,25 @@ import Swal from "sweetalert2";
 export default function Modpanel() {
   const navigate = useNavigate();
   const [user, setUser] = useState(null);
+  const [tab, setTab] = useState("posts");
 
   const [author, setAuthor] = useState("");
   const [content, setContent] = useState("");
 
-  const [banUserId, setBanUserId] = useState("");
+  const [banTarget, setBanTarget] = useState("");
   const [banReason, setBanReason] = useState("");
+
+  const [unbanTarget, setUnbanTarget] = useState("");
+
+  const [readonlyTarget, setReadonlyTarget] = useState("");
+
+  const [profileTarget, setProfileTarget] = useState("");
+  const [clearAvatar, setClearAvatar] = useState(false);
+  const [clearBanner, setClearBanner] = useState(false);
+  const [clearBio, setClearBio] = useState(false);
+
+  const [warnTarget, setWarnTarget] = useState("");
+  const [warnReason, setWarnReason] = useState("");
 
   useEffect(() => {
     const token = localStorage.getItem("accountToken");
@@ -23,9 +36,7 @@ export default function Modpanel() {
       if (token) {
         axios
           .get(`${config.apiUrl}/users/me`, {
-            headers: {
-              Authorization: token,
-            },
+            headers: { Authorization: token },
           })
           .then((data) => {
             cache["user"] = data.data;
@@ -43,18 +54,15 @@ export default function Modpanel() {
     if (user && user.isModerator !== true) navigate("/posts");
   }, [user, navigate]);
 
+  const token = () => localStorage.getItem("accountToken");
+
   async function handleBulkDelete() {
-    const token = localStorage.getItem("accountToken");
     const params = {};
     if (author) params.author = author;
     if (content) params.content = content;
 
     if (!params.author && !params.content) {
-      Swal.fire(
-        "Error",
-        "Please provide author or content to delete.",
-        "error"
-      );
+      Swal.fire("Error", "Please provide author or content to delete.", "error");
       return;
     }
 
@@ -71,40 +79,123 @@ export default function Modpanel() {
 
     try {
       const res = await axios.delete(`${config.apiUrl}/posts`, {
-        headers: { Authorization: token },
+        headers: { Authorization: token() },
         params,
       });
-
-      Swal.fire(
-        "Deleted!",
-        `Deleted ${res.data.deletedCount} post(s).`,
-        "success"
-      );
+      Swal.fire("Deleted!", `Deleted ${res.data.deletedCount} post(s).`, "success");
     } catch (err) {
       console.error(err);
-      Swal.fire(
-        "Error",
-        err.response?.data?.error || "Failed to delete posts",
-        "error"
-      );
+      Swal.fire("Error", err.response?.data?.error || "Failed to delete posts", "error");
     }
   }
 
   async function handleUserBan() {
-    const token = localStorage.getItem("accountToken");
+    if (!banTarget.trim()) return Swal.fire("Error", "Please enter a target user.", "error");
+
+    const confirm = await Swal.fire({
+      title: "Ban this user?",
+      text: "This will ban the account and blacklist all associated IPs.",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonText: "Ban",
+      cancelButtonText: "Cancel",
+    });
+
+    if (!confirm.isConfirmed) return;
+
     try {
-      await axios.post(
-        `${config.apiUrl}/users/ban/user`,
-        { userId: banUserId, reason: banReason },
-        { headers: { Authorization: token } }
+      const res = await axios.post(
+        `${config.apiUrl}/users/mod/${encodeURIComponent(banTarget)}/ban`,
+        { reason: banReason },
+        { headers: { Authorization: token() } }
       );
-      Swal.fire("Success", "User and all associated IPs banned", "success");
-      setBanUserId("");
+      Swal.fire("Banned", res.data.message, "success");
+      setBanTarget("");
       setBanReason("");
     } catch (err) {
-      Swal.fire("Error", err.response?.data?.error || "Failed to ban", "error");
+      Swal.fire("Error", err.response?.data?.error || "Failed to ban user", "error");
     }
   }
+
+  async function handleUserUnban() {
+    if (!unbanTarget.trim()) return Swal.fire("Error", "Please enter a target user.", "error");
+
+    try {
+      const res = await axios.post(
+        `${config.apiUrl}/users/mod/${encodeURIComponent(unbanTarget)}/unban`,
+        {},
+        { headers: { Authorization: token() } }
+      );
+      Swal.fire("Unbanned", res.data.message, "success");
+      setUnbanTarget("");
+    } catch (err) {
+      Swal.fire("Error", err.response?.data?.error || "Failed to unban user", "error");
+    }
+  }
+
+  async function handleReadOnly() {
+    if (!readonlyTarget.trim()) return Swal.fire("Error", "Please enter a target user.", "error");
+
+    try {
+      const res = await axios.patch(
+        `${config.apiUrl}/users/mod/${encodeURIComponent(readonlyTarget)}/readonly`,
+        {},
+        { headers: { Authorization: token() } }
+      );
+      Swal.fire("Updated", res.data.message, "success");
+      setReadonlyTarget("");
+    } catch (err) {
+      Swal.fire("Error", err.response?.data?.error || "Failed to toggle read-only", "error");
+    }
+  }
+
+  async function handleClearProfile() {
+    if (!profileTarget.trim()) return Swal.fire("Error", "Please enter a target user.", "error");
+    if (!clearAvatar && !clearBanner && !clearBio)
+      return Swal.fire("Error", "Select at least one field to clear.", "error");
+
+    try {
+      const res = await axios.delete(
+        `${config.apiUrl}/users/mod/${encodeURIComponent(profileTarget)}/profile`,
+        {
+          headers: { Authorization: token() },
+          data: { avatar: clearAvatar, banner: clearBanner, bio: clearBio },
+        }
+      );
+      Swal.fire("Cleared", res.data.message, "success");
+      setProfileTarget("");
+      setClearAvatar(false);
+      setClearBanner(false);
+      setClearBio(false);
+    } catch (err) {
+      Swal.fire("Error", err.response?.data?.error || "Failed to clear profile fields", "error");
+    }
+  }
+
+  async function handleWarn() {
+    if (!warnTarget.trim()) return Swal.fire("Error", "Please enter a target user.", "error");
+    if (!warnReason.trim()) return Swal.fire("Error", "A reason is required.", "error");
+
+    try {
+      const res = await axios.post(
+        `${config.apiUrl}/users/mod/${encodeURIComponent(warnTarget)}/warn`,
+        { reason: warnReason },
+        { headers: { Authorization: token() } }
+      );
+      Swal.fire("Warning Issued", res.data.message, "success");
+      setWarnTarget("");
+      setWarnReason("");
+    } catch (err) {
+      Swal.fire("Error", err.response?.data?.error || "Failed to warn user", "error");
+    }
+  }
+
+  const tabs = [
+    { id: "posts", label: "Posts" },
+    { id: "ban", label: "Ban" },
+    { id: "restrict", label: "Restrict" },
+    { id: "profile", label: "Profile" },
+  ];
 
   return (
     <>
@@ -114,11 +205,24 @@ export default function Modpanel() {
         </p>
         <div className="line" />
         {user ? (
-          <div className="settings">
-            <div className="settingsWrap">
-              <div className="settings">
-                <h2>Target User Posts</h2>
+          <>
+            <div className="horizontal fit-all" style={{ gap: "5px" }}>
+              {tabs.map(({ id, label }) => (
+                <button
+                  key={id}
+                  onClick={() => setTab(id)}
+                  style={{
+                    background: tab === id ? "var(--foreground)" : "var(--midground)",
+                  }}
+                >
+                  {label}
+                </button>
+              ))}
+            </div>
 
+            <div className="settingsWrap">
+              <div className={tab === "posts" ? "settings" : "hidden"}>
+                <h2>Bulk Delete Posts</h2>
                 <label>Author ID</label>
                 <input
                   type="text"
@@ -126,7 +230,6 @@ export default function Modpanel() {
                   onChange={(e) => setAuthor(e.target.value)}
                   placeholder="Enter ID..."
                 />
-
                 <label>Content</label>
                 <input
                   type="text"
@@ -138,17 +241,15 @@ export default function Modpanel() {
                   <i className="fa-solid fa-trash" /> Delete Matching Posts
                 </button>
               </div>
-            </div>
 
-            <div className="settingsWrap">
-              <div className="settings">
+              <div className={tab === "ban" ? "settings" : "hidden"}>
                 <h2>Ban User</h2>
-                <label>Target User ID</label>
+                <label>Username or ID</label>
                 <input
                   type="text"
-                  value={banUserId}
-                  onChange={(e) => setBanUserId(e.target.value)}
-                  placeholder="Enter ID..."
+                  value={banTarget}
+                  onChange={(e) => setBanTarget(e.target.value)}
+                  placeholder="Enter username or ID..."
                 />
                 <label>Reason</label>
                 <input
@@ -160,12 +261,95 @@ export default function Modpanel() {
                 <button className="danger" onClick={handleUserBan}>
                   <i className="fa-solid fa-gavel" /> Ban Permanently
                 </button>
-                <p style={{ fontSize: '12px', opacity: 0.5 }}>
+                <p style={{ fontSize: "12px", opacity: 0.5 }}>
                   Note: This will automatically blacklist every IP address this user has ever logged in from.
                 </p>
+
+                <hr />
+
+                <h2>Unban User</h2>
+                <label>Username or ID</label>
+                <input
+                  type="text"
+                  value={unbanTarget}
+                  onChange={(e) => setUnbanTarget(e.target.value)}
+                  placeholder="Enter username or ID..."
+                />
+                <button onClick={handleUserUnban}>
+                  <i className="fa-solid fa-unlock" /> Unban User
+                </button>
+                <p style={{ fontSize: "12px", opacity: 0.5 }}>
+                  Note: This will also remove all IP bans associated with this user.
+                </p>
+              </div>
+
+              <div className={tab === "restrict" ? "settings" : "hidden"}>
+                <h2>Toggle Read-Only</h2>
+                <label>Username or ID</label>
+                <input
+                  type="text"
+                  value={readonlyTarget}
+                  onChange={(e) => setReadonlyTarget(e.target.value)}
+                  placeholder="Enter username or ID..."
+                />
+                <button onClick={handleReadOnly}>
+                  <i className="fa-solid fa-lock" /> Toggle Read-Only
+                </button>
+
+                <hr />
+
+                <h2>Warn User</h2>
+                <label>Username or ID</label>
+                <input
+                  type="text"
+                  value={warnTarget}
+                  onChange={(e) => setWarnTarget(e.target.value)}
+                  placeholder="Enter username or ID..."
+                />
+                <label>Reason</label>
+                <input
+                  type="text"
+                  value={warnReason}
+                  onChange={(e) => setWarnReason(e.target.value)}
+                  placeholder="Reason for warning..."
+                />
+                <button onClick={handleWarn}>
+                  <i className="fa-solid fa-triangle-exclamation" /> Issue Warning
+                </button>
+              </div>
+
+              <div className={tab === "profile" ? "settings" : "hidden"}>
+                <h2>Clear Profile Fields</h2>
+                <label>Username or ID</label>
+                <input
+                  type="text"
+                  value={profileTarget}
+                  onChange={(e) => setProfileTarget(e.target.value)}
+                  placeholder="Enter username or ID..."
+                />
+                <label>Fields to Clear</label>
+                <div style={{ display: "flex", gap: "12px", flexWrap: "wrap" }}>
+                  {[
+                    { label: "Avatar", state: clearAvatar, setter: setClearAvatar },
+                    { label: "Banner", state: clearBanner, setter: setClearBanner },
+                    { label: "Bio", state: clearBio, setter: setClearBio },
+                  ].map(({ label, state, setter }) => (
+                    <label key={label} style={{ display: "flex", alignItems: "center", gap: "6px", cursor: "pointer" }}>
+                      <input
+                        type="checkbox"
+                        checked={state}
+                        onChange={(e) => setter(e.target.checked)}
+                      />
+                      {label}
+                    </label>
+                  ))}
+                </div>
+                <button className="danger" onClick={handleClearProfile}>
+                  <i className="fa-solid fa-eraser" /> Clear Selected Fields
+                </button>
               </div>
             </div>
-          </div>
+          </>
         ) : (
           <Loading />
         )}

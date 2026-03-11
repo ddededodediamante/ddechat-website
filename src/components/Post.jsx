@@ -74,8 +74,8 @@ export default function Post({
       />
       <div className="horizontal" style={{ gap: "5px" }}>
         {data?.edited === true && (
-          <p className="grey">
-            <i className="fa-solid fa-pen" style={{ marginRight: "5px" }} />
+          <p className="grey horizontal centered" style={{ gap: '5px' }}>
+            <i className="fa-solid fa-pen" />
             Edited ·
           </p>
         )}
@@ -115,7 +115,7 @@ export default function Post({
           <Link to={`/user?id=${data.author.id}`}>
             <img
               alt=""
-              src={`${config.apiUrl}/users/${data.author.id}/avatar`}
+              src={`${config.apiUrl}/users/user/${data.author.id}/avatar`}
               loading="lazy"
               onError={(e) => {
                 e.target.onerror = null;

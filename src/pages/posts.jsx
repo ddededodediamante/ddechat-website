@@ -150,7 +150,7 @@ export default function Posts() {
             >
               <img
                 alt=""
-                src={`${config.apiUrl}/users/${user.id}/avatar`}
+                src={`${config.apiUrl}/users/user/${user.id}/avatar`}
                 width={60}
                 height={60}
                 style={{ borderRadius: "25%" }}

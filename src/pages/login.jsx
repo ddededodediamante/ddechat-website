@@ -36,12 +36,12 @@ export default function Login() {
     await axios
       .put(config.apiUrl + "/users/login", { username, password })
       .then(data => {
-        setLoading(false)
-
+        setLoading(false);
         localStorage.setItem("accountToken", data.data.token);
         window.location.href = "/posts";
       })
       .catch(error => {
+        setLoading(false);
         console.error(error);
 
         return Swal.fire({

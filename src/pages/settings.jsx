@@ -365,7 +365,7 @@ export default function Settings() {
                     src={
                       avatarFileURI !== ""
                         ? avatarFileURI
-                        : `${config.apiUrl}/users/${user.id}/avatar`
+                        : `${config.apiUrl}/users/user/${user.id}/avatar`
                     }
                     style={{
                       borderRadius: "25%",
@@ -418,7 +418,7 @@ export default function Settings() {
                     src={
                       bannerFileURI !== ""
                         ? bannerFileURI
-                        : `${config.apiUrl}/users/${user.id}/banner`
+                        : `${config.apiUrl}/users/user/${user.id}/banner`
                     }
                     style={{
                       backgroundColor: "var(--foreground)",

@@ -222,7 +222,7 @@ div.vertical {
   text-align: center;
 }
 
-div.horizontal {
+.horizontal {
   display: flex;
   flex-direction: row;
   height: 100%;
@@ -230,13 +230,13 @@ div.horizontal {
   text-align: center;
 }
 
-div.horizontal.fit-all,
-div.horizontal.fit-all * {
+.horizontal.fit-all,
+.horizontal.fit-all * {
   height: fit-content;
 }
 
-div.horizontal.centered {
-  align-items: center;
+.horizontal.centered {
+  place-items: center;
 }
 
 ::-webkit-scrollbar {

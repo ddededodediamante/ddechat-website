@@ -102,7 +102,7 @@ export default function Toolbar() {
               <>
                 <img
                   alt=""
-                  src={`${config.apiUrl}/users/${user.id}/avatar`}
+                  src={`${config.apiUrl}/users/user/${user.id}/avatar`}
                   loading="lazy"
                 />
                 {user?.username ? (
@@ -177,7 +177,7 @@ export default function Toolbar() {
               <>
                 <img
                   alt=""
-                  src={`${config.apiUrl}/users/${user.id}/avatar`}
+                  src={`${config.apiUrl}/users/user/${user.id}/avatar`}
                   loading="lazy"
                 />
                 {user?.username ? (

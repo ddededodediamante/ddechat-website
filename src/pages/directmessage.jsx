@@ -24,7 +24,7 @@ export default function Directmessage() {
 
     if (userId && userId !== "") {
       axios
-        .get(`${config.apiUrl}/users/${userId}`)
+        .get(`${config.apiUrl}/users/user/${userId}`)
         .then((data) => {
           setUser(data.data);
 

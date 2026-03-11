@@ -32,7 +32,7 @@ export default function Friends() {
 
   function handleUnfriend(friendId) {
     axios
-      .delete(`${config.apiUrl}/users/${friendId}/friend`, {
+      .delete(`${config.apiUrl}/users/user/${friendId}/friend`, {
         headers: {
           Authorization: localStorage.getItem("accountToken"),
         },
@@ -62,7 +62,7 @@ export default function Friends() {
               <div className="posts-post" key={f.id}>
                 {f.id && (
                   <Link to={`/user?id=${f.id}`}>
-                    <img alt="" src={`${config.apiUrl}/users/${f.id}/avatar`} loading="lazy" />
+                    <img alt="" src={`${config.apiUrl}/users/user/${f.id}/avatar`} loading="lazy" />
                   </Link>
                 )}
                 <div className="vertical">

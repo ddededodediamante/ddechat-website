@@ -50,7 +50,7 @@ export default function Userpage() {
     const fetchUser = async () => {
       try {
         const { data: fetchedUser } = await axios.get(
-          `${config.apiUrl}/users/${userIdentity}`
+          `${config.apiUrl}/users/user/${userIdentity}`
         );
         setUser(fetchedUser);
 
@@ -85,7 +85,7 @@ export default function Userpage() {
 
       try {
         const { data: postsArray } = await axios.get(
-          `${config.apiUrl}/users/${userIdentity}/posts`
+          `${config.apiUrl}/users/user/${userIdentity}/posts`
         );
         setPosts(postsArray ?? []);
       } catch (err) {
@@ -102,7 +102,7 @@ export default function Userpage() {
     setFriendLoading(true);
     axios
       .post(
-        `${config.apiUrl}/users/${userIdentity}/friendRequest`,
+        `${config.apiUrl}/users/user/${userIdentity}/friendRequest`,
         {},
         {
           headers: {
@@ -121,7 +121,7 @@ export default function Userpage() {
     if (!user?.id || user.id === localUser?.id) return;
     setFriendLoading(true);
     axios
-      .delete(`${config.apiUrl}/users/${userIdentity}/friendRequest`, {
+      .delete(`${config.apiUrl}/users/user/${userIdentity}/friendRequest`, {
         headers: {
           Authorization: localStorage.getItem("accountToken"),
         },
@@ -138,7 +138,7 @@ export default function Userpage() {
     setFriendLoading(true);
     axios
       .post(
-        `${config.apiUrl}/users/${userIdentity}/friendRequestAction`,
+        `${config.apiUrl}/users/user/${userIdentity}/friendRequestAction`,
         {},
         {
           headers: {
@@ -163,7 +163,7 @@ export default function Userpage() {
     if (!user?.id || user.id === localUser?.id) return;
     setFriendLoading(true);
     axios
-      .delete(`${config.apiUrl}/users/${userIdentity}/friend`, {
+      .delete(`${config.apiUrl}/users/user/${userIdentity}/friend`, {
         headers: {
           Authorization: localStorage.getItem("accountToken"),
         },
@@ -185,7 +185,7 @@ export default function Userpage() {
     if (!user?.id || user.id === localUser?.id) return;
     setFriendLoading(true);
     axios
-      .delete(`${config.apiUrl}/users/${userIdentity}/friendRequestAction`, {
+      .delete(`${config.apiUrl}/users/user/${userIdentity}/friendRequestAction`, {
         headers: {
           Authorization: localStorage.getItem("accountToken"),
         },
@@ -204,7 +204,7 @@ export default function Userpage() {
     setFollowLoading(true);
     axios
       .post(
-        `${config.apiUrl}/users/${userIdentity}/follow`,
+        `${config.apiUrl}/users/user/${userIdentity}/follow`,
         {},
         {
           headers: { Authorization: localStorage.getItem("accountToken") },
@@ -230,7 +230,7 @@ export default function Userpage() {
     if (!user?.id || user.id === localUser?.id) return;
     setFollowLoading(true);
     axios
-      .delete(`${config.apiUrl}/users/${userIdentity}/follow`, {
+      .delete(`${config.apiUrl}/users/user/${userIdentity}/follow`, {
         headers: { Authorization: localStorage.getItem("accountToken") },
       })
       .then((response) => {
@@ -317,7 +317,7 @@ export default function Userpage() {
             className={`${user?.banner ? "banner " : ""}title`}
             style={{
               backgroundImage: user?.banner
-                ? `url(${config.apiUrl}/users/${user.id}/banner/)`
+                ? `url(${config.apiUrl}/users/user/${user.id}/banner/)`
                 : "none",
               backgroundSize: "cover",
               backgroundPosition: "center",
@@ -330,7 +330,7 @@ export default function Userpage() {
               >
                 <img
                   alt=""
-                  src={`${config.apiUrl}/users/${user.id}/avatar`}
+                  src={`${config.apiUrl}/users/user/${user.id}/avatar`}
                   style={{ outline: "3px solid var(--background)" }}
                   loading="lazy"
                 />

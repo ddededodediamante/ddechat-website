@@ -3,11 +3,13 @@ import config from "../config.js";
 import { Link } from "react-router-dom";
 import Swal from "sweetalert2";
 import { useEffect, useState } from "react";
+import Loading from "../components/Loading.jsx";
 
 export default function Login() {
   const [usernameInput, setUsernameInput] = useState("");
   const [passwordInput, setPasswordInput] = useState("");
   const [valid, setValid] = useState(false);
+  const [loading, setLoading] = useState(false);
 
   useEffect(() => {
     let isValid = true;
@@ -28,15 +30,17 @@ export default function Login() {
       '.login-form input[type="password"]'
     ).value;
 
+    setLoading(true);
+
     await axios
       .post(config.apiUrl + "/users/create", { username, password })
       .then((data) => {
-        document.querySelector(".login-form button").innerText =
-          "Logging in...";
+        setLoading(false);
         localStorage.setItem("accountToken", data.data.token);
         window.location.href = "/posts";
       })
       .catch((error) => {
+        setLoading(false);
         console.error(error);
 
         return Swal.fire({
@@ -81,13 +85,9 @@ export default function Login() {
             required={true}
             onInput={(e) => setPasswordInput(e.currentTarget.value)}
           />
-          <button
-            className="loginButton"
-            onClick={signButton}
-            disabled={!valid}
-            aria-disabled={!valid}
-          >
+          <button onClick={signButton} disabled={!valid || loading}>
             Sign Up
+            {loading && <Loading iconOnly={true} size="1em"></Loading>}
           </button>
 
           <div style={{ textAlign: "center" }}>or</div>
