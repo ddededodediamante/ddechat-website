@@ -4,30 +4,19 @@ import config from "../config.js";
 import { Link, useNavigate } from "react-router-dom";
 import moment from "moment";
 import Loading from "../components/Loading.jsx";
-import cache from "../cache.ts";
+import { getUserCached } from "../cache.js";
 
 export default function Friends() {
   const navigate = useNavigate();
   const [user, setUser] = useState(null);
 
   useEffect(() => {
-    const token = localStorage.getItem("accountToken");
-    if (token)
-      axios
-        .get(`${config.apiUrl}/users/me`, {
-          headers: {
-            Authorization: token,
-          },
-        })
-        .then((data) => {
-          cache["user"] = data.data;
-          setUser(data.data);
-        })
-        .catch((error) => {
-          console.error("Error fetching user data:", error);
-          navigate("/login");
-        });
-    else navigate("/login");
+    getUserCached()
+      .then(user => setUser(user))
+      .catch(error => {
+        console.error(error);
+        navigate("/login");
+      });
   }, [navigate]);
 
   function handleUnfriend(friendId) {

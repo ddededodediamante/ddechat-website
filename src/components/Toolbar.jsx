@@ -1,8 +1,8 @@
 import { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import config from "../config.js";
-import axios from "axios";
-import cache from "../cache.ts";
+import { getUserCached } from "../cache.ts";
+import Loading from "./Loading.jsx";
 
 export default function Toolbar() {
   const navigate = useNavigate();
@@ -18,30 +18,17 @@ export default function Toolbar() {
   );
 
   useEffect(() => {
-    const token = localStorage.getItem("accountToken") ?? "";
-    if (!token || token === "") return setUser("error");
-
-    if (!cache["user"])
-      axios
-        .get(`${config.apiUrl}/users/me`, {
-          headers: {
-            Authorization: token,
-          },
-        })
-        .then((data) => {
-          cache["user"] = data.data;
-          setUser(data.data);
-        })
-        .catch((error) => {
-          console.error(error);
-          setUser("error");
-        });
-    else setUser(cache["user"]);
+    getUserCached()
+      .then(user => setUser(user))
+      .catch(error => {
+        setUser("error");
+        console.error(error);
+      });
   }, []);
 
   useEffect(() => {
     const mediaQuery = window.matchMedia("(max-width: 768px)");
-    const handleResize = (e) => setSmallScreen(e.matches);
+    const handleResize = e => setSmallScreen(e.matches);
 
     handleResize(mediaQuery);
     mediaQuery.addEventListener("change", handleResize);
@@ -49,7 +36,7 @@ export default function Toolbar() {
     return () => mediaQuery.removeEventListener("change", handleResize);
   }, []);
 
-  const toggleMenu = () => setMenuOpen((open) => !open);
+  const toggleMenu = () => setMenuOpen(open => !open);
 
   if (smallScreen) {
     return (
@@ -71,7 +58,7 @@ export default function Toolbar() {
             <Link to="/alerts" onClick={() => setMenuOpen(false)}>
               <i
                 className={
-                  (user?.alerts ?? []).some((i) => i.read === false)
+                  (user?.alerts ?? []).some(i => i.read === false)
                     ? "fa-solid fa-bell alertNewDot"
                     : "fa-solid fa-bell"
                 }
@@ -96,7 +83,7 @@ export default function Toolbar() {
         </div>
 
         <div className="localusertag">
-          {user &&
+          {user !== null ? (
             window?.layout?.showUserTag !== false &&
             (user !== "error" ? (
               <>
@@ -120,7 +107,10 @@ export default function Toolbar() {
               </>
             ) : (
               loginLabel
-            ))}
+            ))
+          ) : (
+            <Loading />
+          )}
         </div>
       </nav>
     );
@@ -146,7 +136,7 @@ export default function Toolbar() {
             <Link to="/alerts">
               <i
                 className={
-                  (user?.alerts ?? []).some((i) => i.read === false)
+                  (user?.alerts ?? []).some(i => i.read === false)
                     ? "fa-solid fa-bell alertNewDot"
                     : "fa-solid fa-bell"
                 }
@@ -171,7 +161,7 @@ export default function Toolbar() {
         </div>
 
         <div className="localusertag">
-          {user &&
+          {user !== null ? (
             window?.layout?.showUserTag !== false &&
             (user !== "error" ? (
               <>
@@ -195,7 +185,10 @@ export default function Toolbar() {
               </>
             ) : (
               loginLabel
-            ))}
+            ))
+          ) : (
+            <Loading size="1.3rem" />
+          )}
         </div>
       </nav>
     );

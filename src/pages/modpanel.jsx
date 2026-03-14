@@ -3,7 +3,7 @@ import { useEffect, useState } from "react";
 import config from "../config.js";
 import { useNavigate } from "react-router-dom";
 import Loading from "../components/Loading.jsx";
-import cache from "../cache.ts";
+import { getUserCached } from "../cache.ts";
 import Swal from "sweetalert2";
 
 export default function Modpanel() {
@@ -37,24 +37,12 @@ export default function Modpanel() {
   const [altsLoading, setAltsLoading] = useState(false);
 
   useEffect(() => {
-    const token = localStorage.getItem("accountToken");
-
-    if (!cache["user"]) {
-      if (token) {
-        axios
-          .get(`${config.apiUrl}/users/me`, {
-            headers: { Authorization: token },
-          })
-          .then((data) => {
-            cache["user"] = data.data;
-            setUser(data.data);
-          })
-          .catch((error) => {
-            console.error("Error fetching user data:", error);
-            navigate("/posts");
-          });
-      } else navigate("/posts");
-    } else setUser(cache["user"]);
+    getUserCached()
+      .then(user => setUser(user))
+      .catch(error => {
+        console.error(error);
+        navigate("/posts");
+      });
   }, [navigate]);
 
   useEffect(() => {

@@ -5,7 +5,7 @@ import { useNavigate, useSearchParams } from "react-router-dom";
 import Post from "../components/Post.jsx";
 import Loading from "../components/Loading.jsx";
 import Swal from "sweetalert2";
-import cache, { savePost, getPost } from "../cache.ts";
+import cache, { savePost, getPost, getUserCached } from "../cache.ts";
 import markdown from "../functions/Markdown.js";
 import EmojiPanel from "../components/Emojipanel.jsx";
 
@@ -25,28 +25,13 @@ export default function Postpage() {
   const [showEmojiPanel, setShowEmojiPanel] = useState(false);
 
   useEffect(() => {
-    const token = localStorage.getItem("accountToken");
-    if (!token) {
-      setUser(null);
-      return;
-    }
-
-    if (!cache["user"]) {
-      axios
-        .get(`${config.apiUrl}/users/me`, {
-          headers: { Authorization: token },
-        })
-        .then((res) => {
-          setUser(res.data);
-          cache["user"] = res.data;
-        })
-        .catch((error) => {
-          console.error("Error fetching user data:", error);
-          setUser(null);
-        });
-    } else {
-      setUser(cache["user"]);
-    }
+    useEffect(() => {
+    getUserCached()
+      .then(user => setUser(user))
+      .catch(_ => {
+        setUser(null);
+      });
+  }, [navigate]);
   }, []);
 
   useEffect(() => {

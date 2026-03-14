@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import config from "../config.js";
 import Loading from "../components/Loading.jsx";
 import { useNavigate } from "react-router-dom";
-import cache, { savePost } from "../cache.ts";
+import { getUserCached, savePost } from "../cache.ts";
 import markdown from "../functions/Markdown.js";
 import EmojiPanel from "../components/Emojipanel.jsx";
 
@@ -38,36 +38,21 @@ export default function Posts() {
           Authorization: token,
         },
       })
-      .then((data) => {
+      .then(data => {
         setLoading(false);
         setPosts(data.data);
       })
-      .catch((error) => {
+      .catch(error => {
         console.error("Error fetching posts:", error);
       });
   }
 
   useEffect(() => {
-    const token = localStorage.getItem("accountToken");
-
-    if (!cache["user"]) {
-      if (token) {
-        axios
-          .get(`${config.apiUrl}/users/me`, {
-            headers: {
-              Authorization: token,
-            },
-          })
-          .then((data) => {
-            cache["user"] = data.data;
-            setUser(data.data);
-          })
-          .catch((error) => {
-            console.error("Error fetching user data:", error);
-          });
-      }
-    } else setUser(cache["user"]);
-
+    getUserCached()
+      .then(user => setUser(user))
+      .catch(_ => {
+        setUser("error");
+      });
     fetchPosts(filter);
   }, [filter]);
 
@@ -85,9 +70,9 @@ export default function Posts() {
           headers: {
             Authorization: localStorage.getItem("accountToken"),
           },
-        }
+        },
       )
-      .then((data) => {
+      .then(data => {
         savePost(data.data.id, data.data);
         navigate(`/post?id=${data.data.id}`);
       })
@@ -95,119 +80,114 @@ export default function Posts() {
   }
 
   function toggleEmojiPanel() {
-    setShowEmojiPanel((prev) => !prev);
+    setShowEmojiPanel(prev => !prev);
   }
 
   return (
     <>
       <div className="panel-content">
-        {(user?.id && user?.readOnly !== true) ? (
-          <div
-            style={{
-              width: "100%",
-              gap: "10px",
-              display: "flex",
-              flexDirection: "column",
-            }}
-          >
-            <div style={{ display: "flex", gap: "5px" }}>
-              {["edit", "preview"].map((tab) => (
-                <button
-                  key={tab}
-                  onClick={() => setActiveTab(tab)}
-                  style={{
-                    background:
-                      activeTab === tab
-                        ? "var(--foreground)"
-                        : "var(--midground)",
-                  }}
-                >
-                  {tab === "edit" ? "Edit" : "Preview"}
-                </button>
-              ))}
-              <button
-                key="emojis"
-                onClick={toggleEmojiPanel}
-                style={{
-                  background: showEmojiPanel
-                    ? "var(--foreground)"
-                    : "var(--midground)",
-                }}
-              >
-                Emojis
-              </button>
-            </div>
-
-            {showEmojiPanel && <EmojiPanel close={toggleEmojiPanel} />}
-
+        {user !== null &&
+          (user?.id && user?.readOnly !== true ? (
             <div
               style={{
-                display: "flex",
+                width: "100%",
                 gap: "10px",
-                alignItems: "center",
-                justifyContent: "center",
+                display: "flex",
+                flexDirection: "column",
               }}
             >
-              <img
-                alt=""
-                src={`${config.apiUrl}/users/user/${user.id}/avatar`}
-                width={60}
-                height={60}
-                style={{ borderRadius: "25%" }}
-                loading="lazy"
-              />
-
-              {activeTab === "edit" ? (
-                <textarea
-                  value={postContent}
-                  onChange={(e) => setPostContent(e.target.value)}
-                  disabled={!user?.id}
-                  placeholder={
-                    user.username
-                      ? `What's new, ${user.username}?`
-                      : "What's new?"
-                  }
+              <div style={{ display: "flex", gap: "5px" }}>
+                {["edit", "preview"].map(tab => (
+                  <button
+                    key={tab}
+                    onClick={() => setActiveTab(tab)}
+                    style={{
+                      background:
+                        activeTab === tab ? "var(--foreground)" : "var(--midground)",
+                    }}
+                  >
+                    {tab === "edit" ? "Edit" : "Preview"}
+                  </button>
+                ))}
+                <button
+                  key="emojis"
+                  onClick={toggleEmojiPanel}
                   style={{
-                    padding: "8px",
-                    borderRadius: "8px",
-                    minHeight: "60px",
-                    height: "fit-content",
-                    width: "100%",
-                    resize: "vertical",
+                    background: showEmojiPanel ? "var(--foreground)" : "var(--midground)",
                   }}
-                />
-              ) : (
-                <div
-                  style={{
-                    color: "var(--font)",
-                    backgroundColor: "var(--midground)",
-                    padding: "8px",
-                    borderRadius: "8px",
-                    minHeight: "60px",
-                    width: "100%",
-                  }}
-                  dangerouslySetInnerHTML={{
-                    __html: markdown.render(postContent),
-                  }}
-                />
-              )}
+                >
+                  Emojis
+                </button>
+              </div>
 
-              <button
-                onClick={() => sendPost(postContent)}
-                disabled={isPosting || !postContent.trim()}
-                id="postButton"
+              {showEmojiPanel && <EmojiPanel close={toggleEmojiPanel} />}
+
+              <div
+                style={{
+                  display: "flex",
+                  gap: "10px",
+                  alignItems: "center",
+                  justifyContent: "center",
+                }}
               >
-                {isPosting ? <Loading size="15px" /> : "Post"}
-              </button>
-            </div>
-          </div>
-        ) : (
-          (user?.readOnly === true)
-            ? <p>This account is read-only.</p>
-            : <p>Login to send posts.</p>
-        )}
+                <img
+                  alt=""
+                  src={`${config.apiUrl}/users/user/${user.id}/avatar`}
+                  width={60}
+                  height={60}
+                  style={{ borderRadius: "25%" }}
+                  loading="lazy"
+                />
 
-        <div className="line" />
+                {activeTab === "edit" ? (
+                  <textarea
+                    value={postContent}
+                    onChange={e => setPostContent(e.target.value)}
+                    disabled={!user?.id}
+                    placeholder={
+                      user.username ? `What's new, ${user.username}?` : "What's new?"
+                    }
+                    style={{
+                      padding: "8px",
+                      borderRadius: "8px",
+                      minHeight: "60px",
+                      height: "fit-content",
+                      width: "100%",
+                      resize: "vertical",
+                    }}
+                  />
+                ) : (
+                  <div
+                    style={{
+                      color: "var(--font)",
+                      backgroundColor: "var(--midground)",
+                      padding: "8px",
+                      borderRadius: "8px",
+                      minHeight: "60px",
+                      width: "100%",
+                    }}
+                    dangerouslySetInnerHTML={{
+                      __html: markdown.render(postContent),
+                    }}
+                  />
+                )}
+
+                <button
+                  onClick={() => sendPost(postContent)}
+                  disabled={isPosting || !postContent.trim()}
+                  id="postButton"
+                >
+                  {isPosting ? <Loading size="15px" /> : "Post"}
+                </button>
+              </div>
+            </div>
+          ) : user?.readOnly === true ? (
+            <p>This account is read-only.</p>
+          ) : (
+            <p>Login to send posts.</p>
+          ))}
+        {(user === null && !loading) && <Loading size="2rem" />}
+        {(user !== null || !loading) && <div className="line" />}
 
         {loading ? (
           <Loading />
@@ -215,7 +195,7 @@ export default function Posts() {
           <>
             <select
               value={filter}
-              onChange={(e) => setFilter(e.target.value)}
+              onChange={e => setFilter(e.target.value)}
               style={{ padding: "6px", borderRadius: "6px" }}
             >
               <option value="all">All Posts</option>

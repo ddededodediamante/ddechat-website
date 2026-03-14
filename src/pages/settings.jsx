@@ -4,7 +4,7 @@ import config from "../config.js";
 import Swal from "sweetalert2";
 import { useNavigate } from "react-router-dom";
 import Loading from "../components/Loading.jsx";
-import cache from "../cache.ts";
+import cache, { getUserCached } from "../cache.ts";
 
 const setStyle = (property, value) =>
   document.documentElement.style.setProperty(property, value);
@@ -54,25 +54,12 @@ export default function Settings() {
   });
 
   useEffect(() => {
-    const token = localStorage.getItem("accountToken") ?? "";
-    if (token === "") return navigate("/login");
-
-    if (!cache["user"])
-      axios
-        .get(`${config.apiUrl}/users/me`, {
-          headers: {
-            Authorization: token,
-          },
-        })
-        .then((data) => {
-          cache["user"] = data.data;
-          setUser(data.data);
-        })
-        .catch((error) => {
-          console.error(error);
-          return navigate("/login");
-        });
-    else setUser(cache["user"]);
+    getUserCached()
+      .then(user => setUser(user))
+      .catch(error => {
+        console.error(error);
+        navigate("/posts");
+      });
   }, [navigate]);
 
   useEffect(() => {

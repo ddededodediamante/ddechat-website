@@ -5,7 +5,7 @@ import { useSearchParams } from "react-router-dom";
 import moment from "moment";
 import Loading from "../components/Loading.jsx";
 import Post from "../components/Post.jsx";
-import cache from "../cache.ts";
+import cache, { getUserCached } from "../cache.ts";
 
 export default function Userpage() {
   const [user, setUser] = useState(null);
@@ -54,28 +54,13 @@ export default function Userpage() {
         );
         setUser(fetchedUser);
 
-        const token = localStorage.getItem("accountToken");
-        if (token) {
-          if (!cache["user"]) {
-            try {
-              const me = await fetchLocalUser(token);
-              cache["user"] = me;
-              setLocalUser(me);
-              updateFriendStatus(me, fetchedUser.id);
-              setIsFollowing(
-                me?.follow?.following?.some((u) => u.id === fetchedUser.id)
-              );
-            } catch (err) {
-              console.error("Error fetching local user:", err);
-            }
-          } else {
-            const me = cache["user"];
-            setLocalUser(me);
-            updateFriendStatus(me, fetchedUser.id);
-            setIsFollowing(
-              me?.follow?.following?.some((u) => u.id === fetchedUser.id)
-            );
-          }
+        try {
+          const me = await getUserCached();
+          setLocalUser(me);
+          updateFriendStatus(me, fetchedUser.id);
+          setIsFollowing(me?.follow?.following?.some((u) => u.id === fetchedUser.id));
+        } catch (err) {
+          console.error("Error fetching local user:", err);
         }
       } catch (err) {
         console.error("Error fetching user:", err);
