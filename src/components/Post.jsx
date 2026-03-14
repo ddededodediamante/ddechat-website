@@ -2,9 +2,8 @@ import formatTime from "../functions/time.js";
 import config from "../config.js";
 import { Link } from "react-router-dom";
 import { useEffect, useState } from "react";
-import axios from "axios";
 import Loading from "./Loading.jsx";
-import cache, { getPost, savePost, getUser, saveUser } from "../cache.ts";
+import cache, { fetchPostCached, fetchUserCached } from "../cache.ts";
 import markdown from "../functions/Markdown.js";
 
 export default function Post({ data, noSocial = false, showParentPost = false, style }) {
@@ -34,68 +33,25 @@ export default function Post({ data, noSocial = false, showParentPost = false, s
       return;
     }
 
-    const cached = getUser(authorId);
-    if (cached) {
-      setAuthor(cached.id === null ? null : cached);
-      return;
-    }
-
     setLoadingAuthor(true);
-    axios
-      .get(`${config.apiUrl}/users/user/${authorId}`)
-      .then(res => {
-        saveUser(authorId, res.data);
-        setAuthor(res.data);
-      })
-      .catch(err => {
-        if ((err?.status ?? err?.response?.status) === 404) {
-          saveUser(authorId, {});
-          setAuthor(null);
-        } else {
-          console.error("Failed to fetch author:", err);
-        }
-      })
+    fetchUserCached(authorId, config.apiUrl)
+      .then(setAuthor)
       .finally(() => setLoadingAuthor(false));
   }, [data?.authorId, data?.author?.id]);
 
   useEffect(() => {
     if (!cache?.posts) cache.posts = {};
+    if (!showParentPost || !data?.replyingToId) return;
 
-    if (showParentPost && data?.replyingToId) {
-      const cached = getPost(data.replyingToId);
-
-      if (cached && cached.id === null) {
-        setParentPost(null);
-        return;
-      }
-
-      if (!cached) {
-        setLoadingParent(true);
-        axios
-          .get(`${config.apiUrl}/posts/${data.replyingToId}`)
-          .then(parentData => {
-            savePost(data.replyingToId, parentData.data);
-            setParentPost(parentData.data);
-          })
-          .catch(err => {
-            if ((err?.status ?? err?.response?.status) === 404) {
-              savePost(data.replyingToId, {});
-              setParentPost(null);
-            } else {
-              console.error("Failed to fetch parent post:", err);
-            }
-            console.error(err);
-          })
-          .finally(() => {
-            setLoadingParent(false);
-          });
-      } else setParentPost(cached);
-    }
+    setLoadingParent(true);
+    fetchPostCached(data.replyingToId, config.apiUrl)
+      .then(setParentPost)
+      .finally(() => setLoadingParent(false));
   }, [data?.replyingToId, showParentPost]);
 
   let content = (
     <div className="vertical">
-      {author?.username && <p className="grey">@{author.username}</p>}
+      {author?.username && <p className="grey">@{author?.username ?? "..."}</p>}
       <div
         style={{ color: "var(--font)" }}
         dangerouslySetInnerHTML={{
@@ -138,7 +94,7 @@ export default function Post({ data, noSocial = false, showParentPost = false, s
 
       <div className="posts-post" style={style}>
         {loadingAuthor ? (
-          <div style={{ width: 40, height: 40 }} />
+          <img alt="" src="/files/unknown-icon.png" loading="lazy" />
         ) : author?.id ? (
           <Link to={`/user?id=${author.id}`}>
             <img

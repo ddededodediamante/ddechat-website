@@ -45,4 +45,57 @@ export function getUser(id: string) {
   return cache.users?.[id] ?? null;
 }
 
+const inFlightUsers = new Map<string, Promise<any>>();
+const inFlightPosts = new Map<string, Promise<any>>();
+
+export function fetchUserCached(id: string, apiUrl: string) {
+  if (inFlightUsers.has(id)) return inFlightUsers.get(id)!;
+
+  const cached = getUser(id);
+  if (cached) return Promise.resolve(cached.id === null ? null : cached);
+
+  const promise = axios
+    .get(`${apiUrl}/users/user/${id}`)
+    .then((res) => {
+      saveUser(id, res.data);
+      return res.data;
+    })
+    .catch((err) => {
+      if ((err?.status ?? err?.response?.status) === 404) {
+        saveUser(id, {});
+      }
+      return null;
+    })
+    .finally(() => inFlightUsers.delete(id));
+
+  inFlightUsers.set(id, promise);
+  return promise;
+}
+
+export function fetchPostCached(id: string, apiUrl: string) {
+  if (inFlightPosts.has(id)) return inFlightPosts.get(id)!;
+
+  const cached = getPost(id);
+  if (cached) return Promise.resolve(cached.id === null ? null : cached);
+
+  const promise = axios
+    .get(`${apiUrl}/posts/${id}`)
+    .then((res) => {
+      savePost(id, res.data);
+      return res.data;
+    })
+    .catch((err) => {
+      if ((err?.status ?? err?.response?.status) === 404) {
+        savePost(id, {});
+      } else {
+        console.error("Failed to fetch post:", err);
+      }
+      return null;
+    })
+    .finally(() => inFlightPosts.delete(id));
+
+  inFlightPosts.set(id, promise);
+  return promise;
+}
+
 export default cache;

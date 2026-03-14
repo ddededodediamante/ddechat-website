@@ -25,13 +25,9 @@ export default function Postpage() {
   const [showEmojiPanel, setShowEmojiPanel] = useState(false);
 
   useEffect(() => {
-    useEffect(() => {
     getUserCached()
       .then(user => setUser(user))
-      .catch(_ => {
-        setUser(null);
-      });
-  }, [navigate]);
+      .catch(_ => setUser(null));
   }, []);
 
   useEffect(() => {
