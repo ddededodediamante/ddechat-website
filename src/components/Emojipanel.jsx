@@ -1,7 +1,8 @@
 import { useState, useEffect, useRef } from "react";
 import { emojiMap } from "../functions/Markdown";
+import demojis from "demojis";
 
-export default function EmojiPanel({ close = () => {} }) {
+export default function EmojiPanel({ close = () => { } }) {
   const [targetInput, setTargetInput] = useState(null);
   const panelRef = useRef(null);
 
@@ -11,17 +12,16 @@ export default function EmojiPanel({ close = () => {} }) {
 
   const categories = {};
   for (const name in emojiMap) {
-    const { category, src } = emojiMap[name];
+    const { category } = emojiMap[name];
     if (!categories[category]) categories[category] = [];
-    categories[category].push({ name, src });
+    categories[category].push(name);
   }
 
   const categoryList = Object.keys(categories);
-
   const [activeCategory, setActiveCategory] = useState(categoryList[0]);
 
   useEffect(() => {
-    const handleFocus = (e) => {
+    const handleFocus = e => {
       if (e.target.tagName === "TEXTAREA" || e.target.tagName === "INPUT") {
         setTargetInput(e.target);
       }
@@ -31,12 +31,11 @@ export default function EmojiPanel({ close = () => {} }) {
   }, []);
 
   useEffect(() => {
-    const handleMouseMove = (e) => {
+    const handleMouseMove = e => {
       if (!dragging) return;
       setPosition({ x: e.clientX - rel.x, y: e.clientY - rel.y });
     };
     const handleMouseUp = () => setDragging(false);
-
     window.addEventListener("mousemove", handleMouseMove);
     window.addEventListener("mouseup", handleMouseUp);
     return () => {
@@ -46,21 +45,15 @@ export default function EmojiPanel({ close = () => {} }) {
   }, [dragging, rel]);
 
   useEffect(() => {
-    const handleTouchMove = (e) => {
+    const handleTouchMove = e => {
       if (!dragging) return;
       const t = e.touches[0];
-      setPosition({
-        x: t.clientX - rel.x,
-        y: t.clientY - rel.y,
-      });
+      setPosition({ x: t.clientX - rel.x, y: t.clientY - rel.y });
       e.preventDefault();
     };
-
     const handleTouchEnd = () => setDragging(false);
-
     window.addEventListener("touchmove", handleTouchMove, { passive: false });
     window.addEventListener("touchend", handleTouchEnd);
-
     return () => {
       window.removeEventListener("touchmove", handleTouchMove);
       window.removeEventListener("touchend", handleTouchEnd);
@@ -71,30 +64,20 @@ export default function EmojiPanel({ close = () => {} }) {
     if (dragging) return;
     const panel = panelRef.current;
     if (!panel) return;
-
     const rect = panel.getBoundingClientRect();
     const vw = window.innerWidth;
     const vh = window.innerHeight;
-
     let x = position.x;
     let y = position.y;
-
     if (rect.left < 0) x = 0;
     if (rect.top < 0) y = 0;
     if (rect.right > vw) x = vw - rect.width;
     if (rect.bottom > vh) y = vh - rect.height;
-
-    if (x !== position.x || y !== position.y) {
-      setPosition({ x, y });
-    }
+    if (x !== position.x || y !== position.y) setPosition({ x, y });
   }, [dragging]);
 
-  const onMouseDown = (e) => {
-    if (
-      e.button !== 0 ||
-      (e.target && e.target.className === "emoji-picker-item")
-    )
-      return;
+  const onMouseDown = e => {
+    if (e.button !== 0 || e.target?.className === "emoji-picker-item") return;
     const rect = panelRef.current.getBoundingClientRect();
     setDragging(true);
     setRel({ x: e.clientX - rect.left, y: e.clientY - rect.top });
@@ -102,7 +85,7 @@ export default function EmojiPanel({ close = () => {} }) {
     e.preventDefault();
   };
 
-  const onTouchStart = (e) => {
+  const onTouchStart = e => {
     const t = e.touches[0];
     const rect = panelRef.current.getBoundingClientRect();
     setDragging(true);
@@ -115,21 +98,16 @@ export default function EmojiPanel({ close = () => {} }) {
     const valueSetter = Object.getOwnPropertyDescriptor(element, "value")?.set;
     const proto = Object.getPrototypeOf(element);
     const protoSetter = Object.getOwnPropertyDescriptor(proto, "value")?.set;
-    if (valueSetter && valueSetter !== protoSetter)
-      protoSetter.call(element, value);
+    if (valueSetter && valueSetter !== protoSetter) protoSetter.call(element, value);
     else valueSetter.call(element, value);
   }
 
-  const insertEmoji = (name) => {
+  const insertEmoji = name => {
     if (!targetInput) return;
     const emojiSyntax = `:${name}:`;
     const { selectionStart, selectionEnd, value } = targetInput;
-
     const newText =
-      value.substring(0, selectionStart) +
-      emojiSyntax +
-      value.substring(selectionEnd);
-
+      value.substring(0, selectionStart) + emojiSyntax + value.substring(selectionEnd);
     setNativeValue(targetInput, newText);
     targetInput.focus();
     targetInput.selectionStart = targetInput.selectionEnd =
@@ -151,7 +129,7 @@ export default function EmojiPanel({ close = () => {} }) {
       <div className="emoji-panel-header">
         <span>Emojis</span>
         <button
-          onClick={(e) => {
+          onClick={e => {
             e.stopPropagation();
             close();
           }}
@@ -164,35 +142,32 @@ export default function EmojiPanel({ close = () => {} }) {
       <div className="line" />
 
       <div className="emoji-category-bar">
-        {categoryList.map((cat) => {
-          const firstEmoji = categories[cat][0];
-          return (
-            <button
-              key={cat}
-              onClick={(e) => {
-                e.stopPropagation();
-                setActiveCategory(cat);
-              }}
-              className="emoji-category-button"
-            >
-              <img
-                src={firstEmoji.src}
-                alt={firstEmoji.name}
-                draggable={false}
-              />
-              <span style={{ fontSize: "0.9em" }}>{cat}</span>
-            </button>
-          );
-        })}
+        {categoryList.map(cat => (
+          <button
+            key={cat}
+            onClick={e => {
+              e.stopPropagation();
+              setActiveCategory(cat);
+            }}
+            className="emoji-category-button"
+          >
+            <img
+              src={demojis.getImage(categories[cat][0], 32)}
+              alt={categories[cat][0]}
+              draggable={false}
+            />
+            <span style={{ fontSize: "0.9em" }}>{cat}</span>
+          </button>
+        ))}
       </div>
 
       <div className="emoji-grid">
-        {categories[activeCategory].map(({ name, src }) => (
+        {categories[activeCategory].map(name => (
           <img
             key={name}
             alt={name}
             title={name}
-            src={src}
+            src={demojis.getImage(name, 64)}
             onClick={() => insertEmoji(name)}
             className="emoji-picker-item"
             draggable={false}

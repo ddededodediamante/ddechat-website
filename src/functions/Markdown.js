@@ -2,25 +2,20 @@ import MarkdownIt from "markdown-it";
 import { full as emoji } from "markdown-it-emoji";
 import hljs from "highlight.js";
 import "highlight.js/styles/atom-one-dark.css";
+import demojis from "demojis";
 
-const emojiModules = import.meta.glob("../static/emojis/*/*.png", {
-  eager: true,
-});
 export const emojiMap = {};
 
-for (const path in emojiModules) {
-  const match = path.match(/emojis\/([\w-]+)\/([\w-]+)\.png$/);
-  if (!match) continue;
-
-  const [, category, name] = match;
-  const file = emojiModules[path].default || emojiModules[path];
-
-  emojiMap[name] = { src: file, category };
+for (const [category, names] of Object.entries(demojis.categories)) {
+  for (const name of names) {
+    emojiMap[name] = {
+      src: demojis.getImage(name, 32),
+      category,
+    };
+  }
 }
 
-export const emojiList = Object.keys(emojiMap).sort((a, b) =>
-  a.localeCompare(b)
-);
+export const emojiList = demojis.all;
 
 const markdown = new MarkdownIt({
   breaks: true,
@@ -28,19 +23,16 @@ const markdown = new MarkdownIt({
   highlight: (str, lang) => {
     if (lang && hljs.getLanguage(lang)) {
       try {
-        return `<pre class="hljs"><code>${
-          hljs.highlight(str, { language: lang, ignoreIllegals: true }).value
-        }</code></pre>`;
-      } catch (__) {}
+        return `<pre class="hljs"><code>${hljs.highlight(str, { language: lang, ignoreIllegals: true }).value
+          }</code></pre>`;
+      } catch (__) { }
     }
-    return `<pre class="hljs"><code>${markdown.utils.escapeHtml(
-      str
-    )}</code></pre>`;
+    return `<pre class="hljs"><code>${markdown.utils.escapeHtml(str)}</code></pre>`;
   },
 })
   .disable("image")
   .use(emoji, {
-    defs: Object.fromEntries(emojiList.map((name) => [name, name])),
+    defs: Object.fromEntries(emojiList.map(name => [name, name])),
   })
   .use(function emojiPlugin(md) {
     md.renderer.rules.emoji = function (tokens, idx) {
