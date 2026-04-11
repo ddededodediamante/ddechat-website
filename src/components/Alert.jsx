@@ -3,7 +3,7 @@ import moment from "moment";
 import config from "../config.js";
 import { Link } from "react-router-dom";
 import Post from "./Post.jsx";
-import { getPost, savePost } from "../cache.ts";
+import { getPost, savePost, fetchUserCached } from "../cache.ts";
 import axios from "axios";
 
 async function fetchPost(id) {
@@ -15,13 +15,27 @@ async function fetchPost(id) {
     savePost(id, response.data);
     return response.data;
   } catch (error) {
-    console.error("Error fetching post data:", error);
+    if (error.response?.status !== 404) {
+      console.error("Error fetching post data:", error);
+    }
+    return null;
+  }
+}
+
+async function fetchAuthor(id) {
+  try {
+    return await fetchUserCached(id, config.apiUrl);
+  } catch (error) {
+    if (error?.response?.status !== 404) {
+      console.error("Error fetching author data:", error);
+    }
     return null;
   }
 }
 
 export default function Alert({ data }) {
   const [postData, setPostData] = useState(null);
+  const [authorData, setAuthorData] = useState(null);
 
   useEffect(() => {
     if (data.type === "repliedPost" && data.data?.postId) {
@@ -29,31 +43,41 @@ export default function Alert({ data }) {
     }
   }, [data]);
 
+  useEffect(() => {
+    if (data.author?.id) {
+      fetchAuthor(data.author.id).then(setAuthorData);
+    }
+  }, [data]);
+
+  const author = authorData || data.author;
+  const authorId = author?.id || data.author?.id;
+  const authorUsername = author?.username || data.author?.username || "Unknown";
+
   let message;
 
   switch (data.type) {
     case "postLike":
       message = (
         <p>
-          {data.author.username} liked your{" "}
+          {authorUsername} liked your{" "}
           <a href={`/post?id=${data.data?.postId}`}>post</a>.
         </p>
       );
       break;
 
     case "friendRequest":
-      message = <p>{data.author.username} wants to add you as a friend.</p>;
+      message = <p>{authorUsername} wants to add you as a friend.</p>;
       break;
 
     case "follow":
-      message = <p>{data.author.username} is now following you.</p>;
+      message = <p>{authorUsername} is now following you.</p>;
       break;
 
     case "repliedPost":
       message = (
         <>
           <p>
-            {data.author.username} made a{" "}
+            {authorUsername} made a{" "}
             <Link to={`/post?id=${data.data?.postId}`}>reply</Link> to your
             post.
           </p>
@@ -73,10 +97,13 @@ export default function Alert({ data }) {
       break;
 
     case "moderatorWarning":
-      message = <p>
-        <img src="/src/static/emojis/symbols/x.png" alt=":x:" class="emoji-inline" loading="lazy" />
-        {" Moderation warning: " + (data?.data?.reason || "Unknown reason.")}
-      </p>;
+      message = (
+        <p>
+          {/* FIX: class -> className */}
+          <img src="/src/static/emojis/symbols/x.png" alt=":x:" className="emoji-inline" loading="lazy" />
+          {" Moderation warning: " + (data?.data?.reason || "Unknown reason.")}
+        </p>
+      );
       break;
 
     default:
@@ -85,11 +112,11 @@ export default function Alert({ data }) {
 
   return (
     <div className={data.read === false ? "unread posts-post" : "posts-post"}>
-      {data?.author?.id && (
-        <Link to={`/user?id=${data.author.id}`}>
+      {authorId && (
+        <Link to={`/user?id=${authorId}`}>
           <img
             alt=""
-            src={`${config.apiUrl}/users/user/${data.author.id}/avatar`}
+            src={`${config.apiUrl}/users/user/${authorId}/avatar`}
             loading="lazy"
           />
         </Link>

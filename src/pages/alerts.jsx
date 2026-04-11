@@ -20,7 +20,7 @@ export default function Alerts() {
         setTimeout(() => {
           axios
             .patch(
-              `${config.apiUrl}/users/me/readAlerts`,
+              `${config.apiUrl}/users/alerts/read`,
               {},
               {
                 headers: {
@@ -29,11 +29,11 @@ export default function Alerts() {
               }
             )
             .then(() => {
-              cache["user"]["alerts"] = (
-                cache["user"]["alerts"] || []
-              ).forEach((i) => {
-                i.read = true;
-              });
+              if (Array.isArray(cache["user"]?.["alerts"])) {
+                cache["user"]["alerts"].forEach((i) => {
+                  i.read = true;
+                });
+              }
             })
             .catch((error) => {
               console.error(error);
@@ -58,7 +58,9 @@ export default function Alerts() {
           user.alerts && user.alerts.length > 0 ? (
             user.alerts
               .sort((a, b) => new Date(b.receivedOn) - new Date(a.receivedOn))
-              .map((i) => <Alert data={i} />)
+              .map((i, idx) => (
+                <Alert key={`${i.receivedOn}-${i.type}-${idx}`} data={i} />
+              ))
           ) : (
             "You have no notifications."
           )

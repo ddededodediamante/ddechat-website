@@ -1,3 +1,4 @@
+import React from "react";
 import axios from "axios";
 import Post from "../components/Post.jsx";
 import { useEffect, useState } from "react";
@@ -209,10 +210,10 @@ export default function Posts() {
             </select>
 
             {posts.map((post, index) => (
-              <>
+              <React.Fragment key={post.id || index}>
                 <Post data={post} showParentPost={true} />
                 {index !== posts.length - 1 && <div className="line" />}
-              </>
+              </React.Fragment>
             ))}
           </>
         ) : (
