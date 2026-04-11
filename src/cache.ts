@@ -10,7 +10,7 @@ export function getUserCached(): Promise<any> {
   if (userPromise) return userPromise;
 
   const token = localStorage.getItem("accountToken");
-  if (!token || token === "") return Promise.resolve(null);
+  if (!token || token === "") return Promise.reject(new Error("Missing token"));
 
   userPromise = axios.get(`${config.apiUrl}/users/me`, {
     headers: { Authorization: token },

@@ -27,13 +27,9 @@ export default function Userpage() {
 
   function updateFriendStatus(userData, targetId) {
     setFriendStatus({
-      pending: (userData?.friendrequests?.outgoing ?? []).some(
-        (v) => v.id === targetId
-      ),
-      incoming: (userData?.friendrequests?.incoming ?? []).some(
-        (v) => v.id === targetId
-      ),
-      friend: (userData?.friends ?? []).some((v) => v.id === targetId),
+      pending: (userData?.friendrequests?.outgoing ?? []).some(v => v.id === targetId),
+      incoming: (userData?.friendrequests?.incoming ?? []).some(v => v.id === targetId),
+      friend: (userData?.friends ?? []).some(v => v.id === targetId),
     });
   }
 
@@ -50,18 +46,19 @@ export default function Userpage() {
     const fetchUser = async () => {
       try {
         const { data: fetchedUser } = await axios.get(
-          `${config.apiUrl}/users/user/${userIdentity}`
+          `${config.apiUrl}/users/user/${userIdentity}`,
         );
         setUser(fetchedUser);
 
-        try {
-          const me = await getUserCached();
-          setLocalUser(me);
-          updateFriendStatus(me, fetchedUser.id);
-          setIsFollowing(me?.follow?.following?.some((u) => u.id === fetchedUser.id));
-        } catch (err) {
-          console.error("Error fetching local user:", err);
-        }
+        getUserCached()
+          .then(me => {
+            setLocalUser(me);
+            updateFriendStatus(me, fetchedUser.id);
+            setIsFollowing(me?.follow?.following?.some(u => u.id === fetchedUser.id));
+          })
+          .catch(err => {
+            console.error("Error fetching local user:", err);
+          });
       } catch (err) {
         console.error("Error fetching user:", err);
       } finally {
@@ -70,7 +67,7 @@ export default function Userpage() {
 
       try {
         const { data: postsArray } = await axios.get(
-          `${config.apiUrl}/users/user/${userIdentity}/posts`
+          `${config.apiUrl}/users/user/${userIdentity}/posts`,
         );
         setPosts(postsArray ?? []);
       } catch (err) {
@@ -93,10 +90,10 @@ export default function Userpage() {
           headers: {
             Authorization: localStorage.getItem("accountToken"),
           },
-        }
+        },
       )
-      .then(() => setFriendStatus((s) => ({ ...s, pending: true })))
-      .catch((err) => {
+      .then(() => setFriendStatus(s => ({ ...s, pending: true })))
+      .catch(err => {
         console.error("Error sending friend request:", err);
       })
       .finally(() => setFriendLoading(false));
@@ -111,8 +108,8 @@ export default function Userpage() {
           Authorization: localStorage.getItem("accountToken"),
         },
       })
-      .then(() => setFriendStatus((s) => ({ ...s, pending: false })))
-      .catch((err) => {
+      .then(() => setFriendStatus(s => ({ ...s, pending: false })))
+      .catch(err => {
         console.error("Error canceling friend request:", err);
       })
       .finally(() => setFriendLoading(false));
@@ -129,16 +126,16 @@ export default function Userpage() {
           headers: {
             Authorization: localStorage.getItem("accountToken"),
           },
-        }
+        },
       )
       .then(() =>
-        setFriendStatus((_) => ({
+        setFriendStatus(_ => ({
           friend: true,
           pending: false,
           incoming: false,
-        }))
+        })),
       )
-      .catch((err) => {
+      .catch(err => {
         console.error("Error accepting friend request:", err);
       })
       .finally(() => setFriendLoading(false));
@@ -154,13 +151,13 @@ export default function Userpage() {
         },
       })
       .then(() =>
-        setFriendStatus((_) => ({
+        setFriendStatus(_ => ({
           friend: false,
           pending: false,
           incoming: false,
-        }))
+        })),
       )
-      .catch((error) => {
+      .catch(error => {
         console.error("Error unfriending user:", error);
       })
       .finally(() => setFriendLoading(false));
@@ -175,10 +172,8 @@ export default function Userpage() {
           Authorization: localStorage.getItem("accountToken"),
         },
       })
-      .then(() =>
-        setFriendStatus((s) => ({ ...s, pending: false, incoming: false }))
-      )
-      .catch((err) => {
+      .then(() => setFriendStatus(s => ({ ...s, pending: false, incoming: false })))
+      .catch(err => {
         console.error("Error declining friend request:", err);
       })
       .finally(() => setFriendLoading(false));
@@ -193,13 +188,13 @@ export default function Userpage() {
         {},
         {
           headers: { Authorization: localStorage.getItem("accountToken") },
-        }
+        },
       )
-      .then((response) => {
+      .then(response => {
         cache["user"] = response.data;
         setLocalUser(response.data);
         setIsFollowing(true);
-        setUser((prev) => ({
+        setUser(prev => ({
           ...prev,
           follow: {
             ...prev.follow,
@@ -207,7 +202,7 @@ export default function Userpage() {
           },
         }));
       })
-      .catch((err) => console.error("Error following user:", err))
+      .catch(err => console.error("Error following user:", err))
       .finally(() => setFollowLoading(false));
   }
 
@@ -218,21 +213,19 @@ export default function Userpage() {
       .delete(`${config.apiUrl}/users/user/${userIdentity}/follow`, {
         headers: { Authorization: localStorage.getItem("accountToken") },
       })
-      .then((response) => {
+      .then(response => {
         cache["user"] = response.data;
         setLocalUser(response.data);
         setIsFollowing(false);
-        setUser((prev) => ({
+        setUser(prev => ({
           ...prev,
           follow: {
             ...prev.follow,
-            followers: (prev.follow?.followers ?? []).filter(
-              (id) => id !== localUser.id
-            ),
+            followers: (prev.follow?.followers ?? []).filter(id => id !== localUser.id),
           },
         }));
       })
-      .catch((err) => console.error("Error unfollowing user:", err))
+      .catch(err => console.error("Error unfollowing user:", err))
       .finally(() => setFollowLoading(false));
   }
 
@@ -310,9 +303,7 @@ export default function Userpage() {
             }}
           >
             {user?.id ? (
-              <div
-                style={{ width: "60px", height: "60px" }}
-              >
+              <div style={{ width: "60px", height: "60px" }}>
                 <img
                   alt=""
                   src={`${config.apiUrl}/users/user/${user.id}/avatar`}
@@ -333,9 +324,7 @@ export default function Userpage() {
               {user?.follow?.followers?.length > 0 && (
                 <>
                   {user.follow.followers.length}{" "}
-                  {user.follow.followers.length === 1
-                    ? "follower"
-                    : "followers"}
+                  {user.follow.followers.length === 1 ? "follower" : "followers"}
                   {" · "}
                 </>
               )}

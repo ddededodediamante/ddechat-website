@@ -11,6 +11,9 @@ export default function Alerts() {
   const [user, setUser] = useState(null);
 
   useEffect(() => {
+    const token = localStorage.getItem("accountToken");
+    if (!token) return navigate("/login");
+    
     getUserCached()
       .then(user => {
         setUser(user);
