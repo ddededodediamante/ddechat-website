@@ -22,7 +22,9 @@ export default function Toolbar() {
       .then(user => setUser(user))
       .catch(error => {
         setUser("error");
-        console.error(error);
+        if (error.message !== "Missing token") {
+          console.error(error);
+        }
       });
   }, []);
 

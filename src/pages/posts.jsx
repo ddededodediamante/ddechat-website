@@ -50,8 +50,11 @@ export default function Posts() {
   useEffect(() => {
     getUserCached()
       .then(user => setUser(user))
-      .catch(_ => {
+      .catch(error => {
         setUser("error");
+        if (error.message !== "Missing token") {
+          console.error(error);
+        }
       });
     fetchPosts(filter);
   }, [filter]);
