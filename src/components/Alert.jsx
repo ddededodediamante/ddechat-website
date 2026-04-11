@@ -23,6 +23,7 @@ async function fetchPost(id) {
 }
 
 async function fetchAuthor(id) {
+  if (!id) return null;
   try {
     return await fetchUserCached(id, config.apiUrl);
   } catch (error) {
@@ -44,13 +45,14 @@ export default function Alert({ data }) {
   }, [data]);
 
   useEffect(() => {
-    if (data.author?.id) {
-      fetchAuthor(data.author.id).then(setAuthorData);
+    const authorId = data.author?.id ?? postData?.authorId;
+    if (authorId) {
+      fetchAuthor(authorId).then(setAuthorData);
     }
-  }, [data]);
+  }, [data, postData]);
 
   const author = authorData || data.author;
-  const authorId = author?.id || data.author?.id;
+  const authorId = author?.id ?? postData?.authorId;
   const authorUsername = author?.username || data.author?.username || "Unknown";
 
   let message;
