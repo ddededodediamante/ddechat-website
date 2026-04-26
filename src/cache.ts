@@ -82,6 +82,9 @@ export function fetchPostCached(id: string, apiUrl: string) {
     .get(`${apiUrl}/posts/${id}`)
     .then((res) => {
       savePost(id, res.data);
+      if (res.data?.author) {
+        saveUser(res.data.author.id, res.data.author);
+      }
       return res.data;
     })
     .catch((err) => {
