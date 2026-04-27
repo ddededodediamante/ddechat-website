@@ -111,7 +111,7 @@ export default function Alert({ data }) {
         <Link to={`/user?id=${authorId}`}>
           <img
             alt=""
-            src={`${config.apiUrl}/users/user/${authorId}/avatar`}
+            src={`${config.apiUrl}/users/user/${authorId}/avatar?size=64`}
             loading="lazy"
           />
         </Link>

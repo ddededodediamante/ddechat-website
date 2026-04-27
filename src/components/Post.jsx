@@ -99,7 +99,7 @@ export default function Post({ data, noSocial = false, showParentPost = false, s
           <Link to={`/user?id=${author.id}`}>
             <img
               alt=""
-              src={`${config.apiUrl}/users/user/${author.id}/avatar`}
+              src={`${config.apiUrl}/users/user/${author.id}/avatar?size=64`}
               loading="lazy"
               onError={e => {
                 e.target.onerror = null;

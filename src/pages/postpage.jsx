@@ -299,7 +299,7 @@ export default function Postpage() {
                   >
                     <img
                       alt=""
-                      src={`${config.apiUrl}/users/user/${user.id}/avatar`}
+                      src={`${config.apiUrl}/users/user/${user.id}/avatar?size=64`}
                       width={60}
                       height={60}
                       style={{ borderRadius: "25%" }}

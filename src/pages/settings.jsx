@@ -334,7 +334,7 @@ export default function Settings() {
                     src={
                       avatarFileURI !== ""
                         ? avatarFileURI
-                        : `${config.apiUrl}/users/user/${user.id}/avatar`
+                        : `${config.apiUrl}/users/user/${user.id}/avatar?size=128`
                     }
                     style={{
                       borderRadius: "25%",

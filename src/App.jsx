@@ -24,11 +24,11 @@ export default function App() {
       document.documentElement.style.setProperty(property, value);
 
     let styleSettings = {
-      background: "#111",
-      midground: "#333",
-      foreground: "#555",
-      light: "#777",
-      font: "#fff",
+      background: "#111111",
+      midground: "#333333",
+      foreground: "#555555",
+      light: "#777777",
+      font: "#ffffff",
     };
 
     let layoutSettings = {
@@ -53,11 +53,11 @@ export default function App() {
       }
     } catch (_) {}
 
-    setStyle("--background", styleSettings?.background ?? "#111");
-    setStyle("--midground", styleSettings?.midground ?? "#333");
-    setStyle("--foreground", styleSettings?.foreground ?? "#555");
-    setStyle("--light", styleSettings?.light ?? "#777");
-    setStyle("--font", styleSettings?.font ?? "#fff");
+    setStyle("--background", styleSettings?.background ?? "#111111");
+    setStyle("--midground", styleSettings?.midground ?? "#333333");
+    setStyle("--foreground", styleSettings?.foreground ?? "#555555");
+    setStyle("--light", styleSettings?.light ?? "#777777");
+    setStyle("--font", styleSettings?.font ?? "#ffffff");
 
     window.theme = styleSettings;
     window.layout = layoutSettings;

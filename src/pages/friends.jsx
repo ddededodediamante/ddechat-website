@@ -4,7 +4,7 @@ import config from "../config.js";
 import { Link, useNavigate } from "react-router-dom";
 import moment from "moment";
 import Loading from "../components/Loading.jsx";
-import { getUserCached } from "../cache.js";
+import { refreshUserCached } from "../cache.js";
 import api from "../api.js";
 
 export default function Friends() {
@@ -12,7 +12,7 @@ export default function Friends() {
   const [user, setUser] = useState(null);
 
   useEffect(() => {
-    getUserCached()
+    refreshUserCached()
       .then(user => setUser(user))
       .catch(error => {
         console.error(error);
@@ -50,7 +50,7 @@ export default function Friends() {
                   <Link to={`/user?id=${f.id}`}>
                     <img
                       alt=""
-                      src={`${config.apiUrl}/users/user/${f.id}/avatar`}
+                      src={`${config.apiUrl}/users/user/${f.id}/avatar?size=64`}
                       loading="lazy"
                     />
                   </Link>

@@ -70,7 +70,7 @@ export default function Toolbar() {
             </Link>
             <Link to="/alerts" onClick={() => setMenuOpen(false)}>
               <i
-                className={`fa-solid fa-users ${(user?.alerts ?? []).some(i => i.read === false) ? "alertNewDot" : ""}`}
+                className={`fa-solid fa-bell ${(user?.alerts ?? []).some(i => i.read === false) ? "alertNewDot" : ""}`}
               />
               Alerts
             </Link>
@@ -98,7 +98,7 @@ export default function Toolbar() {
               <>
                 <img
                   alt=""
-                  src={`${config.apiUrl}/users/user/${user.id}/avatar`}
+                  src={`${config.apiUrl}/users/user/${user.id}/avatar?size=32`}
                   loading="lazy"
                 />
                 {user?.username ? (
@@ -146,7 +146,7 @@ export default function Toolbar() {
             </Link>
             <Link to="/alerts">
               <i
-                className={`fa-solid fa-users ${(user?.alerts ?? []).some(i => i.read === false) ? "alertNewDot" : ""}`}
+                className={`fa-solid fa-bell ${(user?.alerts ?? []).some(i => i.read === false) ? "alertNewDot" : ""}`}
               />
               Alerts
             </Link>
@@ -174,7 +174,7 @@ export default function Toolbar() {
               <>
                 <img
                   alt=""
-                  src={`${config.apiUrl}/users/user/${user.id}/avatar`}
+                  src={`${config.apiUrl}/users/user/${user.id}/avatar?size=32`}
                   loading="lazy"
                 />
                 {user?.username ? (

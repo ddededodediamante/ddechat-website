@@ -32,6 +32,7 @@ export function getUserCached(): Promise<any> {
 
 export function refreshUserCached(): Promise<any> {
   if (userPromise) return userPromise;
+  
   userPromise = api
     .get("/users/me")
     .then(data => {

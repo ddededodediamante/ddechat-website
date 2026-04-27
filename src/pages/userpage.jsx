@@ -265,7 +265,7 @@ export default function Userpage() {
               <div style={{ width: "60px", height: "60px" }}>
                 <img
                   alt=""
-                  src={`${config.apiUrl}/users/user/${user.id}/avatar`}
+                  src={`${config.apiUrl}/users/user/${user.id}/avatar?size=64`}
                   style={{ outline: "3px solid var(--background)" }}
                   loading="lazy"
                 />
