@@ -5,6 +5,7 @@ import { Link, useNavigate } from "react-router-dom";
 import moment from "moment";
 import Loading from "../components/Loading.jsx";
 import { getUserCached } from "../cache.js";
+import api from "../api.js";
 
 export default function Friends() {
   const navigate = useNavigate();
@@ -20,19 +21,15 @@ export default function Friends() {
   }, [navigate]);
 
   function handleUnfriend(friendId) {
-    axios
-      .delete(`${config.apiUrl}/users/user/${friendId}/friend`, {
-        headers: {
-          Authorization: localStorage.getItem("accountToken"),
-        },
-      })
+    api
+      .delete(`/users/user/${friendId}/friend`)
       .then(() => {
-        setUser((prevUser) => ({
+        setUser(prevUser => ({
           ...prevUser,
-          friends: prevUser.friends.filter((f) => f.id !== friendId),
+          friends: prevUser.friends.filter(f => f.id !== friendId),
         }));
       })
-      .catch((error) => {
+      .catch(error => {
         console.error("Error unfriending user:", error);
       });
   }
@@ -47,18 +44,20 @@ export default function Friends() {
         <div className="line" />
         {user ? (
           user.friends && user.friends.length > 0 ? (
-            user.friends.map((f) => (
+            user.friends.map(f => (
               <div className="posts-post" key={f.id}>
                 {f.id && (
                   <Link to={`/user?id=${f.id}`}>
-                    <img alt="" src={`${config.apiUrl}/users/user/${f.id}/avatar`} loading="lazy" />
+                    <img
+                      alt=""
+                      src={`${config.apiUrl}/users/user/${f.id}/avatar`}
+                      loading="lazy"
+                    />
                   </Link>
                 )}
                 <div className="vertical">
                   <p>{f.username}</p>
-                  <p className="grey">
-                    Friends since {moment(f.addedOn).fromNow()}
-                  </p>
+                  <p className="grey">Friends since {moment(f.addedOn).fromNow()}</p>
                 </div>
                 <div className="buttons">
                   <button
@@ -68,10 +67,7 @@ export default function Friends() {
                   >
                     Message
                   </button>
-                  <button
-                    className="danger"
-                    onClick={() => handleUnfriend(f.id)}
-                  >
+                  <button className="danger" onClick={() => handleUnfriend(f.id)}>
                     Unfriend
                   </button>
                 </div>

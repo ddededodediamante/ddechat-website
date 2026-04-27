@@ -5,6 +5,7 @@ import { useNavigate } from "react-router-dom";
 import Loading from "../components/Loading.jsx";
 import { getUserCached } from "../cache.ts";
 import Swal from "sweetalert2";
+import api from "../api.js";
 
 export default function Modpanel() {
   const navigate = useNavigate();
@@ -49,8 +50,6 @@ export default function Modpanel() {
     if (user && user.isModerator !== true) navigate("/posts");
   }, [user, navigate]);
 
-  const token = () => localStorage.getItem("accountToken");
-
   async function handleBulkDelete() {
     const params = {};
     if (author) params.author = author;
@@ -73,8 +72,7 @@ export default function Modpanel() {
     if (!confirm.isConfirmed) return;
 
     try {
-      const res = await axios.delete(`${config.apiUrl}/posts`, {
-        headers: { Authorization: token() },
+      const res = await api.delete(`/posts`, {
         params,
       });
       Swal.fire("Deleted!", `Deleted ${res.data.deletedCount} post(s).`, "success");
@@ -85,7 +83,8 @@ export default function Modpanel() {
   }
 
   async function handleUserBan() {
-    if (!banTarget.trim()) return Swal.fire("Error", "Please enter a target user.", "error");
+    if (!banTarget.trim())
+      return Swal.fire("Error", "Please enter a target user.", "error");
 
     const confirm = await Swal.fire({
       title: "Ban this user?",
@@ -99,11 +98,9 @@ export default function Modpanel() {
     if (!confirm.isConfirmed) return;
 
     try {
-      const res = await axios.post(
-        `${config.apiUrl}/users/mod/${encodeURIComponent(banTarget)}/ban`,
-        { reason: banReason },
-        { headers: { Authorization: token() } }
-      );
+      const res = await api.post(`/users/mod/${encodeURIComponent(banTarget)}/ban`, {
+        reason: banReason,
+      });
       Swal.fire("Banned", res.data.message, "success");
       setBanTarget("");
       setBanReason("");
@@ -113,13 +110,13 @@ export default function Modpanel() {
   }
 
   async function handleUserUnban() {
-    if (!unbanTarget.trim()) return Swal.fire("Error", "Please enter a target user.", "error");
+    if (!unbanTarget.trim())
+      return Swal.fire("Error", "Please enter a target user.", "error");
 
     try {
-      const res = await axios.post(
-        `${config.apiUrl}/users/mod/${encodeURIComponent(unbanTarget)}/unban`,
+      const res = await api.post(
+        `/users/mod/${encodeURIComponent(unbanTarget)}/unban`,
         {},
-        { headers: { Authorization: token() } }
       );
       Swal.fire("Unbanned", res.data.message, "success");
       setUnbanTarget("");
@@ -129,33 +126,37 @@ export default function Modpanel() {
   }
 
   async function handleReadOnly() {
-    if (!readonlyTarget.trim()) return Swal.fire("Error", "Please enter a target user.", "error");
+    if (!readonlyTarget.trim())
+      return Swal.fire("Error", "Please enter a target user.", "error");
 
     try {
-      const res = await axios.patch(
-        `${config.apiUrl}/users/mod/${encodeURIComponent(readonlyTarget)}/readonly`,
+      const res = await api.patch(
+        `/users/mod/${encodeURIComponent(readonlyTarget)}/readonly`,
         {},
-        { headers: { Authorization: token() } }
       );
       Swal.fire("Updated", res.data.message, "success");
       setReadonlyTarget("");
     } catch (err) {
-      Swal.fire("Error", err.response?.data?.error || "Failed to toggle read-only", "error");
+      Swal.fire(
+        "Error",
+        err.response?.data?.error || "Failed to toggle read-only",
+        "error",
+      );
     }
   }
 
   async function handleClearProfile() {
-    if (!profileTarget.trim()) return Swal.fire("Error", "Please enter a target user.", "error");
+    if (!profileTarget.trim())
+      return Swal.fire("Error", "Please enter a target user.", "error");
     if (!clearAvatar && !clearBanner && !clearBio)
       return Swal.fire("Error", "Select at least one field to clear.", "error");
 
     try {
-      const res = await axios.delete(
-        `${config.apiUrl}/users/mod/${encodeURIComponent(profileTarget)}/profile`,
+      const res = await api.delete(
+        `/users/mod/${encodeURIComponent(profileTarget)}/profile`,
         {
-          headers: { Authorization: token() },
           data: { avatar: clearAvatar, banner: clearBanner, bio: clearBio },
-        }
+        },
       );
       Swal.fire("Cleared", res.data.message, "success");
       setProfileTarget("");
@@ -163,20 +164,23 @@ export default function Modpanel() {
       setClearBanner(false);
       setClearBio(false);
     } catch (err) {
-      Swal.fire("Error", err.response?.data?.error || "Failed to clear profile fields", "error");
+      Swal.fire(
+        "Error",
+        err.response?.data?.error || "Failed to clear profile fields",
+        "error",
+      );
     }
   }
 
   async function handleWarn() {
-    if (!warnTarget.trim()) return Swal.fire("Error", "Please enter a target user.", "error");
+    if (!warnTarget.trim())
+      return Swal.fire("Error", "Please enter a target user.", "error");
     if (!warnReason.trim()) return Swal.fire("Error", "A reason is required.", "error");
 
     try {
-      const res = await axios.post(
-        `${config.apiUrl}/users/mod/${encodeURIComponent(warnTarget)}/warn`,
-        { reason: warnReason },
-        { headers: { Authorization: token() } }
-      );
+      const res = await api.post(`/users/mod/${encodeURIComponent(warnTarget)}/warn`, {
+        reason: warnReason,
+      });
       Swal.fire("Warning Issued", res.data.message, "success");
       setWarnTarget("");
       setWarnReason("");
@@ -186,32 +190,35 @@ export default function Modpanel() {
   }
 
   async function handleResetUsername() {
-    if (!usernameTarget.trim()) return Swal.fire("Error", "Please enter a target user.", "error");
-    if (!newUsername.trim()) return Swal.fire("Error", "Please enter a new username.", "error");
+    if (!usernameTarget.trim())
+      return Swal.fire("Error", "Please enter a target user.", "error");
+    if (!newUsername.trim())
+      return Swal.fire("Error", "Please enter a new username.", "error");
 
     try {
-      const res = await axios.patch(
-        `${config.apiUrl}/users/mod/${encodeURIComponent(usernameTarget)}/username`,
+      const res = await api.patch(
+        `/users/mod/${encodeURIComponent(usernameTarget)}/username`,
         { username: newUsername },
-        { headers: { Authorization: token() } }
       );
       Swal.fire("Updated", res.data.message, "success");
       setUsernameTarget("");
       setNewUsername("");
     } catch (err) {
-      Swal.fire("Error", err.response?.data?.error || "Failed to update username", "error");
+      Swal.fire(
+        "Error",
+        err.response?.data?.error || "Failed to update username",
+        "error",
+      );
     }
   }
 
   async function handleFindAlts() {
-    if (!altsTarget.trim()) return Swal.fire("Error", "Please enter a target user.", "error");
+    if (!altsTarget.trim())
+      return Swal.fire("Error", "Please enter a target user.", "error");
     setAltsLoading(true);
     setAltsResult(null);
     try {
-      const res = await axios.get(
-        `${config.apiUrl}/users/mod/${encodeURIComponent(altsTarget)}/alts`,
-        { headers: { Authorization: token() } }
-      );
+      const res = await api.get(`/users/mod/${encodeURIComponent(altsTarget)}/alts`);
       setAltsResult(res.data);
     } catch (err) {
       Swal.fire("Error", err.response?.data?.error || "Failed to fetch alts", "error");
@@ -256,14 +263,14 @@ export default function Modpanel() {
                 <input
                   type="text"
                   value={author}
-                  onChange={(e) => setAuthor(e.target.value)}
+                  onChange={e => setAuthor(e.target.value)}
                   placeholder="Enter ID..."
                 />
                 <label>Content</label>
                 <input
                   type="text"
                   value={content}
-                  onChange={(e) => setContent(e.target.value)}
+                  onChange={e => setContent(e.target.value)}
                   placeholder="Enter exact content..."
                 />
                 <button className="danger" onClick={handleBulkDelete}>
@@ -277,21 +284,22 @@ export default function Modpanel() {
                 <input
                   type="text"
                   value={banTarget}
-                  onChange={(e) => setBanTarget(e.target.value)}
+                  onChange={e => setBanTarget(e.target.value)}
                   placeholder="Enter username or ID..."
                 />
                 <label>Reason</label>
                 <input
                   type="text"
                   value={banReason}
-                  onChange={(e) => setBanReason(e.target.value)}
+                  onChange={e => setBanReason(e.target.value)}
                   placeholder="Reason for ban..."
                 />
                 <button className="danger" onClick={handleUserBan}>
                   <i className="fa-solid fa-gavel" /> Ban Permanently
                 </button>
                 <p className="mod-note">
-                  Note: This will automatically blacklist every IP address this user has ever logged in from.
+                  Note: This will automatically blacklist every IP address this user has
+                  ever logged in from.
                 </p>
 
                 <hr />
@@ -301,7 +309,7 @@ export default function Modpanel() {
                 <input
                   type="text"
                   value={unbanTarget}
-                  onChange={(e) => setUnbanTarget(e.target.value)}
+                  onChange={e => setUnbanTarget(e.target.value)}
                   placeholder="Enter username or ID..."
                 />
                 <button onClick={handleUserUnban}>
@@ -318,7 +326,7 @@ export default function Modpanel() {
                 <input
                   type="text"
                   value={readonlyTarget}
-                  onChange={(e) => setReadonlyTarget(e.target.value)}
+                  onChange={e => setReadonlyTarget(e.target.value)}
                   placeholder="Enter username or ID..."
                 />
                 <button onClick={handleReadOnly}>
@@ -332,14 +340,14 @@ export default function Modpanel() {
                 <input
                   type="text"
                   value={warnTarget}
-                  onChange={(e) => setWarnTarget(e.target.value)}
+                  onChange={e => setWarnTarget(e.target.value)}
                   placeholder="Enter username or ID..."
                 />
                 <label>Reason</label>
                 <input
                   type="text"
                   value={warnReason}
-                  onChange={(e) => setWarnReason(e.target.value)}
+                  onChange={e => setWarnReason(e.target.value)}
                   placeholder="Reason for warning..."
                 />
                 <button onClick={handleWarn}>
@@ -353,7 +361,7 @@ export default function Modpanel() {
                 <input
                   type="text"
                   value={profileTarget}
-                  onChange={(e) => setProfileTarget(e.target.value)}
+                  onChange={e => setProfileTarget(e.target.value)}
                   placeholder="Enter username or ID..."
                 />
                 <label>Fields to Clear</label>
@@ -367,7 +375,7 @@ export default function Modpanel() {
                       <input
                         type="checkbox"
                         checked={state}
-                        onChange={(e) => setter(e.target.checked)}
+                        onChange={e => setter(e.target.checked)}
                       />
                       {label}
                     </label>
@@ -384,14 +392,14 @@ export default function Modpanel() {
                 <input
                   type="text"
                   value={usernameTarget}
-                  onChange={(e) => setUsernameTarget(e.target.value)}
+                  onChange={e => setUsernameTarget(e.target.value)}
                   placeholder="Enter username or ID..."
                 />
                 <label>New Username</label>
                 <input
                   type="text"
                   value={newUsername}
-                  onChange={(e) => setNewUsername(e.target.value)}
+                  onChange={e => setNewUsername(e.target.value)}
                   placeholder="Enter new username..."
                 />
                 <button onClick={handleResetUsername}>
@@ -405,32 +413,37 @@ export default function Modpanel() {
                 <input
                   type="text"
                   value={altsTarget}
-                  onChange={(e) => { setAltsTarget(e.target.value); setAltsResult(null); }}
+                  onChange={e => {
+                    setAltsTarget(e.target.value);
+                    setAltsResult(null);
+                  }}
                   placeholder="Enter username or ID..."
-                  onKeyDown={(e) => e.key === "Enter" && handleFindAlts()}
+                  onKeyDown={e => e.key === "Enter" && handleFindAlts()}
                 />
                 <button onClick={handleFindAlts} disabled={altsLoading}>
-                  <i className={`fa-solid ${altsLoading ? "fa-spinner fa-spin" : "fa-magnifying-glass"}`} /> {altsLoading ? "Searching..." : "Find Alts"}
+                  <i
+                    className={`fa-solid ${altsLoading ? "fa-spinner fa-spin" : "fa-magnifying-glass"}`}
+                  />{" "}
+                  {altsLoading ? "Searching..." : "Find Alts"}
                 </button>
 
                 {altsResult && (
                   <div className="mod-alts-result">
                     <p className="mod-alts-summary">
-                      Checked {altsResult.checkedIps} IP(s) and found {altsResult.alts.length} alt account(s)
+                      Checked {altsResult.checkedIps} IP(s) and found{" "}
+                      {altsResult.alts.length} alt account(s)
                     </p>
                     {altsResult.alts.length === 0 ? (
                       <p className="mod-empty">No alt accounts found.</p>
                     ) : (
                       <div className="mod-alts-list">
-                        {altsResult.alts.map((alt) => (
+                        {altsResult.alts.map(alt => (
                           <div key={alt.id} className="mod-alt-card">
                             <div className="mod-alt-card-header">
                               <strong>{alt.username}</strong>
                               <span className="mod-alt-id">ID: {alt.id}</span>
                               {alt.banned && (
-                                <span className="mod-alt-banned">
-                                  banned
-                                </span>
+                                <span className="mod-alt-banned">banned</span>
                               )}
                             </div>
                             <span className="mod-alt-ips">

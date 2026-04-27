@@ -1,6 +1,6 @@
-import axios from "axios";
 import { useEffect, useRef, useState } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
+import api from "../api.js";
 import config from "../config.js";
 import Loading from "../components/Loading.jsx";
 import Message from "../components/Message.jsx";
@@ -23,41 +23,34 @@ export default function Directmessage() {
     if (user !== null || localUser !== null) return;
 
     if (userId && userId !== "") {
-      axios
-        .get(`${config.apiUrl}/users/user/${userId}`)
-        .then((data) => {
+      api
+        .get(`/users/user/${userId}`)
+        .then(data => {
           setUser(data.data);
 
-          const token = localStorage.getItem("accountToken");
-          if (token) {
-            axios
-              .get(`${config.apiUrl}/users/me`, {
-                headers: {
-                  Authorization: token,
-                },
-              })
-              .then((data) => {
-                setLocalUser(data.data);
-                setMessages(
-                  data.data?.messages?.find((i) => i?.author?.id === userId)
-                    ?.contents ?? []
-                );
+          api
+            .get("/users/me")
+            .then(data => {
+              setLocalUser(data.data);
+              setMessages(
+                data.data?.messages?.find(i => i?.author?.id === userId)?.contents ?? [],
+              );
 
-                setTimeout(() => {
-                  let panel = document.querySelector(".panel-content");
-                  panel.scrollTo({
-                    top: panel.scrollHeight,
-                    behavior: "instant",
-                  });
-                }, 200);
-              })
-              .catch((error) => {
-                console.error("Error fetching local user data:", error);
-                navigate("/");
-              });
-          }
+              if (userId) {
+                api.patch("/users/me/readDM", { senderId: userId }).catch(console.error);
+              }
+
+              setTimeout(() => {
+                let panel = document.querySelector(".panel-content");
+                panel.scrollTo({ top: panel.scrollHeight, behavior: "instant" });
+              }, 200);
+            })
+            .catch(error => {
+              console.error("Error fetching local user data:", error);
+              navigate("/");
+            });
         })
-        .catch((error) => {
+        .catch(error => {
           console.error("Error fetching user data:", error);
           navigate("/");
         });
@@ -67,9 +60,7 @@ export default function Directmessage() {
   useEffect(() => {
     if (socket.current || !localUser?.id || !user?.id) return;
 
-    const newSocket = new WebSocket(
-      config.apiUrl.replace(/^http/, "ws") + "/users/dm"
-    );
+    const newSocket = new WebSocket(config.apiUrl.replace(/^http/, "ws") + "/users/dm");
     socket.current = newSocket;
 
     const notificationSound = new Audio("/files/notification.wav");
@@ -77,23 +68,22 @@ export default function Directmessage() {
 
     newSocket.onopen = () => {
       console.log("Connected to DMs websocket");
-      
+
       newSocket.send(
         JSON.stringify({
           type: "dm:join",
-          token: localStorage.getItem("accountToken"),
+          token: "cookie",
           recipientId: userId,
-        })
+        }),
       );
     };
 
-    newSocket.onmessage = (event) => {
+    newSocket.onmessage = event => {
       const { type, message } = JSON.parse(event.data);
 
       if (type === "dm:receive") {
         if (!message.username) {
-          if (message.userId === localUser.id)
-            message.username = localUser.username;
+          if (message.userId === localUser.id) message.username = localUser.username;
           else if (message.userId === user.id) message.username = user.username;
           else return;
         }
@@ -104,7 +94,7 @@ export default function Directmessage() {
 
         if (!document.hasFocus()) notificationSound.play();
 
-        setMessages((m) => [...m, message]);
+        setMessages(m => [...m, message]);
 
         setTimeout(() => {
           if (atBottomScroll) {
@@ -127,7 +117,7 @@ export default function Directmessage() {
         socket.current = null;
       }
     };
-  }, [userId, localUser, user?.id, user?.username]);  
+  }, [userId, localUser, user?.id, user?.username]);
 
   function sendMessage() {
     document.querySelector("div.horizontal textarea#postText").value = "";
@@ -140,7 +130,7 @@ export default function Directmessage() {
           content: messageContent,
           effect,
           spoiler,
-        })
+        }),
       );
     } else {
       console.warn("WebSocket is not open");
@@ -149,7 +139,7 @@ export default function Directmessage() {
     setMessageContent("");
     setEffect("");
     setSpoiler(false);
-  }  
+  }
 
   window.addEventListener("beforeunload", () => {
     if (socket !== null) socket.close();
@@ -163,7 +153,7 @@ export default function Directmessage() {
       <div className="panel-content" style={{ overflowX: "hidden" }}>
         {user?.id && localUser?.id ? (
           <>
-            {messages.map((p) => (
+            {messages.map(p => (
               <Message data={p} />
             ))}
 
@@ -180,8 +170,8 @@ export default function Directmessage() {
                 placeholder="Send a message"
                 maxLength={1000}
                 value={messageContent}
-                onChange={(e) => setMessageContent(e.target.value)}
-                onKeyDown={(e) => {
+                onChange={e => setMessageContent(e.target.value)}
+                onKeyDown={e => {
                   if (e.key === "Enter" && !e.shiftKey) {
                     e.preventDefault();
                     sendMessage();
@@ -197,15 +187,18 @@ export default function Directmessage() {
                   effect === "zoomIn" ? setEffect("") : setEffect("zoomIn")
                 }
               >
-                <img src="/files/megaphone.png" height={"28px"} alt="zoomIn" loading="lazy" />
+                <img
+                  src="/files/megaphone.png"
+                  height={"28px"}
+                  alt="zoomIn"
+                  loading="lazy"
+                />
               </button>
               <button
                 style={{
                   ...(effect === "glow" ? { backgroundColor: "#555" } : {}),
                 }}
-                onClick={() =>
-                  effect === "glow" ? setEffect("") : setEffect("glow")
-                }
+                onClick={() => (effect === "glow" ? setEffect("") : setEffect("glow"))}
               >
                 <img src="/files/star.png" height={"28px"} alt="glow" loading="lazy" />
               </button>
@@ -213,11 +206,14 @@ export default function Directmessage() {
                 style={{
                   ...(effect === "loud" ? { backgroundColor: "#555" } : {}),
                 }}
-                onClick={() =>
-                  effect === "loud" ? setEffect("") : setEffect("loud")
-                }
+                onClick={() => (effect === "loud" ? setEffect("") : setEffect("loud"))}
               >
-                <img src="/files/angerbubble.png" height={"28px"} alt="loud" loading="lazy" />
+                <img
+                  src="/files/angerbubble.png"
+                  height={"28px"}
+                  alt="loud"
+                  loading="lazy"
+                />
               </button>
               <button
                 style={{ ...(spoiler ? { backgroundColor: "#555" } : {}) }}

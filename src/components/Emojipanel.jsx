@@ -2,7 +2,7 @@ import { useState, useEffect, useRef } from "react";
 import { emojiMap } from "../functions/Markdown";
 import demojis from "demojis";
 
-export default function EmojiPanel({ close = () => { } }) {
+export default function EmojiPanel({ close = () => {} }) {
   const [targetInput, setTargetInput] = useState(null);
   const panelRef = useRef(null);
 

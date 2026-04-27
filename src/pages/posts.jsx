@@ -8,6 +8,7 @@ import { useNavigate } from "react-router-dom";
 import { getUserCached, savePost } from "../cache.ts";
 import markdown from "../functions/Markdown.js";
 import EmojiPanel from "../components/Emojipanel.jsx";
+import api from "../api.js";
 
 export default function Posts() {
   const navigate = useNavigate();
@@ -33,12 +34,8 @@ export default function Posts() {
     else if (filter === "hasReplies") query = "?hasReplies=true";
     else if (filter === "noReplies") query = "?hasReplies=false";
 
-    axios
-      .get(`${config.apiUrl}/posts/latest${query}`, {
-        headers: {
-          Authorization: token,
-        },
-      })
+    api
+      .get(`/posts/latest${query}`)
       .then(data => {
         setLoading(false);
         setPosts(data.data);
@@ -65,17 +62,9 @@ export default function Posts() {
     setPosting(true);
 
     axios
-      .post(
-        config.apiUrl + "/posts",
-        {
-          content: postContent.trim(),
-        },
-        {
-          headers: {
-            Authorization: localStorage.getItem("accountToken"),
-          },
-        },
-      )
+      .post(config.apiUrl + "/posts", {
+        content: postContent.trim(),
+      })
       .then(data => {
         savePost(data.data.id, data.data);
         navigate(`/post?id=${data.data.id}`);
@@ -190,7 +179,7 @@ export default function Posts() {
           ) : (
             <p>Login to send posts.</p>
           ))}
-        {(user === null && !loading) && <Loading size="2rem" />}
+        {user === null && !loading && <Loading size="2rem" />}
         {(user !== null || !loading) && <div className="line" />}
 
         {loading ? (

@@ -6,6 +6,7 @@ import moment from "moment";
 import Loading from "../components/Loading.jsx";
 import Post from "../components/Post.jsx";
 import cache, { getUserCached } from "../cache.ts";
+import api from "../api.js";
 
 export default function Userpage() {
   const [user, setUser] = useState(null);
@@ -34,9 +35,7 @@ export default function Userpage() {
   }
 
   async function fetchLocalUser(token) {
-    const res = await axios.get(`${config.apiUrl}/users/me`, {
-      headers: { Authorization: token },
-    });
+    const res = await api.get(`/users/me`);
     return res.data;
   }
 
@@ -45,9 +44,7 @@ export default function Userpage() {
 
     const fetchUser = async () => {
       try {
-        const { data: fetchedUser } = await axios.get(
-          `${config.apiUrl}/users/user/${userIdentity}`,
-        );
+        const { data: fetchedUser } = await api.get(`/users/user/${userIdentity}`);
         setUser(fetchedUser);
 
         getUserCached()
@@ -66,9 +63,7 @@ export default function Userpage() {
       }
 
       try {
-        const { data: postsArray } = await axios.get(
-          `${config.apiUrl}/users/user/${userIdentity}/posts`,
-        );
+        const { data: postsArray } = await api.get(`/users/user/${userIdentity}/posts`);
         setPosts(postsArray ?? []);
       } catch (err) {
         console.error("Error fetching posts:", err);
@@ -82,16 +77,8 @@ export default function Userpage() {
   function sendFriendRequest() {
     if (!user?.id || user.id === localUser?.id) return;
     setFriendLoading(true);
-    axios
-      .post(
-        `${config.apiUrl}/users/user/${userIdentity}/friendRequest`,
-        {},
-        {
-          headers: {
-            Authorization: localStorage.getItem("accountToken"),
-          },
-        },
-      )
+    api
+      .post(`/users/user/${userIdentity}/friendRequest`, {})
       .then(() => setFriendStatus(s => ({ ...s, pending: true })))
       .catch(err => {
         console.error("Error sending friend request:", err);
@@ -102,12 +89,8 @@ export default function Userpage() {
   function cancelFriendRequest() {
     if (!user?.id || user.id === localUser?.id) return;
     setFriendLoading(true);
-    axios
-      .delete(`${config.apiUrl}/users/user/${userIdentity}/friendRequest`, {
-        headers: {
-          Authorization: localStorage.getItem("accountToken"),
-        },
-      })
+    api
+      .delete(`/users/user/${userIdentity}/friendRequest`)
       .then(() => setFriendStatus(s => ({ ...s, pending: false })))
       .catch(err => {
         console.error("Error canceling friend request:", err);
@@ -118,16 +101,8 @@ export default function Userpage() {
   function addFriend() {
     if (!user?.id || user.id === localUser?.id) return;
     setFriendLoading(true);
-    axios
-      .post(
-        `${config.apiUrl}/users/user/${userIdentity}/friendRequestAction`,
-        {},
-        {
-          headers: {
-            Authorization: localStorage.getItem("accountToken"),
-          },
-        },
-      )
+    api
+      .post(`/users/user/${userIdentity}/friendRequestAction`, {})
       .then(() =>
         setFriendStatus(_ => ({
           friend: true,
@@ -144,12 +119,8 @@ export default function Userpage() {
   function removeFriend() {
     if (!user?.id || user.id === localUser?.id) return;
     setFriendLoading(true);
-    axios
-      .delete(`${config.apiUrl}/users/user/${userIdentity}/friend`, {
-        headers: {
-          Authorization: localStorage.getItem("accountToken"),
-        },
-      })
+    api
+      .delete(`/users/user/${userIdentity}/friend`)
       .then(() =>
         setFriendStatus(_ => ({
           friend: false,
@@ -166,12 +137,8 @@ export default function Userpage() {
   function declineFriend() {
     if (!user?.id || user.id === localUser?.id) return;
     setFriendLoading(true);
-    axios
-      .delete(`${config.apiUrl}/users/user/${userIdentity}/friendRequestAction`, {
-        headers: {
-          Authorization: localStorage.getItem("accountToken"),
-        },
-      })
+    api
+      .delete(`/users/user/${userIdentity}/friendRequestAction`)
       .then(() => setFriendStatus(s => ({ ...s, pending: false, incoming: false })))
       .catch(err => {
         console.error("Error declining friend request:", err);
@@ -182,14 +149,8 @@ export default function Userpage() {
   function followUser() {
     if (!user?.id || user.id === localUser?.id) return;
     setFollowLoading(true);
-    axios
-      .post(
-        `${config.apiUrl}/users/user/${userIdentity}/follow`,
-        {},
-        {
-          headers: { Authorization: localStorage.getItem("accountToken") },
-        },
-      )
+    api
+      .post(`/users/user/${userIdentity}/follow`, {})
       .then(response => {
         cache["user"] = response.data;
         setLocalUser(response.data);
@@ -209,10 +170,8 @@ export default function Userpage() {
   function unfollowUser() {
     if (!user?.id || user.id === localUser?.id) return;
     setFollowLoading(true);
-    axios
-      .delete(`${config.apiUrl}/users/user/${userIdentity}/follow`, {
-        headers: { Authorization: localStorage.getItem("accountToken") },
-      })
+    api
+      .delete(`/users/user/${userIdentity}/follow`)
       .then(response => {
         cache["user"] = response.data;
         setLocalUser(response.data);

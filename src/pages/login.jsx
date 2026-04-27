@@ -1,12 +1,14 @@
 import axios from "axios";
 import config from "../config.js";
-import { Link } from "react-router-dom";
+import api from "../api.js";
+import { Link, useNavigate } from "react-router-dom";
 import Swal from "sweetalert2";
 import { useEffect, useState } from "react";
 
 import Loading from "../components/Loading.jsx";
 
 export default function Login() {
+  const navigate = useNavigate();
   const [usernameInput, setUsernameInput] = useState("");
   const [passwordInput, setPasswordInput] = useState("");
   const [valid, setValid] = useState(false);
@@ -24,24 +26,21 @@ export default function Login() {
   async function loginButton() {
     if (!valid) return;
 
-    const username = document.querySelector(
-      '.login-form input[type="text"]'
-    ).value;
-    const password = document.querySelector(
-      '.login-form input[type="password"]'
-    ).value;
+    const username = document.querySelector('.login-form input[type="text"]').value;
+    const password = document.querySelector('.login-form input[type="password"]').value;
 
     setLoading(true);
 
     await axios
-      .put(config.apiUrl + "/users/login", { username, password })
-      .then(data => {
-        setLoading(false);
-        localStorage.setItem("accountToken", data.data.token);
-        window.location.href = "/posts";
+      .put(
+        config.apiUrl + "/users/login",
+        { username, password },
+        { withCredentials: true },
+      )
+      .then(() => {
+        navigate("/posts");
       })
       .catch(error => {
-        setLoading(false);
         console.error(error);
 
         return Swal.fire({
@@ -49,15 +48,12 @@ export default function Login() {
           text: error?.response?.data?.error ?? error,
           animation: true,
         });
-      });
+      })
+      .finally(() => setLoading(false));
   }
 
   function githubLogin() {
-    const token = localStorage.getItem("accountToken");
-    const authUrl = `${config.apiUrl}/auth/github${
-      token ? `?token=${token}` : ""
-    }`;
-    window.location.href = authUrl;
+    window.location.href = `${config.apiUrl}/auth/github`;
   }
 
   return (

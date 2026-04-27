@@ -1,43 +1,29 @@
-import axios from "axios";
 import Alert from "../components/Alert.jsx";
 import { useEffect, useState } from "react";
-import config from "../config.js";
 import { useNavigate } from "react-router-dom";
 import Loading from "../components/Loading.jsx";
 import cache, { getUserCached } from "../cache.ts";
+import api from "../api.js";
 
 export default function Alerts() {
   const navigate = useNavigate();
   const [user, setUser] = useState(null);
 
   useEffect(() => {
-    const token = localStorage.getItem("accountToken");
-    if (!token) return navigate("/login");
-    
     getUserCached()
       .then(user => {
         setUser(user);
         setTimeout(() => {
-          axios
-            .patch(
-              `${config.apiUrl}/users/alerts/read`,
-              {},
-              {
-                headers: {
-                  Authorization: token,
-                },
-              }
-            )
+          api
+            .patch("/users/alerts/read", {})
             .then(() => {
               if (Array.isArray(cache["user"]?.["alerts"])) {
-                cache["user"]["alerts"].forEach((i) => {
+                cache["user"]["alerts"].forEach(i => {
                   i.read = true;
                 });
               }
             })
-            .catch((error) => {
-              console.error(error);
-            });
+            .catch(console.error);
         }, 1000);
       })
       .catch(error => {

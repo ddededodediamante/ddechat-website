@@ -1,11 +1,12 @@
 import axios from "axios";
 import config from "../config.js";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import Swal from "sweetalert2";
 import { useEffect, useState } from "react";
 import Loading from "../components/Loading.jsx";
 
-export default function Login() {
+export default function Sign() {
+  const navigate = useNavigate();
   const [usernameInput, setUsernameInput] = useState("");
   const [passwordInput, setPasswordInput] = useState("");
   const [valid, setValid] = useState(false);
@@ -23,24 +24,21 @@ export default function Login() {
   async function signButton() {
     if (!valid) return;
 
-    const username = document.querySelector(
-      '.login-form input[type="text"]'
-    ).value;
-    const password = document.querySelector(
-      '.login-form input[type="password"]'
-    ).value;
+    const username = document.querySelector('.login-form input[type="text"]').value;
+    const password = document.querySelector('.login-form input[type="password"]').value;
 
     setLoading(true);
 
     await axios
-      .post(config.apiUrl + "/users/create", { username, password })
-      .then((data) => {
-        setLoading(false);
-        localStorage.setItem("accountToken", data.data.token);
-        window.location.href = "/posts";
+      .post(
+        config.apiUrl + "/users/create",
+        { username, password },
+        { withCredentials: true },
+      )
+      .then(() => {
+        navigate("/posts");
       })
-      .catch((error) => {
-        setLoading(false);
+      .catch(error => {
         console.error(error);
 
         return Swal.fire({
@@ -48,15 +46,12 @@ export default function Login() {
           text: error?.response?.data?.error ?? error,
           animation: true,
         });
-      });
+      })
+      .finally(() => setLoading(false));
   }
 
   function githubLogin() {
-    const token = localStorage.getItem("accountToken");
-    const authUrl = `${config.apiUrl}/auth/github${
-      token ? `?token=${token}` : ""
-    }`;
-    window.location.href = authUrl;
+    window.location.href = `${config.apiUrl}/auth/github`;
   }
 
   return (
@@ -75,7 +70,7 @@ export default function Login() {
             maxLength={20}
             minLength={3}
             required={true}
-            onInput={(e) => setUsernameInput(e.currentTarget.value)}
+            onInput={e => setUsernameInput(e.currentTarget.value)}
           />
           <input
             type="password"
@@ -83,7 +78,7 @@ export default function Login() {
             maxLength={50}
             minLength={8}
             required={true}
-            onInput={(e) => setPasswordInput(e.currentTarget.value)}
+            onInput={e => setPasswordInput(e.currentTarget.value)}
           />
           <button onClick={signButton} disabled={!valid || loading}>
             Sign Up
@@ -99,8 +94,7 @@ export default function Login() {
         </div>
 
         <p>
-          By creating an account, you agree to our{" "}
-          <a href="/tos">Terms of Service</a>.
+          By creating an account, you agree to our <a href="/tos">Terms of Service</a>.
         </p>
       </div>
     </>

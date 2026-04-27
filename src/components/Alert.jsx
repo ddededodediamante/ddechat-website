@@ -5,31 +5,18 @@ import { Link } from "react-router-dom";
 import Post from "./Post.jsx";
 import { getPost, savePost, fetchUserCached } from "../cache.ts";
 import axios from "axios";
+import api from "../api.js";
+import demojis from "demojis";
 
 async function fetchPost(id) {
   const cachedPost = getPost(id);
   if (cachedPost) return cachedPost;
-
   try {
-    const response = await axios.get(`${config.apiUrl}/posts/${id}`);
+    const response = await api.get(`/posts/${id}`);
     savePost(id, response.data);
     return response.data;
   } catch (error) {
-    if (error.response?.status !== 404) {
-      console.error("Error fetching post data:", error);
-    }
-    return null;
-  }
-}
-
-async function fetchAuthor(id) {
-  if (!id) return null;
-  try {
-    return await fetchUserCached(id, config.apiUrl);
-  } catch (error) {
-    if (error?.response?.status !== 404) {
-      console.error("Error fetching author data:", error);
-    }
+    console.error(error);
     return null;
   }
 }
@@ -45,9 +32,13 @@ export default function Alert({ data }) {
   }, [data]);
 
   useEffect(() => {
-    const authorId = data.author?.id ?? postData?.authorId;
-    if (authorId) {
-      fetchAuthor(authorId).then(setAuthorData);
+    const authorId = data?.author?.id || postData?.authorId;
+    if (data.author && authorId) {
+      if (data.author.username) {
+        setAuthorData(data.author);
+      } else {
+        fetchUserCached(authorId).then(setAuthorData);
+      }
     }
   }, [data, postData]);
 
@@ -61,8 +52,7 @@ export default function Alert({ data }) {
     case "postLike":
       message = (
         <p>
-          {authorUsername} liked your{" "}
-          <a href={`/post?id=${data.data?.postId}`}>post</a>.
+          {authorUsername} liked your <a href={`/post?id=${data.data?.postId}`}>post</a>.
         </p>
       );
       break;
@@ -80,8 +70,7 @@ export default function Alert({ data }) {
         <>
           <p>
             {authorUsername} made a{" "}
-            <Link to={`/post?id=${data.data?.postId}`}>reply</Link> to your
-            post.
+            <Link to={`/post?id=${data.data?.postId}`}>reply</Link> to your post.
           </p>
           {postData && (
             <Post
@@ -101,8 +90,12 @@ export default function Alert({ data }) {
     case "moderatorWarning":
       message = (
         <p>
-          {/* FIX: class -> className */}
-          <img src="/src/static/emojis/symbols/x.png" alt=":x:" className="emoji-inline" loading="lazy" />
+          <img
+            src={demojis.getImage("x", 128)}
+            alt=":x:"
+            className="emoji-inline"
+            loading="lazy"
+          />
           {" Moderation warning: " + (data?.data?.reason || "Unknown reason.")}
         </p>
       );

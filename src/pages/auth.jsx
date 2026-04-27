@@ -35,8 +35,7 @@ export default function Auth() {
         <>
           <p>A new account has been created for you automatically.</p>
           <p>
-            Your temporary password is:{" "}
-            <code>{password ?? "unknown"}</code>
+            Your temporary password is: <code>{password ?? "unknown"}</code>
           </p>
           <p className="grey">
             Please change your password as soon as possible for security reasons.

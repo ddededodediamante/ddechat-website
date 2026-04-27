@@ -8,6 +8,7 @@ import Swal from "sweetalert2";
 import cache, { savePost, getPost, getUserCached } from "../cache.ts";
 import markdown from "../functions/Markdown.js";
 import EmojiPanel from "../components/Emojipanel.jsx";
+import api from "../api.js";
 
 export default function Postpage() {
   const navigate = useNavigate();
@@ -37,17 +38,17 @@ export default function Postpage() {
     setParentPost(null);
     setParentPostLoading(false);
 
-    const fetchParent = (parentId) => {
+    const fetchParent = parentId => {
       setParentPostLoading(true);
 
       if (!getPost(parentId)) {
-        axios
-          .get(`${config.apiUrl}/posts/${parentId}`)
-          .then((parentRes) => {
+        api
+          .get(`/posts/${parentId}`)
+          .then(parentRes => {
             savePost(parentId, parentRes.data);
             setParentPost(parentRes.data);
           })
-          .catch((error) => {
+          .catch(error => {
             console.error("Error fetching parent post:", error);
             setParentPost(null);
           })
@@ -61,9 +62,9 @@ export default function Postpage() {
     };
 
     if (!getPost(id)) {
-      axios
-        .get(`${config.apiUrl}/posts/${id}`)
-        .then((res) => {
+      api
+        .get(`/posts/${id}`)
+        .then(res => {
           savePost(id, res.data);
           setPost(res.data);
           if (user) {
@@ -75,7 +76,7 @@ export default function Postpage() {
             setParentPost(null);
           }
         })
-        .catch((error) => {
+        .catch(error => {
           console.error("Error fetching post data:", error);
           setPost(null);
           setParentPost(null);
@@ -98,18 +99,14 @@ export default function Postpage() {
     if (e.target.disabled) return;
     const token = localStorage.getItem("accountToken");
     if (token) {
-      axios
-        .patch(
-          `${config.apiUrl}/posts/${id}/like`,
-          {},
-          { headers: { Authorization: token } }
-        )
-        .then((res) => {
+      api
+        .patch(`/posts/${id}/like`, {})
+        .then(res => {
           setPost(res.data);
           setLiked(res.data.liked);
           savePost(id, res.data);
         })
-        .catch((error) => {
+        .catch(error => {
           console.error("Error toggling like:", error);
         });
     }
@@ -124,12 +121,10 @@ export default function Postpage() {
       icon: "warning",
       showCancelButton: true,
       confirmButtonText: "Confirm",
-    }).then((result) => {
+    }).then(result => {
       if (result.isConfirmed) {
-        axios
-          .delete(`${config.apiUrl}/posts/${id}`, {
-            headers: { Authorization: localStorage.getItem("accountToken") },
-          })
+        api
+          .delete(`/posts/${id}`)
           .then(() => {
             const posts = cache?.posts;
 
@@ -146,7 +141,7 @@ export default function Postpage() {
 
             navigate("/posts");
           })
-          .catch((error) => {
+          .catch(error => {
             console.error("Error deleting post:", error);
           });
       }
@@ -165,30 +160,24 @@ export default function Postpage() {
       },
       showCancelButton: true,
       confirmButtonText: "Save",
-      preConfirm: (newContent) => {
+      preConfirm: newContent => {
         if (!newContent || newContent.trim().length === 0) {
           Swal.showValidationMessage("Content can't be empty");
           return false;
         }
         if (newContent.length > 2000) {
-          Swal.showValidationMessage(
-            "Content is too long (max 2000 characters)."
-          );
+          Swal.showValidationMessage("Content is too long (max 2000 characters).");
           return false;
         }
 
-        return axios
-          .patch(
-            `${config.apiUrl}/posts/${id}`,
-            { content: newContent },
-            { headers: { Authorization: localStorage.getItem("accountToken") } }
-          )
-          .then((res) => {
+        return api
+          .patch(`/posts/${id}`, { content: newContent })
+          .then(res => {
             setPost(res.data);
             savePost(id, res.data);
             Swal.fire("Post Updated", "Your post has been edited", "success");
           })
-          .catch((error) => {
+          .catch(error => {
             console.error("Error updating post:", error);
             Swal.showValidationMessage("Failed to update post.");
           });
@@ -202,17 +191,13 @@ export default function Postpage() {
 
     setReplying(true);
 
-    axios
-      .post(
-        `${config.apiUrl}/posts`,
-        { content: postContent, reply: id },
-        { headers: { Authorization: localStorage.getItem("accountToken") } }
-      )
-      .then((res) => {
+    api
+      .post(`/posts`, { content: postContent, reply: id })
+      .then(res => {
         setPost(res.data);
         savePost(id, res.data);
       })
-      .catch((error) => {
+      .catch(error => {
         console.error("Error sending reply:", error);
       })
       .finally(() => setReplying(false));
@@ -221,7 +206,7 @@ export default function Postpage() {
   }
 
   function toggleEmojiPanel() {
-    setShowEmojiPanel((prev) => !prev);
+    setShowEmojiPanel(prev => !prev);
   }
 
   return (
@@ -251,32 +236,24 @@ export default function Postpage() {
 
                 {user && post && user?.id === post?.author?.id && (
                   <button onClick={editPost} disabled={!user}>
-                    <i
-                      style={{ color: "#ffffff" }}
-                      className="fa-solid fa-pen"
-                    />
+                    <i style={{ color: "#ffffff" }} className="fa-solid fa-pen" />
                     Edit
                   </button>
                 )}
 
-                {user &&
-                  post &&
-                  (user?.isModerator || user?.id === post?.author?.id) && (
-                    <button onClick={deletePost} disabled={!user}>
-                      <i
-                        style={{ color: "#ff4545" }}
-                        className="fa-solid fa-trash"
-                      />
-                      Delete
-                    </button>
-                  )}
+                {user && post && (user?.isModerator || user?.id === post?.author?.id) && (
+                  <button onClick={deletePost} disabled={!user}>
+                    <i style={{ color: "#ff4545" }} className="fa-solid fa-trash" />
+                    Delete
+                  </button>
+                )}
               </div>
 
               <div className="line" />
 
               <p className="small title">Replies</p>
 
-              {(user?.id && user?.readOnly !== true) && (
+              {user?.id && user?.readOnly !== true && (
                 <div
                   style={{
                     width: "100%",
@@ -286,15 +263,13 @@ export default function Postpage() {
                   }}
                 >
                   <div style={{ display: "flex", gap: "5px" }}>
-                    {["edit", "preview"].map((tab) => (
+                    {["edit", "preview"].map(tab => (
                       <button
                         key={tab}
                         onClick={() => setActiveTab(tab)}
                         style={{
                           background:
-                            activeTab === tab
-                              ? "var(--foreground)"
-                              : "var(--midground)",
+                            activeTab === tab ? "var(--foreground)" : "var(--midground)",
                         }}
                       >
                         {tab === "edit" ? "Edit" : "Preview"}
@@ -334,12 +309,10 @@ export default function Postpage() {
                     {activeTab === "edit" ? (
                       <textarea
                         value={replyContent}
-                        onChange={(e) => setReplyContent(e.target.value)}
+                        onChange={e => setReplyContent(e.target.value)}
                         disabled={!user?.id}
                         placeholder={
-                          user.username
-                            ? `What's new, ${user.username}?`
-                            : "What's new?"
+                          user.username ? `What's new, ${user.username}?` : "What's new?"
                         }
                         style={{
                           padding: "8px",
@@ -376,12 +349,10 @@ export default function Postpage() {
                   </div>
                 </div>
               )}
-              {(user?.id && user?.readOnly === true) && <p>This account is read-only.</p>}
+              {user?.id && user?.readOnly === true && <p>This account is read-only.</p>}
 
               {post?.replies && post?.replies.length > 0 ? (
-                post.replies.map((reply) => (
-                  <Post key={reply.id} data={reply} />
-                ))
+                post.replies.map(reply => <Post key={reply.id} data={reply} />)
               ) : (
                 <p>Nobody has replied yet.</p>
               )}

@@ -4,7 +4,8 @@ import config from "../config.js";
 import Swal from "sweetalert2";
 import { useNavigate } from "react-router-dom";
 import Loading from "../components/Loading.jsx";
-import cache, { getUserCached } from "../cache.ts";
+import cache, { getUserCached, clearUserCached } from "../cache.ts";
+import api from "../api.js";
 
 const setStyle = (property, value) =>
   document.documentElement.style.setProperty(property, value);
@@ -65,7 +66,7 @@ export default function Settings() {
   useEffect(() => {
     const savedTheme = localStorage.getItem("themeSettings");
     if (savedTheme) {
-      setTheme((prevTheme) => ({ ...prevTheme, ...JSON.parse(savedTheme) }));
+      setTheme(prevTheme => ({ ...prevTheme, ...JSON.parse(savedTheme) }));
     }
 
     const savedLayout = localStorage.getItem("layoutSettings");
@@ -79,7 +80,7 @@ export default function Settings() {
 
     if (file) {
       const reader = new FileReader();
-      reader.onload = (e) => setAvatarFileURI(e.target.result);
+      reader.onload = e => setAvatarFileURI(e.target.result);
       reader.readAsDataURL(file);
     } else {
       setAvatarFileURI("");
@@ -93,7 +94,7 @@ export default function Settings() {
 
     if (file) {
       const reader = new FileReader();
-      reader.onload = (e) => setBannerFileURI(e.target.result);
+      reader.onload = e => setBannerFileURI(e.target.result);
       reader.readAsDataURL(file);
     } else {
       setBannerFileURI("");
@@ -137,14 +138,13 @@ export default function Settings() {
     const formData = new FormData();
     formData.append("avatar", avatarFile);
 
-    axios
-      .post(`${config.apiUrl}/users/me/avatar`, formData, {
+    api
+      .post("/users/me/avatar", formData, {
         headers: {
-          Authorization: localStorage.getItem("accountToken"),
           "Content-Type": "multipart/form-data",
         },
       })
-      .then((data) => {
+      .then(data => {
         if (data.data) cache["user"] = data.data;
         document.getElementById("avatarUpload").value = "";
 
@@ -154,7 +154,7 @@ export default function Settings() {
           animation: true,
         });
       })
-      .catch((error) => {
+      .catch(error => {
         Swal.fire({
           title: "Avatar Uploading Error",
           text: error?.response?.data?.error ?? error,
@@ -169,14 +169,13 @@ export default function Settings() {
     const formData = new FormData();
     formData.append("banner", bannerFile);
 
-    axios
-      .post(`${config.apiUrl}/users/me/banner`, formData, {
+    api
+      .post("/users/me/banner", formData, {
         headers: {
-          Authorization: localStorage.getItem("accountToken"),
           "Content-Type": "multipart/form-data",
         },
       })
-      .then((data) => {
+      .then(data => {
         if (data.data) cache["user"] = data.data;
         document.getElementById("bannerUpload").value = "";
 
@@ -186,7 +185,7 @@ export default function Settings() {
           animation: true,
         });
       })
-      .catch((error) => {
+      .catch(error => {
         Swal.fire({
           title: "Banner Uploading Error",
           text: error?.response?.data?.error ?? error,
@@ -196,13 +195,9 @@ export default function Settings() {
   }
 
   function deleteAvatar() {
-    axios
-      .delete(`${config.apiUrl}/users/me/avatar`, {
-        headers: {
-          Authorization: localStorage.getItem("accountToken"),
-        },
-      })
-      .then((res) => {
+    api
+      .delete("/users/me/avatar")
+      .then(res => {
         cache["user"] = res.data;
         setAvatarFile(null);
         setAvatarFileURI("");
@@ -211,7 +206,7 @@ export default function Settings() {
           text: "The changes will be visible on the next page reload",
         });
       })
-      .catch((error) => {
+      .catch(error => {
         Swal.fire({
           title: "Failed to delete avatar",
           text: error?.response?.data?.error ?? error,
@@ -220,13 +215,9 @@ export default function Settings() {
   }
 
   function deleteBanner() {
-    axios
-      .delete(`${config.apiUrl}/users/me/banner`, {
-        headers: {
-          Authorization: localStorage.getItem("accountToken"),
-        },
-      })
-      .then((res) => {
+    api
+      .delete("/users/me/banner")
+      .then(res => {
         cache["user"] = res.data;
         setBannerFile(null);
         setBannerFileURI("");
@@ -235,7 +226,7 @@ export default function Settings() {
           text: "The changes will be visible on the next page reload",
         });
       })
-      .catch((error) => {
+      .catch(error => {
         Swal.fire({
           title: "Failed to delete banner",
           text: error?.response?.data?.error ?? error,
@@ -245,9 +236,7 @@ export default function Settings() {
 
   async function handleChangePassword(e) {
     e.preventDefault();
-    const currentPassword = document
-      .getElementById("currentPassword")
-      .value.trim();
+    const currentPassword = document.getElementById("currentPassword").value.trim();
     const newPassword = document.getElementById("newPassword").value.trim();
 
     if (!currentPassword || !newPassword)
@@ -257,13 +246,7 @@ export default function Settings() {
       });
 
     try {
-      await axios.post(
-        `${config.apiUrl}/users/me/changePassword`,
-        { currentPassword, newPassword },
-        {
-          headers: { Authorization: localStorage.getItem("accountToken") },
-        }
-      );
+      await api.post("/users/me/changePassword", { currentPassword, newPassword });
 
       Swal.fire({
         title: "Password Changed",
@@ -280,8 +263,11 @@ export default function Settings() {
     }
   }
 
-  function logout() {
-    localStorage.removeItem("accountToken");
+  async function logout() {
+    try {
+      await api.post("/users/logout");
+    } catch (e) {}
+    clearUserCached();
     window.location.replace("/login");
   }
 
@@ -298,13 +284,12 @@ export default function Settings() {
         {user ? (
           <>
             <div className="horizontal fit-all" style={{ gap: "5px" }}>
-              {["profile", "theme", "layout", "account"].map((name) => (
+              {["profile", "theme", "layout", "account"].map(name => (
                 <button
                   key={name}
                   onClick={() => setTab(name)}
                   style={{
-                    background:
-                      tab === name ? "var(--foreground)" : "var(--midground)",
+                    background: tab === name ? "var(--foreground)" : "var(--midground)",
                   }}
                 >
                   {name.charAt(0).toUpperCase() + name.slice(1)}
@@ -329,10 +314,7 @@ export default function Settings() {
                 />
 
                 <div className="horizontal fit-all" style={{ gap: "5px" }}>
-                  <button
-                    disabled={avatarFileURI === ""}
-                    onClick={handleAvatarSubmit}
-                  >
+                  <button disabled={avatarFileURI === ""} onClick={handleAvatarSubmit}>
                     Submit Avatar
                   </button>
                   <button
@@ -382,10 +364,7 @@ export default function Settings() {
                 />
 
                 <div className="horizontal fit-all" style={{ gap: "5px" }}>
-                  <button
-                    disabled={bannerFileURI === ""}
-                    onClick={handleBannerSubmit}
-                  >
+                  <button disabled={bannerFileURI === ""} onClick={handleBannerSubmit}>
                     Submit Banner
                   </button>
                   <button
@@ -420,15 +399,13 @@ export default function Settings() {
                 </div>
               </div>
               <div className={tab === "theme" ? "settings" : "hidden"}>
-                {Object.keys(theme).map((key) => (
+                {Object.keys(theme).map(key => (
                   <div key={key} className="horizontal" style={{ gap: "5px" }}>
-                    <label>
-                      {key.charAt(0).toUpperCase() + key.slice(1)}:{" "}
-                    </label>
+                    <label>{key.charAt(0).toUpperCase() + key.slice(1)}: </label>
                     <input
                       type="color"
                       value={theme[key]}
-                      onChange={(e) => handleThemeChange(key, e.target.value)}
+                      onChange={e => handleThemeChange(key, e.target.value)}
                     />
                   </div>
                 ))}
@@ -458,9 +435,7 @@ export default function Settings() {
                   <input
                     type="checkbox"
                     checked={window?.layout?.showUserTag ?? true}
-                    onChange={(e) =>
-                      handleLayoutChange("showUserTag", e.target.checked)
-                    }
+                    onChange={e => handleLayoutChange("showUserTag", e.target.checked)}
                   />
                   <label>Show User Tag</label>
                 </div>
@@ -468,7 +443,7 @@ export default function Settings() {
                   <input
                     type="checkbox"
                     checked={window?.layout?.showToolbarLogo ?? true}
-                    onChange={(e) =>
+                    onChange={e =>
                       handleLayoutChange("showToolbarLogo", e.target.checked)
                     }
                   />
@@ -498,13 +473,7 @@ export default function Settings() {
                 <hr />
 
                 {!user.github || !user.github.id ? (
-                  <a
-                    href={`${config.apiUrl}/auth/github?token=${
-                      localStorage.getItem("accountToken") || ""
-                    }`}
-                  >
-                    Add GitHub account
-                  </a>
+                  <a href={`${config.apiUrl}/auth/github`}>Add GitHub account</a>
                 ) : (
                   <p>Logged in with GitHub account ({user.github?.username || "🎉"})</p>
                 )}
